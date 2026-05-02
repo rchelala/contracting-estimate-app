@@ -45,7 +45,7 @@ decisions:
 metrics:
   duration: "~20 minutes"
   completed_date: "2026-05-02"
-  tasks_completed: 2
+  tasks_completed: 3
   tasks_total: 3
   files_created: 7
   files_modified: 1
@@ -62,7 +62,26 @@ JWT session lifecycle for EstimateFlow: `useAuth` hook mirroring Supabase auth s
 | 1 (RED) | Failing tests for useAuth | 1f7b1c0 | src/hooks/useAuth.test.ts |
 | 1 (GREEN) | useAuth hook implementation | 6b18918 | src/hooks/useAuth.ts, src/hooks/useAuth.test.ts |
 | 2 | Router tree, RequireAuth, all pages | 3027de0 | src/App.tsx, src/components/RequireAuth.tsx, src/pages/AuthPage.tsx, src/pages/AuthCallback.tsx, src/pages/OnboardingPage.tsx, src/pages/DashboardPage.tsx |
-| 3 | Human verify checkpoint | — | awaiting |
+| 3 | Human verify checkpoint — PASSED | manual | All 10 auth lifecycle checks |
+
+## Manual Verification Result (Task 3)
+
+All 10 auth lifecycle checks passed on 2026-05-02:
+
+| Step | Check | Result |
+|------|-------|--------|
+| 1 | Unauthenticated `/` redirects to `/auth` | PASS |
+| 2 | Unauthenticated `/dashboard` redirects to `/auth` | PASS |
+| 3 | Sign up flow works | PASS |
+| 4 | Email verify link → `/auth/callback` → `/onboarding` (no membership row) | PASS |
+| 5 | Session persists on refresh at `/onboarding` | PASS |
+| 6 | Sign out from `/dashboard` returns to `/auth` | PASS |
+| 7 | Sign back in routes to `/onboarding` (still no membership row) | PASS |
+| 8 | Forgot password email arrives and works | PASS |
+| 9 | Visiting `/auth` while signed in redirects forward | PASS |
+| 10 | `/onboarding` shows "Onboarding (Plan 03)" stub — correct and expected | PASS |
+
+AUTH-01 through AUTH-05 and DASH-01 confirmed complete.
 
 ## ThemeSupa Override Values Used
 

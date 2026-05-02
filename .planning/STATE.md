@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 1 UI-SPEC approved
-last_updated: "2026-05-02T22:20:51.532Z"
-last_activity: 2026-05-02 -- Phase 1 planning complete
+stopped_at: "Completed 01-02-PLAN.md — auth shell verified end-to-end"
+last_updated: "2026-05-02T23:30:00.000Z"
+last_activity: 2026-05-02 -- Plan 02 auth shell complete, manual verify passed
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 4
-  completed_plans: 0
-  percent: 0
+  completed_plans: 2
+  percent: 50
 ---
 
 # Project State
@@ -26,30 +26,30 @@ See: .planning/PROJECT.md (updated 2026-05-02)
 ## Current Position
 
 Phase: 1 of 3 (Auth, Org & Dashboard)
-Plan: 0 of TBD in current phase
-Status: Ready to execute
-Last activity: 2026-05-02 -- Phase 1 planning complete
+Plan: 3 of 4 in current phase (Plans 01 and 02 complete)
+Status: Executing — ready for Plan 03
+Last activity: 2026-05-02 -- Plan 02 auth shell complete, manual verify passed
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [█████░░░░░] 50%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 0
-- Average duration: —
-- Total execution time: 0 hours
+- Total plans completed: 2
+- Average duration: ~25 minutes
+- Total execution time: ~50 minutes
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 01 auth-org-dashboard | 2/4 | ~50 min | ~25 min |
 
 **Recent Trend:**
 
-- Last 5 plans: —
-- Trend: —
+- Last 5 plans: 01-01 (~30 min), 01-02 (~20 min)
+- Trend: On pace
 
 *Updated after each plan completion*
 
@@ -64,19 +64,22 @@ Recent decisions affecting current work:
 - Pre-Phase 1: MVP = estimates-only; client portal, payments, invoices, and automations are v2 scope.
 - Pre-Phase 1: AI pricing decision resolved — AI included in both free and pro tiers, no separate billing for MVP.
 - Pre-Phase 1: Free tier = 5 estimates/month, Pro = unlimited.
+- Plan 01: vi.hoisted() required for Vitest mock variables inside vi.mock() factory — standard pattern going forward.
+- Plan 01: Tailwind v4 uses @import "tailwindcss" in CSS (no config file needed); PostCSS plugin is @tailwindcss/vite.
+- Plan 02: ThemeSupa overrides: brand=#2563EB, brandAccent=#1D4ED8, borderRadiusButton/inputBorderRadius=6px.
+- Plan 02: @supabase/auth-ui-react is archived upstream — locked decision D-01, proceeding as-is.
+- Plan 02: AuthCallback fails closed on RLS error (routes to /onboarding, not /auth).
 
 ### Pending Todos
 
-None yet.
+None.
 
 ### Blockers/Concerns
 
-- Stage 1 branch (`stage1-schema`) must be merged to main before Phase 1 execution begins.
-- Missing frontend dependencies need installing before any UI work: Tailwind CSS, React Router v6, Zustand, @dnd-kit/core, idb-keyval.
-- `.env.example` and Vercel configuration are not yet created; needed before first deployment.
+None — all pre-execution blockers resolved (deps installed in Plan 01, schema on main).
 
 ## Session Continuity
 
-Last session: 2026-05-02T21:50:54.901Z
-Stopped at: Phase 1 UI-SPEC approved
-Resume file: .planning/phases/01-auth-org-dashboard/01-UI-SPEC.md
+Last session: 2026-05-02T23:30:00.000Z
+Stopped at: Completed 01-02-PLAN.md — auth shell verified end-to-end
+Resume file: .planning/phases/01-auth-org-dashboard/01-03-PLAN.md

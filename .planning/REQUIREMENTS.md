@@ -7,22 +7,22 @@
 
 ### Authentication
 
-- [ ] **AUTH-01**: User can sign up with email and password
-- [ ] **AUTH-02**: User receives email verification after signup
-- [ ] **AUTH-03**: User can reset password via email link
-- [ ] **AUTH-04**: User session persists across browser refresh and tab close
-- [ ] **AUTH-05**: User can log out from any page
+- [x] **AUTH-01**: User can sign up with email and password
+- [x] **AUTH-02**: User receives email verification after signup
+- [x] **AUTH-03**: User can reset password via email link
+- [x] **AUTH-04**: User session persists across browser refresh and tab close
+- [x] **AUTH-05**: User can log out from any page
 
 ### Organization
 
 - [ ] **ORG-01**: First sign-up creates an organization with the user as owner
 - [ ] **ORG-02**: Organization name is set during onboarding (can be edited later)
 - [ ] **ORG-03**: organization_members row created with role='owner' on org creation
-- [ ] **ORG-04**: All subsequent queries are scoped to the user's organization via RLS
+- [x] **ORG-04**: All subsequent queries are scoped to the user's organization via RLS
 
 ### Dashboard
 
-- [ ] **DASH-01**: Authenticated user lands on dashboard showing their organization context
+- [x] **DASH-01**: Authenticated user lands on dashboard showing their organization context
 - [ ] **DASH-02**: Dashboard lists all estimates for the organization (empty state on first load)
 - [ ] **DASH-03**: Estimate list shows: estimate number, client name, status, total, last updated
 - [ ] **DASH-04**: User can navigate to create a new estimate from the dashboard
@@ -128,16 +128,16 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1 | Pending |
-| AUTH-02 | Phase 1 | Pending |
-| AUTH-03 | Phase 1 | Pending |
-| AUTH-04 | Phase 1 | Pending |
-| AUTH-05 | Phase 1 | Pending |
+| AUTH-01 | Phase 1 | Complete |
+| AUTH-02 | Phase 1 | Complete |
+| AUTH-03 | Phase 1 | Complete |
+| AUTH-04 | Phase 1 | Complete |
+| AUTH-05 | Phase 1 | Complete |
 | ORG-01 | Phase 1 | Pending |
 | ORG-02 | Phase 1 | Pending |
 | ORG-03 | Phase 1 | Pending |
-| ORG-04 | Phase 1 | Pending |
-| DASH-01 | Phase 1 | Pending |
+| ORG-04 | Phase 1 | Complete |
+| DASH-01 | Phase 1 | Complete |
 | DASH-02 | Phase 1 | Pending |
 | DASH-03 | Phase 1 | Pending |
 | DASH-04 | Phase 1 | Pending |
