@@ -42,12 +42,12 @@ decisions:
   - "create_organization is SECURITY DEFINER to bypass missing INSERT policy on organizations — org name is trimmed and length-checked inside the function, owner bound to auth.uid() (cannot be spoofed)"
   - "vercel.json rewrite pattern /((?!api/).*) preserves /api/* routes for Vercel serverless"
 metrics:
-  duration: "~15 minutes"
+  duration: "~25 minutes (including human-action gate for schema push)"
   completed_date: "2026-05-02"
-  tasks_completed: 3
+  tasks_completed: 4
   tasks_total: 4
   files_created: 2
-  files_modified: 6
+  files_modified: 7
 ---
 
 # Phase 1 Plan 01: Foundation Summary
@@ -61,7 +61,7 @@ Foundation plan that merges Stage 1 data layer, installs all Phase 1 frontend de
 | 1 | Merge stage1-schema into master | bd75fac | 38 files (migrations, types, money utils, supabase client) |
 | 2 | Install Phase 1 deps + configure Tailwind v4/Vite/Vercel/Supabase | 5cc842b | package.json, vite.config.ts, src/index.css, src/App.tsx, vercel.json, supabase/config.toml |
 | 3 | Add create_organization SECURITY DEFINER migration | 2f66b15 | supabase/migrations/20260502000012_create_organization_rpc.sql |
-| 4 | Push schema to Supabase | — | BLOCKED — awaiting human action (see below) |
+| 4 | Push schema to Supabase | 8446f8f | supabase/migrations/ (12 migrations applied to sfkdtwirkdpagxcflrwr) |
 
 ## Dependency Versions Installed
 
@@ -96,13 +96,45 @@ Key hardening measures implemented per threat model T-01-01 and T-01-02:
 
 ## Schema Push Status
 
-Task 4 (schema push) is blocked — requires `supabase link` to connect to a Supabase project and `SUPABASE_ACCESS_TOKEN` credentials. The local `npx supabase db push` returned "Cannot find project ref. Have you run supabase link?"
+Task 4 complete. All 12 migrations applied to Supabase project `sfkdtwirkdpagxcflrwr` (Contracting Estimate App).
 
-This is a human-action gate. Once the user runs `supabase link` and provides credentials, `supabase db push --include-all` will apply all 12 migrations.
+### pgcrypto Fix (Deviation)
+
+During push, migration `20260502000005_estimates.sql` failed because `gen_random_bytes(24)` was not on the default search path — pgcrypto is installed in Supabase's `extensions` schema, not `public`. The fix was to qualify the call as `extensions.gen_random_bytes(24)`.
+
+- **Original:** `DEFAULT encode(gen_random_bytes(24), 'base64')`
+- **Fixed:** `DEFAULT encode(extensions.gen_random_bytes(24), 'base64')`
+- **Commit:** `8446f8f fix(schema): use extensions.gen_random_bytes for Supabase pgcrypto compatibility`
+
+### Migration List (12 applied)
+
+```
+  20260502000001_enums.sql                         ✓ applied
+  20260502000002_rls_helpers.sql                   ✓ applied
+  20260502000003_organizations.sql                 ✓ applied
+  20260502000004_clients.sql                       ✓ applied
+  20260502000005_estimates.sql                     ✓ applied
+  20260502000006_estimate_sections_line_items.sql  ✓ applied
+  20260502000007_estimate_attachments.sql          ✓ applied
+  20260502000008_invoices_payments.sql             ✓ applied
+  20260502000009_ai_automations.sql                ✓ applied
+  20260502000010_tax_rates.sql                     ✓ applied
+  20260502000011_functions.sql                     ✓ applied
+  20260502000012_create_organization_rpc.sql       ✓ applied
+```
+
+All 12 local migrations match remote. `create_organization` RPC is live.
 
 ## Deviations from Plan
 
-None — plan executed exactly as written for Tasks 1–3. Task 4 is a legitimate blocking human-action checkpoint.
+### Auto-fixed Issues
+
+**1. [Rule 1 - Bug] Fixed pgcrypto search_path in migration 05**
+- **Found during:** Task 4 (schema push)
+- **Issue:** `gen_random_bytes(24)` failed on push because pgcrypto functions live in Supabase's `extensions` schema, not on the default search path. The column default `encode(gen_random_bytes(24), 'base64')` on `estimates.public_token` caused the migration to error.
+- **Fix:** Changed call to `extensions.gen_random_bytes(24)` to qualify the schema explicitly.
+- **Files modified:** `supabase/migrations/20260502000005_estimates.sql`
+- **Commit:** `8446f8f`
 
 ## Known Stubs
 
@@ -112,14 +144,14 @@ None — plan executed exactly as written for Tasks 1–3. Task 4 is a legitimat
 
 No new threat surface introduced beyond what the plan's threat model covers. The SECURITY DEFINER RPC (T-01-01, T-01-02) is hardened as designed.
 
-## Self-Check: PARTIAL
+## Self-Check: PASSED
 
-Tasks 1–3 verified:
+All 4 tasks verified:
 - FOUND: supabase/migrations/20260502000012_create_organization_rpc.sql
 - FOUND: vercel.json
-- FOUND: commits bd75fac, 5cc842b, 2f66b15
+- FOUND: commits bd75fac, 5cc842b, 2f66b15, 8446f8f
 - FOUND: npm run build exits 0
 - FOUND: npm run lint exits 0
 - FOUND: npm run type-check exits 0
-
-Task 4: BLOCKED — schema push pending human action (supabase link + credentials).
+- FOUND: 12 migrations applied to remote Supabase project sfkdtwirkdpagxcflrwr (user confirmed)
+- FOUND: create_organization RPC live in database

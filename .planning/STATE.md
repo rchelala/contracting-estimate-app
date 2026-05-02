@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 1 UI-SPEC approved
-last_updated: "2026-05-02T22:20:51.532Z"
-last_activity: 2026-05-02 -- Phase 1 planning complete
+stopped_at: "Completed 01-01-PLAN.md"
+last_updated: "2026-05-02T22:45:00.000Z"
+last_activity: 2026-05-02 -- Phase 1 Plan 01 (Foundation) complete
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 4
-  completed_plans: 0
-  percent: 0
+  completed_plans: 1
+  percent: 25
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-05-02)
 ## Current Position
 
 Phase: 1 of 3 (Auth, Org & Dashboard)
-Plan: 0 of TBD in current phase
-Status: Ready to execute
-Last activity: 2026-05-02 -- Phase 1 planning complete
+Plan: 1 of 4 in current phase (01-01 complete)
+Status: Executing
+Last activity: 2026-05-02 -- Phase 1 Plan 01 (Foundation) complete
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██░░░░░░░░] 25%
 
 ## Performance Metrics
 
@@ -64,6 +64,10 @@ Recent decisions affecting current work:
 - Pre-Phase 1: MVP = estimates-only; client portal, payments, invoices, and automations are v2 scope.
 - Pre-Phase 1: AI pricing decision resolved — AI included in both free and pro tiers, no separate billing for MVP.
 - Pre-Phase 1: Free tier = 5 estimates/month, Pro = unlimited.
+- 01-01: Used @tailwindcss/vite plugin (not PostCSS) for Tailwind v4 — zero config required, faster HMR.
+- 01-01: create_organization is SECURITY DEFINER to bypass missing INSERT policy on organizations — org name trimmed/length-checked inside function, owner bound to auth.uid().
+- 01-01: vercel.json rewrite pattern /((?!api/).*) preserves /api/* routes for Vercel serverless.
+- 01-01: pgcrypto fix — qualified gen_random_bytes as extensions.gen_random_bytes in migration 05 for Supabase compatibility.
 
 ### Pending Todos
 
@@ -77,6 +81,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-02T21:50:54.901Z
-Stopped at: Phase 1 UI-SPEC approved
-Resume file: .planning/phases/01-auth-org-dashboard/01-UI-SPEC.md
+Last session: 2026-05-02T22:45:00.000Z
+Stopped at: Completed 01-01-PLAN.md
+Resume file: .planning/phases/01-auth-org-dashboard/01-02-PLAN.md
