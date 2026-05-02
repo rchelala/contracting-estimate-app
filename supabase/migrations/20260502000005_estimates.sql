@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 CREATE TABLE estimate_sequences (
   organization_id  uuid     PRIMARY KEY REFERENCES organizations(id) ON DELETE CASCADE,
   last_number      integer  NOT NULL DEFAULT 0
@@ -16,7 +18,7 @@ CREATE TABLE estimates (
   subtotal_cents        integer          NOT NULL DEFAULT 0,
   tax_cents             integer          NOT NULL DEFAULT 0,
   total_cents           integer          NOT NULL DEFAULT 0,
-  public_token          text             NOT NULL UNIQUE DEFAULT encode(gen_random_bytes(24), 'base64'),
+  public_token          text             NOT NULL UNIQUE DEFAULT encode(extensions.gen_random_bytes(24), 'base64'),
   issued_at             timestamptz,
   expires_at            timestamptz,
   sent_at               timestamptz,
