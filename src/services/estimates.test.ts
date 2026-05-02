@@ -49,7 +49,7 @@ describe('listEstimates', () => {
     expect(mockOrder).toHaveBeenCalledWith('updated_at', { ascending: false })
     expect(mockLimit).toHaveBeenCalledWith(200)
     expect(result).toHaveLength(1)
-    expect(result[0].id).toBe('est-1')
+    expect(result.at(0)?.id).toBe('est-1')
   })
 
   it('rejects with the error when the query fails', async () => {
@@ -84,7 +84,7 @@ describe('listEstimates', () => {
 
     const result = await listEstimates()
 
-    expect(result[0].client_name).toBe('Test Client')
-    expect(result[1].client_name).toBeNull()
+    expect(result.at(0)?.client_name).toBe('Test Client')
+    expect(result.at(1)?.client_name).toBeNull()
   })
 })
