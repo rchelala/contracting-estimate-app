@@ -1,94 +1,63 @@
 import { renderHook, act, waitFor } from '@testing-library/react'
-import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import type { Session } from '@supabase/supabase-js'
+
+// Use vi.hoisted so mock variables are available inside vi.mock factory
+const { mockGetSession, mockOnAuthStateChange, mockSignOut } = vi.hoisted(() => ({
+  mockGetSession: vi.fn(),
+  mockOnAuthStateChange: vi.fn(),
+  mockSignOut: vi.fn(),
+}))
+
+vi.mock('../lib/supabase', () => ({
+  supabase: {
+    auth: {
+      getSession: mockGetSession,
+      onAuthStateChange: mockOnAuthStateChange,
+      signOut: mockSignOut,
+    },
+  },
+}))
+
 import { useAuth } from './useAuth'
 
-// Mock the supabase module
-vi.mock('../lib/supabase', () => {
-  const unsubscribeMock = vi.fn()
-  const onAuthStateChangeMock = vi.fn(() => ({
-    data: { subscription: { unsubscribe: unsubscribeMock } },
-  }))
-  const getSessionMock = vi.fn(() =>
-    Promise.resolve({ data: { session: null }, error: null })
-  )
-  const signOutMock = vi.fn(() => Promise.resolve({ error: null }))
-
-  return {
-    supabase: {
-      auth: {
-        getSession: getSessionMock,
-        onAuthStateChange: onAuthStateChangeMock,
-        signOut: signOutMock,
-      },
-    },
-  }
-})
-
-// Helper to get mocks after module mock is set up
-async function getMocks() {
-  const { supabase } = await import('../lib/supabase')
-  return {
-    getSession: supabase.auth.getSession as Mock,
-    onAuthStateChange: supabase.auth.onAuthStateChange as Mock,
-    signOut: supabase.auth.signOut as Mock,
-    // Get the unsubscribe mock from within the subscription
-    getUnsubscribe: () => {
-      const result = (supabase.auth.onAuthStateChange as Mock).mock.results[0]
-      return result?.value?.data?.subscription?.unsubscribe as Mock
-    },
-  }
-}
-
-const fakeSession = {
-  user: { id: 'user-1', email: 'test@example.com' },
+const fakeSession: Session = {
+  user: { id: 'user-1', email: 'test@example.com' } as Session['user'],
   access_token: 'token-123',
-} as unknown as import('@supabase/supabase-js').Session
+} as Session
 
 describe('useAuth', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    // Reset getSession to return null by default
-    vi.doMock('../lib/supabase', () => {
-      const unsubscribeMock = vi.fn()
-      return {
-        supabase: {
-          auth: {
-            getSession: vi.fn(() =>
-              Promise.resolve({ data: { session: null }, error: null })
-            ),
-            onAuthStateChange: vi.fn(() => ({
-              data: { subscription: { unsubscribe: unsubscribeMock } },
-            })),
-            signOut: vi.fn(() => Promise.resolve({ error: null })),
-          },
-        },
-      }
+    // Default: getSession resolves with no session
+    mockGetSession.mockResolvedValue({ data: { session: null }, error: null })
+    // Default: onAuthStateChange returns a subscription with a no-op unsubscribe
+    mockOnAuthStateChange.mockReturnValue({
+      data: { subscription: { unsubscribe: vi.fn() } },
     })
+    mockSignOut.mockResolvedValue({ error: null })
   })
 
   it('Test 1: returns { session: null, loading: true } while getSession is pending', async () => {
-    const mocks = await getMocks()
-    // Make getSession never resolve during this test
     let resolveSession!: (val: { data: { session: null }; error: null }) => void
-    mocks.getSession.mockReturnValue(
-      new Promise((resolve) => {
+    mockGetSession.mockReturnValue(
+      new Promise<{ data: { session: null }; error: null }>((resolve) => {
         resolveSession = resolve
       })
     )
 
     const { result } = renderHook(() => useAuth())
 
-    // Should be loading immediately
+    // Before getSession resolves: loading = true, session = null
     expect(result.current.loading).toBe(true)
     expect(result.current.session).toBeNull()
 
-    // Clean up
+    // Clean up pending promise to avoid open handle warnings
     resolveSession({ data: { session: null }, error: null })
   })
 
   it('Test 2: returns { session, loading: false } after getSession resolves with a session', async () => {
-    const mocks = await getMocks()
-    mocks.getSession.mockResolvedValue({ data: { session: fakeSession }, error: null })
+    mockGetSession.mockResolvedValue({ data: { session: fakeSession }, error: null })
 
     const { result } = renderHook(() => useAuth())
 
@@ -97,8 +66,7 @@ describe('useAuth', () => {
   })
 
   it('Test 3: returns { session: null, loading: false } after getSession resolves with null', async () => {
-    const mocks = await getMocks()
-    mocks.getSession.mockResolvedValue({ data: { session: null }, error: null })
+    mockGetSession.mockResolvedValue({ data: { session: null }, error: null })
 
     const { result } = renderHook(() => useAuth())
 
@@ -107,12 +75,11 @@ describe('useAuth', () => {
   })
 
   it('Test 4: onAuthStateChange updates session when fired with a new value', async () => {
-    const mocks = await getMocks()
-    mocks.getSession.mockResolvedValue({ data: { session: null }, error: null })
+    mockGetSession.mockResolvedValue({ data: { session: null }, error: null })
 
-    let capturedCallback!: (event: string, session: typeof fakeSession | null) => void
-    mocks.onAuthStateChange.mockImplementation(
-      (cb: (event: string, session: typeof fakeSession | null) => void) => {
+    let capturedCallback!: (event: string, session: Session | null) => void
+    mockOnAuthStateChange.mockImplementation(
+      (cb: (event: string, session: Session | null) => void) => {
         capturedCallback = cb
         return { data: { subscription: { unsubscribe: vi.fn() } } }
       }
@@ -129,28 +96,23 @@ describe('useAuth', () => {
   })
 
   it('Test 5: on unmount, subscription.unsubscribe() is called', async () => {
-    const mocks = await getMocks()
-    mocks.getSession.mockResolvedValue({ data: { session: null }, error: null })
+    mockGetSession.mockResolvedValue({ data: { session: null }, error: null })
 
-    const unsubscribeMock = vi.fn()
-    mocks.onAuthStateChange.mockReturnValue({
-      data: { subscription: { unsubscribe: unsubscribeMock } },
+    const localUnsubscribe = vi.fn()
+    mockOnAuthStateChange.mockReturnValue({
+      data: { subscription: { unsubscribe: localUnsubscribe } },
     })
 
-    const { unmount } = renderHook(() => useAuth())
-    await waitFor(() => {
-      // ensure the hook mounted and subscribed
-      expect(mocks.onAuthStateChange).toHaveBeenCalled()
-    })
+    const { result, unmount } = renderHook(() => useAuth())
+    await waitFor(() => expect(result.current.loading).toBe(false))
 
     unmount()
 
-    expect(unsubscribeMock).toHaveBeenCalledOnce()
+    expect(localUnsubscribe).toHaveBeenCalledOnce()
   })
 
   it('Test 6: signOut calls supabase.auth.signOut()', async () => {
-    const mocks = await getMocks()
-    mocks.getSession.mockResolvedValue({ data: { session: null }, error: null })
+    mockGetSession.mockResolvedValue({ data: { session: null }, error: null })
 
     const { result } = renderHook(() => useAuth())
     await waitFor(() => expect(result.current.loading).toBe(false))
@@ -159,6 +121,6 @@ describe('useAuth', () => {
       await result.current.signOut()
     })
 
-    expect(mocks.signOut).toHaveBeenCalledOnce()
+    expect(mockSignOut).toHaveBeenCalledOnce()
   })
 })
