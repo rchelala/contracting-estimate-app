@@ -28,7 +28,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. A contractor who forgot their password can reset it via an emailed link and log back in
   4. The dashboard lists all estimates for the org (empty state on first load) with estimate number, client name, status, total, and last updated
   5. The dashboard has a visible "New Estimate" action that navigates to estimate creation
-**Plans**: TBD
+**Plans**: 4 plans
+  - [ ] 01-01-PLAN.md — Foundation: stage1 merge, dependencies, Tailwind v4, create_organization RPC, schema push (Wave 1)
+  - [ ] 01-02-PLAN.md — Auth shell: useAuth, router tree, AuthPage, AuthCallback, RequireAuth (Wave 2)
+  - [ ] 01-03-PLAN.md — Onboarding: company name form + create_organization RPC wiring (Wave 3)
+  - [ ] 01-04-PLAN.md — Dashboard: TopNav, estimates table, empty/loading/error states, sign-out popover (Wave 3)
 **UI hint**: yes
 
 ### Phase 2: Estimate Editor
@@ -63,6 +67,6 @@ Phases execute in order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Auth, Org & Dashboard | 0/TBD | Not started | - |
+| 1. Auth, Org & Dashboard | 0/4 | Not started | - |
 | 2. Estimate Editor | 0/TBD | Not started | - |
 | 3. AI Drafting & Billing | 0/TBD | Not started | - |
