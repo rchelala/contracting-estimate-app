@@ -1,7 +1,24 @@
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
+import RequireAuth from './components/RequireAuth'
+import AuthPage from './pages/AuthPage'
+import AuthCallback from './pages/AuthCallback'
+import OnboardingPage from './pages/OnboardingPage'
+import DashboardPage from './pages/DashboardPage'
+
+const router = createBrowserRouter([
+  { path: '/auth', element: <AuthPage /> },
+  { path: '/auth/callback', element: <AuthCallback /> },
+  {
+    element: <RequireAuth />,
+    children: [
+      { path: '/onboarding', element: <OnboardingPage /> },
+      { path: '/dashboard', element: <DashboardPage /> },
+      { path: '/', element: <Navigate to="/dashboard" replace /> },
+    ],
+  },
+  { path: '*', element: <Navigate to="/dashboard" replace /> },
+])
+
 export default function App() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <p className="text-slate-900 text-lg font-semibold">EstimateFlow boot OK</p>
-    </div>
-  )
+  return <RouterProvider router={router} />
 }
