@@ -126,60 +126,58 @@
 
 ## Traceability
 
-*(Populated by roadmapper)*
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | — | Pending |
-| AUTH-02 | — | Pending |
-| AUTH-03 | — | Pending |
-| AUTH-04 | — | Pending |
-| AUTH-05 | — | Pending |
-| ORG-01 | — | Pending |
-| ORG-02 | — | Pending |
-| ORG-03 | — | Pending |
-| ORG-04 | — | Pending |
-| DASH-01 | — | Pending |
-| DASH-02 | — | Pending |
-| DASH-03 | — | Pending |
-| DASH-04 | — | Pending |
-| CLT-01 | — | Pending |
-| CLT-02 | — | Pending |
-| CLT-03 | — | Pending |
-| EST-01 | — | Pending |
-| EST-02 | — | Pending |
-| EST-03 | — | Pending |
-| EST-04 | — | Pending |
-| EST-05 | — | Pending |
-| EST-06 | — | Pending |
-| EST-07 | — | Pending |
-| EST-08 | — | Pending |
-| EST-09 | — | Pending |
-| EST-10 | — | Pending |
-| EST-11 | — | Pending |
-| EST-12 | — | Pending |
-| EST-13 | — | Pending |
-| EST-14 | — | Pending |
-| EST-15 | — | Pending |
-| EST-16 | — | Pending |
-| AI-01 | — | Pending |
-| AI-02 | — | Pending |
-| AI-03 | — | Pending |
-| AI-04 | — | Pending |
-| AI-05 | — | Pending |
-| AI-06 | — | Pending |
-| AI-07 | — | Pending |
-| BILL-01 | — | Pending |
-| BILL-02 | — | Pending |
-| BILL-03 | — | Pending |
-| BILL-04 | — | Pending |
-| BILL-05 | — | Pending |
+| AUTH-01 | Phase 1 | Pending |
+| AUTH-02 | Phase 1 | Pending |
+| AUTH-03 | Phase 1 | Pending |
+| AUTH-04 | Phase 1 | Pending |
+| AUTH-05 | Phase 1 | Pending |
+| ORG-01 | Phase 1 | Pending |
+| ORG-02 | Phase 1 | Pending |
+| ORG-03 | Phase 1 | Pending |
+| ORG-04 | Phase 1 | Pending |
+| DASH-01 | Phase 1 | Pending |
+| DASH-02 | Phase 1 | Pending |
+| DASH-03 | Phase 1 | Pending |
+| DASH-04 | Phase 1 | Pending |
+| CLT-01 | Phase 2 | Pending |
+| CLT-02 | Phase 2 | Pending |
+| CLT-03 | Phase 2 | Pending |
+| EST-01 | Phase 2 | Pending |
+| EST-02 | Phase 2 | Pending |
+| EST-03 | Phase 2 | Pending |
+| EST-04 | Phase 2 | Pending |
+| EST-05 | Phase 2 | Pending |
+| EST-06 | Phase 2 | Pending |
+| EST-07 | Phase 2 | Pending |
+| EST-08 | Phase 2 | Pending |
+| EST-09 | Phase 2 | Pending |
+| EST-10 | Phase 2 | Pending |
+| EST-11 | Phase 2 | Pending |
+| EST-12 | Phase 2 | Pending |
+| EST-13 | Phase 2 | Pending |
+| EST-14 | Phase 2 | Pending |
+| EST-15 | Phase 2 | Pending |
+| EST-16 | Phase 2 | Pending |
+| AI-01 | Phase 3 | Pending |
+| AI-02 | Phase 3 | Pending |
+| AI-03 | Phase 3 | Pending |
+| AI-04 | Phase 3 | Pending |
+| AI-05 | Phase 3 | Pending |
+| AI-06 | Phase 3 | Pending |
+| AI-07 | Phase 3 | Pending |
+| BILL-01 | Phase 3 | Pending |
+| BILL-02 | Phase 3 | Pending |
+| BILL-03 | Phase 3 | Pending |
+| BILL-04 | Phase 3 | Pending |
+| BILL-05 | Phase 3 | Pending |
 
 **Coverage:**
 - v1 requirements: 44 total
-- Mapped to phases: 0 (roadmapper will fill this)
-- Unmapped: 44 ⚠️
+- Mapped to phases: 44 (Phase 1: 13, Phase 2: 19, Phase 3: 12)
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-05-02*
-*Last updated: 2026-05-02 after initial definition*
+*Last updated: 2026-05-02 — traceability populated by roadmapper*
