@@ -1,10 +1,11 @@
 ---
 phase: 1
 slug: auth-org-dashboard
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-05-02
+reviewed_at: 2026-05-02
 ---
 
 # Phase 1 — UI Design Contract
@@ -57,13 +58,13 @@ Exceptions:
 | Body | 14px | 400 (regular) | 1.5 | Table cell content, form helper text, badge labels |
 | Label | 14px | 600 (semibold) | 1.4 | Form field labels, table column headers, nav links |
 | Heading | 20px | 600 (semibold) | 1.3 | Page title ("Dashboard", "Create your organization") |
-| Display | 28px | 700 (bold) | 1.2 | Auth page product name "EstimateFlow" only |
+| Display | 28px | 600 (semibold) | 1.2 | Auth page product name "EstimateFlow" only |
 
 Font stack: `system-ui, 'Segoe UI', Roboto, Helvetica Neue, Arial, sans-serif`
 
 **Rules:**
 - Body and Label share size (14px) but differ in weight — this is intentional for density.
-- Display (28px/700) is used exactly once: the EstimateFlow logo text on the `/auth` page.
+- Display (28px/600) is used exactly once: the EstimateFlow logo text on the `/auth` page. The larger size (28px vs 20px) provides sufficient visual hierarchy without requiring a third weight.
 - No italic. No font sizes outside this table.
 
 ---
@@ -109,7 +110,7 @@ Font stack: `system-ui, 'Segoe UI', Roboto, Helvetica Neue, Arial, sans-serif`
 **Card:** white background, `rounded-lg`, `shadow-sm`, `border border-slate-200`, max-width 400px, padding `xl` (32px) all sides.
 
 **Above the form:**
-- Product name: "EstimateFlow" — Display size (28px/700), `slate-900`, centered, margin-bottom `md` (16px)
+- Product name: "EstimateFlow" — Display size (28px/600), `slate-900`, centered, margin-bottom `md` (16px)
 - Tagline: "Professional estimates in minutes." — Body size (14px/400), `slate-500`, centered, margin-bottom `xl` (32px)
 
 **Form:** Rendered by `@supabase/auth-ui-react` with `ThemeSupa`. Override variables:
@@ -238,7 +239,7 @@ While the estimates fetch is in flight: show 5 skeleton rows. Each skeleton row:
 Replace table with centered error message, margin-top `2xl` (48px):
 - Heading: "Couldn't load your estimates" — Heading (20px/600), `slate-900`, centered
 - Body: "Check your connection and try again." — Body (14px/400), `slate-500`, centered, margin-top `xs` (4px)
-- Retry button: "Try again" — secondary style: `border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm rounded-md px-4 py-2`, centered, margin-top `md` (16px)
+- Retry button: "Reload estimates" — secondary style: `border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm rounded-md px-4 py-2`, centered, margin-top `md` (16px)
 
 ---
 
@@ -256,7 +257,7 @@ Replace table with centered error message, margin-top `2xl` (48px):
 | Loading state (table) | Skeleton rows — no text |
 | Table fetch error heading | "Couldn't load your estimates" |
 | Table fetch error body | "Check your connection and try again." |
-| Table fetch error action | "Try again" |
+| Table fetch error action | "Reload estimates" |
 | Onboarding validation error | "Company name is required." |
 | Onboarding input label | "Company name" |
 | Onboarding input placeholder | "e.g. Apex Roofing Co." |
@@ -280,7 +281,7 @@ Replace table with centered error message, margin-top `2xl` (48px):
 | Table row | default (white), hover (bg-slate-50), focus-visible (ring-2 ring-inset ring-blue-600) |
 | Nav link | default (slate-500), active (slate-900 + blue-600 underline), hover (slate-700) |
 | "Sign out" in avatar popover | default (slate-700), hover (bg-slate-50 slate-900) |
-| "Try again" button | default, hover (bg-slate-50), focus (ring-2 ring-blue-600 ring-offset-2) |
+| "Reload estimates" button | default, hover (bg-slate-50), focus (ring-2 ring-blue-600 ring-offset-2) |
 | Sort column header | unsorted (slate-600 + ↕ slate-400), ascending (slate-900 + ↑ blue-600), descending (slate-900 + ↓ blue-600) |
 
 ---
@@ -319,6 +320,8 @@ No third-party registries declared for Phase 1.
 | Org name placement (below page heading) | CONTEXT.md Claude's Discretion |
 | system-ui font stack | stage1 CSS scaffold + no web font budget decision |
 | Tailwind CSS utility classes | CLAUDE.md Stack (locked) |
+| Display weight changed 700→600 (two-weight rule) | gsd-ui-checker revision 2026-05-02 |
+| "Reload estimates" replaces "Try again" (specificity) | gsd-ui-checker revision 2026-05-02 |
 
 ---
 
@@ -327,7 +330,7 @@ No third-party registries declared for Phase 1.
 - [ ] Dimension 1 Copywriting: PASS
 - [ ] Dimension 2 Visuals: PASS
 - [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
+- [x] Dimension 4 Typography: PASS
 - [ ] Dimension 5 Spacing: PASS
 - [ ] Dimension 6 Registry Safety: PASS
 
