@@ -1,0 +1,16 @@
+# Worktrees
+.worktrees/
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment
+.env.local
+.env.*.local
+
+# Supabase local
+supabase/.branches/
+supabase/.temp/
