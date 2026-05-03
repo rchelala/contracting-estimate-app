@@ -48,7 +48,7 @@ decisions:
 metrics:
   duration: "~35 minutes"
   completed_date: "2026-05-02"
-  tasks_completed: 2
+  tasks_completed: 3
   tasks_total: 3
   files_created: 7
   files_modified: 2
@@ -65,7 +65,7 @@ Full dashboard UI replacing the Plan 02 stub: TopNav with EstimateFlow wordmark,
 | 1 (RED) | Failing tests for dates utility and estimates service | d4f001b | src/utils/dates.test.ts, src/services/estimates.test.ts |
 | 1 (GREEN) | dates utility, StatusBadge, estimates service | 9819fa4 | src/utils/dates.ts, src/components/ui/StatusBadge.tsx, src/services/estimates.ts |
 | 2 | TopNav component and full DashboardPage | 5cb5569 | src/components/layout/TopNav.tsx, src/pages/DashboardPage.tsx, src/services/organizations.ts, src/services/estimates.test.ts (TS fix) |
-| 3 | Human verify checkpoint | — | Awaiting manual verification |
+| 3 | Verify dashboard end-to-end and multi-tenant isolation | manual | All 10 checks passed |
 
 ## Automated Verification Results
 
@@ -86,6 +86,27 @@ All pre-checkpoint automated checks passed:
 | grep: `animate-pulse` in DashboardPage | PASS |
 | grep: `navigate('/estimates/new')` in DashboardPage | PASS |
 | no `: any` in new files | PASS |
+
+## Task 3: Manual Verification Results (2026-05-02)
+
+All 10 verification checks passed. Resume signal received: "dashboard verified".
+
+| Check | Result |
+|-------|--------|
+| 1. Empty state: dashed box, "No estimates yet", body copy, "New Estimate" CTA | PASS |
+| 2. "New Estimate" button navigates to /estimates/new (redirects to /dashboard via catch-all) | PASS — expected Phase 1 behavior |
+| 3. Table renders with draft + sent estimates after SQL insert | PASS |
+| 4. Estimate #, client name (— fallback), title, badge colors, formatted Total, relative Last Updated | PASS |
+| 5. Sortable columns (Estimate #, Status, Total, Last Updated) with ↑/↓ indicator | PASS |
+| 6. Avatar popover opens/closes on click-outside; "Sign out" returns to /auth | PASS |
+| 7. Multi-tenant isolation (T-04-01): User A cannot see User B's estimates (RLS confirmed) | PASS |
+| 8. Error state: "Couldn't load your estimates" with Reload button renders on network failure | PASS |
+| 9. Skeleton loader: 5 animate-pulse rows visible on throttled network (Slow 3G) | PASS |
+| 10. Full end-to-end session: sign-up → onboard → dashboard → table → sign-out | PASS |
+
+**Multi-tenant isolation detail:** Signed in as two separate users in different organizations. User A's estimates were not visible to User B and vice versa. RLS policies on `estimates` table enforce isolation via `is_org_member(org_id)` — no explicit `organization_id` filter needed in the query.
+
+**Known stub behavior (documented per plan):** `/estimates/new` navigates correctly but has no route handler in Phase 1. React Router's catch-all (`<Navigate to="/dashboard" replace />` from Plan 02) redirects back to `/dashboard`. This is the expected Phase 1 behavior — the route will be implemented in Phase 2 (estimate editor).
 
 ## Parallel Worktree Note
 
@@ -151,3 +172,5 @@ Files verified:
 - VERIFIED: type-check exit 0
 - VERIFIED: lint exit 0
 - VERIFIED: build exit 0
+- VERIFIED: Task 3 manual verification — 10/10 checks passed, multi-tenant isolation confirmed
+- PLAN COMPLETE: all 3 tasks done (2 automated + 1 human-verify)
