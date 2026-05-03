@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TopNav from '../components/layout/TopNav'
 import StatusBadge from '../components/ui/StatusBadge'
-import { listEstimates, type EstimateListRow } from '../services/estimates'
+import { listEstimates, duplicateEstimate, type EstimateListRow } from '../services/estimates'
 import { getMyMembership } from '../services/organizations'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
@@ -25,6 +25,56 @@ function NewEstimateButton({ extraClass = '' }: { extraClass?: string }) {
   )
 }
 
+interface RowActionsProps {
+  estimateId: string
+  onDuplicate: (id: string) => void
+  duplicating: boolean
+}
+
+function RowActionsMenu({ estimateId, onDuplicate, duplicating }: RowActionsProps) {
+  const [open, setOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (!open) return
+    function handleOutsideClick(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleOutsideClick)
+    return () => document.removeEventListener('mousedown', handleOutsideClick)
+  }, [open])
+
+  return (
+    <div ref={menuRef} className="relative" onClick={(e) => e.stopPropagation()}>
+      <button
+        type="button"
+        aria-label="Row actions"
+        className="text-slate-400 hover:text-slate-600 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
+        onClick={() => setOpen((v) => !v)}
+        disabled={duplicating}
+      >
+        ⋮
+      </button>
+      {open && (
+        <div className="absolute right-0 z-10 mt-1 w-36 rounded-md border border-slate-200 bg-white shadow-md">
+          <button
+            type="button"
+            className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+            onClick={() => {
+              setOpen(false)
+              onDuplicate(estimateId)
+            }}
+          >
+            Duplicate
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function DashboardPage() {
   const { session } = useAuth()
   const navigate = useNavigate()
@@ -34,6 +84,7 @@ export default function DashboardPage() {
   const [sortKey, setSortKey] = useState<SortKey>('updated_at')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const [reloadCounter, setReloadCounter] = useState(0)
+  const [duplicatingId, setDuplicatingId] = useState<string | null>(null)
 
   // Load org name (via membership → organizations.name)
   useEffect(() => {
@@ -105,6 +156,22 @@ export default function DashboardPage() {
     return <span className="text-blue-600">{sortDir === 'asc' ? '↑' : '↓'}</span>
   }
 
+  async function handleDuplicate(sourceId: string) {
+    const { data: member } = await supabase
+      .from('organization_members')
+      .select('organization_id')
+      .limit(1)
+      .maybeSingle()
+    if (!member) return
+    setDuplicatingId(sourceId)
+    try {
+      const newEstimate = await duplicateEstimate(sourceId, member.organization_id)
+      navigate(`/estimates/${newEstimate.id}`)
+    } catch {
+      setDuplicatingId(null)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-slate-50">
       <TopNav />
@@ -130,7 +197,7 @@ export default function DashboardPage() {
           {/* Error */}
           {error && (
             <div className="mt-12 text-center">
-              <h2 className="text-xl font-semibold text-slate-900">Couldn't load your estimates</h2>
+              <h2 className="text-xl font-semibold text-slate-900">Couldn&apos;t load your estimates</h2>
               <p className="mt-1 text-sm text-slate-500">Check your connection and try again.</p>
               <button
                 type="button"
@@ -171,6 +238,7 @@ export default function DashboardPage() {
                   <th className="text-left text-sm font-semibold text-slate-600 py-2 px-4 cursor-pointer w-[140px]" onClick={() => toggleSort('updated_at')}>
                     Last Updated {sortIndicator('updated_at')}
                   </th>
+                  <th className="w-10" />
                 </tr>
               </thead>
               <tbody>
@@ -186,6 +254,13 @@ export default function DashboardPage() {
                     <td className="text-sm text-slate-900 py-2 px-4"><StatusBadge status={r.status} /></td>
                     <td className="text-sm text-slate-900 py-2 px-4 text-right">{formatCents(r.total_cents)}</td>
                     <td className="text-sm text-slate-500 py-2 px-4">{formatRelativeDate(r.updated_at)}</td>
+                    <td className="py-2 px-2">
+                      <RowActionsMenu
+                        estimateId={r.id}
+                        onDuplicate={handleDuplicate}
+                        duplicating={duplicatingId === r.id}
+                      />
+                    </td>
                   </tr>
                 ))}
               </tbody>
