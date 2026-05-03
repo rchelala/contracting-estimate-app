@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-03-PLAN.md
-last_updated: "2026-05-02T22:24:48.510Z"
-last_activity: 2026-05-02 -- Plans 01, 02, 03 complete; Plan 04 (dashboard) next
+stopped_at: Phase 1 UI-SPEC approved
+last_updated: "2026-05-02T22:20:51.532Z"
+last_activity: 2026-05-02 -- Phase 1 planning complete
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 4
-  completed_plans: 3
-  percent: 75
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-05-02)
 ## Current Position
 
 Phase: 1 of 3 (Auth, Org & Dashboard)
-Plan: 4 of 4 in current phase
-Status: Executing — Plan 03 complete, Plan 04 (Dashboard) next
-Last activity: 2026-05-02 -- Plans 01, 02, 03 complete; Plan 04 (dashboard) next
+Plan: 0 of TBD in current phase
+Status: Ready to execute
+Last activity: 2026-05-02 -- Phase 1 planning complete
 
-Progress: [███████░░░] 75%
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -64,12 +64,6 @@ Recent decisions affecting current work:
 - Pre-Phase 1: MVP = estimates-only; client portal, payments, invoices, and automations are v2 scope.
 - Pre-Phase 1: AI pricing decision resolved — AI included in both free and pro tiers, no separate billing for MVP.
 - Pre-Phase 1: Free tier = 5 estimates/month, Pro = unlimited.
-- Plan 01: create_organization RPC is SECURITY DEFINER — runs as postgres user to insert into organizations and organization_members atomically, bypassing RLS on INSERT while enforcing auth.uid() as owner.
-- Plan 02: vi.hoisted() required for Vitest mock variables inside vi.mock() factory — Vitest hoists vi.mock() before module-level variable initialization.
-- Plan 02: ThemeSupa overrides — brand=#2563EB, brandAccent=#1D4ED8, borderRadiusButton=6px, inputBorderRadius=6px.
-- Plan 02: AuthCallback fail-closed on RLS error routes to /onboarding rather than /auth to avoid redirect loop.
-- Plan 03: RPC typed via 'as never' cast (not any) — create_organization added after types generated; runtime string check guards the return value.
-- Plan 03: Re-visiting /onboarding while already a member creates a second org — documented Phase 1 limitation, idempotency deferred.
 
 ### Pending Todos
 
@@ -83,6 +77,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-02T22:24:48.510Z
-Stopped at: Completed 01-03-PLAN.md
-Resume file: .planning/phases/01-auth-org-dashboard/01-04-PLAN.md
+Last session: 2026-05-02T21:50:54.901Z
+Stopped at: Phase 1 UI-SPEC approved
+Resume file: .planning/phases/01-auth-org-dashboard/01-UI-SPEC.md
