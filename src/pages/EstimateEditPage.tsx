@@ -4,6 +4,7 @@ import EditorHeaderBar from '../components/estimate/EditorHeaderBar'
 import OfflineBanner from '../components/estimate/OfflineBanner'
 import ReadOnlyBanner from '../components/estimate/ReadOnlyBanner'
 import StickyTotalsBar from '../components/estimate/StickyTotalsBar'
+import EstimateBody from '../components/estimate/EstimateBody'
 import { useEstimate } from '../hooks/useEstimate'
 import { useAutosave } from '../hooks/useAutosave'
 import { useOnlineStatus } from '../hooks/useOnlineStatus'
@@ -38,10 +39,7 @@ export default function EstimateEditPage() {
       {!online && <OfflineBanner />}
       {readOnly && <ReadOnlyBanner />}
       <main className="flex-1 max-w-3xl w-full mx-auto px-6 py-8 pb-24">
-        <div data-testid="sections-placeholder" className="text-sm text-slate-400">
-          {/* Plan 04 will replace this with section list + add section button */}
-          Sections render here.
-        </div>
+        <EstimateBody />
       </main>
       <StickyTotalsBar />
     </div>

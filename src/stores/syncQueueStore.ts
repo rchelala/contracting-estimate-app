@@ -58,16 +58,16 @@ function coalesce(queue: QueueItem[], next: QueueItem): QueueItem[] {
   ) {
     for (let i = queue.length - 1; i >= 0; i--) {
       const prev = queue[i]
-      if (prev.kind !== next.kind) continue
-      const sameTarget =
-        (next.kind === 'estimate.update' &&
-          prev.kind === 'estimate.update' &&
-          prev.estimateId === next.estimateId) ||
-        ((next.kind === 'section.update' || next.kind === 'lineItem.update') &&
-          (prev.kind === 'section.update' || prev.kind === 'lineItem.update') &&
-          'id' in prev &&
-          'id' in next &&
-          prev.id === next.id)
+      if (!prev || prev.kind !== next.kind) continue
+      let sameTarget = false
+      if (next.kind === 'estimate.update' && prev.kind === 'estimate.update') {
+        sameTarget = prev.estimateId === next.estimateId
+      } else if (
+        (next.kind === 'section.update' || next.kind === 'lineItem.update') &&
+        (prev.kind === 'section.update' || prev.kind === 'lineItem.update')
+      ) {
+        sameTarget = prev.id === next.id
+      }
       if (sameTarget) {
         const merged = {
           ...prev,
