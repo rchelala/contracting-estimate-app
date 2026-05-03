@@ -48,7 +48,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 5 plans
   - [x] 02-01-PLAN.md — Foundations: install @dnd-kit, estimate-attachments storage bucket, service modules + editor types (Wave 1)
   - [x] 02-02-PLAN.md — Editor state: Zustand store, persisted sync queue, useAutosave/useOnlineStatus/useEstimate hooks (Wave 2)
-  - [ ] 02-03-PLAN.md — Editor shell: routes, EditorHeaderBar, ClientDropdown, SaveIndicator, StickyTotalsBar, banners, Modal (Wave 2)
+  - [x] 02-03-PLAN.md — Editor shell: routes, EditorHeaderBar, ClientDropdown, SaveIndicator, StickyTotalsBar, banners, Modal (Wave 2)
   - [ ] 02-04-PLAN.md — Sections + line items + drag-and-drop + inline cell editing + delete confirmations (Wave 3)
   - [ ] 02-05-PLAN.md — MarkAsSentModal, photo attachments, duplicate from dashboard (Wave 4)
 **UI hint**: yes
@@ -73,5 +73,5 @@ Phases execute in order: 1 → 2 → 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Auth, Org & Dashboard | 0/4 | Not started | - |
-| 2. Estimate Editor | 2/5 | In Progress|  |
+| 2. Estimate Editor | 3/5 | In Progress|  |
 | 3. AI Drafting & Billing | 0/TBD | Not started | - |
