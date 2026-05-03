@@ -20,11 +20,13 @@ A contractor can create a complete, accurate estimate in under 3 minutes using A
 - ✓ Money utility (integer-cent arithmetic, markup, formatting) with 14 passing unit tests — Stage 1
 - ✓ Per-org sequential estimate numbering (estimate_sequences table with race-safe next_estimate_number()) — Stage 1
 
-### Active
+### Validated
 
-- [ ] User can sign up, log in, and stay logged in across sessions
-- [ ] First sign-up creates an organization and owner membership (multi-tenant entry point)
-- [ ] Authenticated dashboard shows org context and estimate list (empty state on first load)
+- ✓ User can sign up, log in, and stay logged in across sessions — Validated in Phase 1: auth-org-dashboard
+- ✓ First sign-up creates an organization and owner membership (multi-tenant entry point) — Validated in Phase 1: auth-org-dashboard
+- ✓ Authenticated dashboard shows org context and estimate list (empty state on first load) — Validated in Phase 1: auth-org-dashboard
+
+### Active
 - [ ] User can create a new estimate with a client, title, and at least one line item
 - [ ] Estimates have labeled sections; line items belong to sections
 - [ ] Line items have qty, unit price (cents), markup %, optional flag; totals computed correctly
@@ -52,7 +54,7 @@ A contractor can create a complete, accurate estimate in under 3 minutes using A
 
 ## Context
 
-**Codebase state:** Stage 1 (data layer) is complete on branch `stage1-schema`. All 11 migrations are written, TypeScript types generated, money utility tested. The branch needs to be merged to main before Stage 2 begins.
+**Codebase state:** Phase 1 complete. Stage 1 data layer merged (12 migrations including create_organization RPC), all Phase 1 frontend dependencies installed (Tailwind v4, React Router v6, Zustand, idb-keyval), full auth lifecycle built (useAuth, RequireAuth, AuthPage, AuthCallback), onboarding form with org creation wired to RPC, dashboard with TopNav + estimates table (6 columns, sorting, empty/loading/error states). Schema live on Supabase project sfkdtwirkdpagxcflrwr.
 
 **Tech stack locked:** React 18 + TypeScript strict + Vite + Tailwind CSS + React Router v6 + Supabase + Anthropic API via Vercel serverless + Stripe Connect + Resend + idb-keyval + @dnd-kit/core. See CLAUDE.md for full stack rationale.
 
@@ -103,4 +105,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-02 after initialization*
+*Last updated: 2026-05-03 after Phase 1 completion*
