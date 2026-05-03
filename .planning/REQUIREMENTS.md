@@ -23,9 +23,9 @@
 ### Dashboard
 
 - [x] **DASH-01**: Authenticated user lands on dashboard showing their organization context
-- [ ] **DASH-02**: Dashboard lists all estimates for the organization (empty state on first load)
-- [ ] **DASH-03**: Estimate list shows: estimate number, client name, status, total, last updated
-- [ ] **DASH-04**: User can navigate to create a new estimate from the dashboard
+- [x] **DASH-02**: Dashboard lists all estimates for the organization (empty state on first load)
+- [x] **DASH-03**: Estimate list shows: estimate number, client name, status, total, last updated
+- [x] **DASH-04**: User can navigate to create a new estimate from the dashboard
 
 ### Clients
 
@@ -138,9 +138,9 @@
 | ORG-03 | Phase 1 | Pending |
 | ORG-04 | Phase 1 | Complete |
 | DASH-01 | Phase 1 | Complete |
-| DASH-02 | Phase 1 | Pending |
-| DASH-03 | Phase 1 | Pending |
-| DASH-04 | Phase 1 | Pending |
+| DASH-02 | Phase 1 | Complete |
+| DASH-03 | Phase 1 | Complete |
+| DASH-04 | Phase 1 | Complete |
 | CLT-01 | Phase 2 | Pending |
 | CLT-02 | Phase 2 | Pending |
 | CLT-03 | Phase 2 | Pending |
