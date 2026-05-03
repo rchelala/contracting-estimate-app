@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import TopNav from '../components/layout/TopNav'
 import EditorHeaderBar from '../components/estimate/EditorHeaderBar'
@@ -5,6 +6,7 @@ import OfflineBanner from '../components/estimate/OfflineBanner'
 import ReadOnlyBanner from '../components/estimate/ReadOnlyBanner'
 import StickyTotalsBar from '../components/estimate/StickyTotalsBar'
 import EstimateBody from '../components/estimate/EstimateBody'
+import MarkAsSentModal from '../components/estimate/MarkAsSentModal'
 import { useEstimate } from '../hooks/useEstimate'
 import { useAutosave } from '../hooks/useAutosave'
 import { useOnlineStatus } from '../hooks/useOnlineStatus'
@@ -16,6 +18,7 @@ export default function EstimateEditPage() {
   useAutosave()
   const online = useOnlineStatus()
   const readOnly = useEditorStore((s) => s.readOnly)
+  const [sendOpen, setSendOpen] = useState(false)
 
   if (loading)
     return (
@@ -35,13 +38,14 @@ export default function EstimateEditPage() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       <TopNav />
-      <EditorHeaderBar />
+      <EditorHeaderBar onSendClick={() => setSendOpen(true)} />
       {!online && <OfflineBanner />}
       {readOnly && <ReadOnlyBanner />}
       <main className="flex-1 max-w-3xl w-full mx-auto px-6 py-8 pb-24">
         <EstimateBody />
       </main>
       <StickyTotalsBar />
+      <MarkAsSentModal open={sendOpen} onClose={() => setSendOpen(false)} />
     </div>
   )
 }
