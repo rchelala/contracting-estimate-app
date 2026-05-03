@@ -40,10 +40,10 @@
 - [ ] **EST-03**: Estimate has at least one section; sections have a label and ordered line items
 - [ ] **EST-04**: User can add, edit, and delete line items within a section
 - [ ] **EST-05**: Line items have: description, qty, unit price (cents), markup %, optional flag
-- [ ] **EST-06**: Line item totals and estimate grand total computed correctly using integer cents
+- [x] **EST-06**: Line item totals and estimate grand total computed correctly using integer cents
 - [x] **EST-07**: Server recomputes estimate totals on every save (recalculate_estimate_totals)
-- [ ] **EST-08**: Estimate autosaves 800ms after last edit; user sees save indicator
-- [ ] **EST-09**: Autosave queue persists to IndexedDB; replays on reconnect (offline support)
+- [x] **EST-08**: Estimate autosaves 800ms after last edit; user sees save indicator
+- [x] **EST-09**: Autosave queue persists to IndexedDB; replays on reconnect (offline support)
 - [ ] **EST-10**: User can reorder sections via drag-and-drop (@dnd-kit)
 - [ ] **EST-11**: User can reorder line items within a section via drag-and-drop
 - [ ] **EST-12**: User can add sections to an estimate
@@ -149,10 +149,10 @@
 | EST-03 | Phase 2 | Pending |
 | EST-04 | Phase 2 | Pending |
 | EST-05 | Phase 2 | Pending |
-| EST-06 | Phase 2 | Pending |
+| EST-06 | Phase 2 | Complete |
 | EST-07 | Phase 2 | Complete |
-| EST-08 | Phase 2 | Pending |
-| EST-09 | Phase 2 | Pending |
+| EST-08 | Phase 2 | Complete |
+| EST-09 | Phase 2 | Complete |
 | EST-10 | Phase 2 | Pending |
 | EST-11 | Phase 2 | Pending |
 | EST-12 | Phase 2 | Pending |
