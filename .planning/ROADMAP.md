@@ -29,10 +29,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. The dashboard lists all estimates for the org (empty state on first load) with estimate number, client name, status, total, and last updated
   5. The dashboard has a visible "New Estimate" action that navigates to estimate creation
 **Plans**: 4 plans
-  - [ ] 01-01-PLAN.md — Foundation: stage1 merge, dependencies, Tailwind v4, create_organization RPC, schema push (Wave 1)
-  - [ ] 01-02-PLAN.md — Auth shell: useAuth, router tree, AuthPage, AuthCallback, RequireAuth (Wave 2)
-  - [ ] 01-03-PLAN.md — Onboarding: company name form + create_organization RPC wiring (Wave 3)
-  - [ ] 01-04-PLAN.md — Dashboard: TopNav, estimates table, empty/loading/error states, sign-out popover (Wave 3)
+  - [x] 01-01-PLAN.md — Foundation: stage1 merge, dependencies, Tailwind v4, create_organization RPC, schema push (Wave 1)
+  - [x] 01-02-PLAN.md — Auth shell: useAuth, router tree, AuthPage, AuthCallback, RequireAuth (Wave 2)
+  - [x] 01-03-PLAN.md — Onboarding: company name form + create_organization RPC wiring (Wave 3)
+  - [x] 01-04-PLAN.md — Dashboard: TopNav, estimates table, empty/loading/error states, sign-out popover (Wave 3)
 **UI hint**: yes
 
 ### Phase 2: Estimate Editor
