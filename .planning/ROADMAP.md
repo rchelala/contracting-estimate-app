@@ -13,7 +13,7 @@ Starting from a complete data layer (Stage 1 — schema, RLS, TypeScript types, 
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Auth, Org & Dashboard** - Contractor can sign up, land in their workspace, and see their estimate list
-- [ ] **Phase 2: Estimate Editor** - Contractor can create, edit, and send a complete estimate with sections, line items, photos, drag-and-drop reorder, and autosave
+- [x] **Phase 2: Estimate Editor** - Contractor can create, edit, and send a complete estimate with sections, line items, photos, drag-and-drop reorder, and autosave (completed 2026-05-03)
 - [ ] **Phase 3: AI Drafting & Billing** - Contractor can draft an estimate from a job description using AI and is gated on free/pro tier limits
 
 ## Phase Details
@@ -50,7 +50,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   - [x] 02-02-PLAN.md — Editor state: Zustand store, persisted sync queue, useAutosave/useOnlineStatus/useEstimate hooks (Wave 2)
   - [x] 02-03-PLAN.md — Editor shell: routes, EditorHeaderBar, ClientDropdown, SaveIndicator, StickyTotalsBar, banners, Modal (Wave 2)
   - [x] 02-04-PLAN.md — Sections + line items + drag-and-drop + inline cell editing + delete confirmations (Wave 3)
-  - [ ] 02-05-PLAN.md — MarkAsSentModal, photo attachments, duplicate from dashboard (Wave 4)
+  - [x] 02-05-PLAN.md — MarkAsSentModal, photo attachments, duplicate from dashboard (Wave 4)
 **UI hint**: yes
 
 ### Phase 3: AI Drafting & Billing
@@ -73,5 +73,5 @@ Phases execute in order: 1 → 2 → 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Auth, Org & Dashboard | 0/4 | Not started | - |
-| 2. Estimate Editor | 4/5 | In Progress|  |
+| 2. Estimate Editor | 5/5 | Complete   | 2026-05-03 |
 | 3. AI Drafting & Billing | 0/TBD | Not started | - |
