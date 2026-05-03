@@ -29,19 +29,19 @@
 
 ### Clients
 
-- [ ] **CLT-01**: User can create a client with name and optional email/phone
-- [ ] **CLT-02**: User can view and select existing clients when creating an estimate
-- [ ] **CLT-03**: Clients are scoped to the organization
+- [x] **CLT-01**: User can create a client with name and optional email/phone
+- [x] **CLT-02**: User can view and select existing clients when creating an estimate
+- [x] **CLT-03**: Clients are scoped to the organization
 
 ### Estimates
 
-- [ ] **EST-01**: User can create a new estimate with a client, title, and initial section
-- [ ] **EST-02**: Estimate receives a sequential number (EST-001, EST-002…) per organization
+- [x] **EST-01**: User can create a new estimate with a client, title, and initial section
+- [x] **EST-02**: Estimate receives a sequential number (EST-001, EST-002…) per organization
 - [ ] **EST-03**: Estimate has at least one section; sections have a label and ordered line items
 - [ ] **EST-04**: User can add, edit, and delete line items within a section
 - [ ] **EST-05**: Line items have: description, qty, unit price (cents), markup %, optional flag
 - [ ] **EST-06**: Line item totals and estimate grand total computed correctly using integer cents
-- [ ] **EST-07**: Server recomputes estimate totals on every save (recalculate_estimate_totals)
+- [x] **EST-07**: Server recomputes estimate totals on every save (recalculate_estimate_totals)
 - [ ] **EST-08**: Estimate autosaves 800ms after last edit; user sees save indicator
 - [ ] **EST-09**: Autosave queue persists to IndexedDB; replays on reconnect (offline support)
 - [ ] **EST-10**: User can reorder sections via drag-and-drop (@dnd-kit)
@@ -50,7 +50,7 @@
 - [ ] **EST-13**: User can delete a section (with confirmation if it has line items)
 - [ ] **EST-14**: Estimate status lifecycle: draft → sent (manual status change for MVP)
 - [ ] **EST-15**: User can attach photos to a section or line item (upload to Supabase Storage)
-- [ ] **EST-16**: User can duplicate an existing estimate
+- [x] **EST-16**: User can duplicate an existing estimate
 
 ### AI Drafting
 
@@ -141,16 +141,16 @@
 | DASH-02 | Phase 1 | Complete |
 | DASH-03 | Phase 1 | Complete |
 | DASH-04 | Phase 1 | Complete |
-| CLT-01 | Phase 2 | Pending |
-| CLT-02 | Phase 2 | Pending |
-| CLT-03 | Phase 2 | Pending |
-| EST-01 | Phase 2 | Pending |
-| EST-02 | Phase 2 | Pending |
+| CLT-01 | Phase 2 | Complete |
+| CLT-02 | Phase 2 | Complete |
+| CLT-03 | Phase 2 | Complete |
+| EST-01 | Phase 2 | Complete |
+| EST-02 | Phase 2 | Complete |
 | EST-03 | Phase 2 | Pending |
 | EST-04 | Phase 2 | Pending |
 | EST-05 | Phase 2 | Pending |
 | EST-06 | Phase 2 | Pending |
-| EST-07 | Phase 2 | Pending |
+| EST-07 | Phase 2 | Complete |
 | EST-08 | Phase 2 | Pending |
 | EST-09 | Phase 2 | Pending |
 | EST-10 | Phase 2 | Pending |
@@ -159,7 +159,7 @@
 | EST-13 | Phase 2 | Pending |
 | EST-14 | Phase 2 | Pending |
 | EST-15 | Phase 2 | Pending |
-| EST-16 | Phase 2 | Pending |
+| EST-16 | Phase 2 | Complete |
 | AI-01 | Phase 3 | Pending |
 | AI-02 | Phase 3 | Pending |
 | AI-03 | Phase 3 | Pending |
