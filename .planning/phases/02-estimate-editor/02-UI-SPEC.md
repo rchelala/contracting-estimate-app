@@ -1,10 +1,11 @@
 ---
 phase: 2
 slug: estimate-editor
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-05-03
+reviewed_at: 2026-05-03
 ---
 
 # Phase 2 — UI Design Contract
@@ -87,6 +88,8 @@ Accent (blue-600) reserved for:
 
 Accent is NOT used for: row hover states, section backgrounds, general borders, labels, or any passive UI element.
 
+Primary focal point: the "Send →" button (`bg-blue-600 text-white`) in the EditorHeaderBar. It is the only filled blue element on the primary editor screen. Every other blue-600 usage is text-only or a border/ring. The filled button draws the eye immediately.
+
 Source: StatusBadge.tsx (`bg-blue-100 text-blue-700` for sent), TopNav.tsx (`border-blue-600`, `focus:ring-blue-600`).
 
 ---
@@ -112,7 +115,7 @@ All components to build for this phase:
 
 ### Inline Client Form
 - `ClientDropdown` — searchable dropdown for existing clients + "New client" expansion option
-- `NewClientInlineForm` — expands within ClientDropdown: Name (required), Email (optional), Phone (optional) + Save / Cancel
+- `NewClientInlineForm` — expands within ClientDropdown: Name (required), Email (optional), Phone (optional) + Save / Discard
 
 ### Modals
 - `MarkAsSentModal` — confirmation modal: title, body copy, Cancel (ghost) + "Mark as Sent" (primary blue)
@@ -121,7 +124,7 @@ All components to build for this phase:
 ### Status / Feedback
 - `SaveIndicator` — text-only status in editor header (4 states: see Copywriting)
 - `OptionalBadge` — `xs` pill: "Optional" label, `bg-slate-100 text-slate-500`
-- `DragHandle` — ≡ icon, `text-slate-300 hover:text-slate-500`, always visible (D-11)
+- `DragHandle` — ≡ icon, `text-slate-300 hover:text-slate-500`, always visible (D-11); `aria-label="Reorder"` on the button element
 
 ---
 
@@ -146,6 +149,7 @@ All components to build for this phase:
 - Section drag: entire section (header + line items) moves as a unit.
 - Line item drag: constrained to within its parent section. Cannot drag a line item from one section to another (Phase 2 scope).
 - `@dnd-kit/core` with `@dnd-kit/sortable` — use `SortableContext` per section for line items, one `SortableContext` for sections.
+- Accessibility: drag handle button element carries `aria-label="Reorder"`. Row actions ⋮ button carries `aria-label="Row actions"`.
 
 ### Save Indicator (D-12)
 Four states, rendered as text in editor header bar, right of title:
@@ -184,8 +188,9 @@ Four states, rendered as text in editor header bar, right of title:
 - Selecting "+ New client": dropdown closes, inline form expands in place within the header bar area.
 - Inline form fields: Name (required, `placeholder="e.g. Apex Roofing Co."`), Email (optional, `placeholder="client@email.com"`), Phone (optional, `placeholder="(555) 000-0000"`).
 - Save button: `bg-blue-600 text-white text-sm` — "Save client".
-- Cancel: `text-slate-500 text-sm underline` — "Cancel".
+- Discard button: `text-slate-500 text-sm underline` — "Discard".
 - On save: client is created, dropdown shows client name, inline form collapses.
+- On discard: inline form collapses, client dropdown returns to previous state (no client selected or previously selected client restored).
 
 ### Photo Attachments (EST-15)
 - Photo attachment UI: thumbnail strip below each line item row when attachments exist.
@@ -221,7 +226,7 @@ Four states, rendered as text in editor header bar, right of title:
 | Delete section modal body (plural) | "This will delete {N} line items and cannot be undone." |
 | Delete section modal confirm button | "Delete section" |
 | New client inline form save | "Save client" |
-| New client inline form cancel | "Cancel" |
+| New client inline form cancel | "Discard" |
 | Read-only state notice (after sent) | "This estimate has been marked as sent and is now read-only." (slim slate-100 banner, text-slate-500 text-sm, appears at top of editor body) |
 | Error: save failed generic | "Failed to save · Retry" (see save indicator error state) |
 | Error: photo upload failed | "Upload failed. Try again." (inline below thumbnail strip, text-red-500 text-xs) |
@@ -270,9 +275,9 @@ The editor body uses `pb-24` to ensure the last section is not obscured by the s
 
 ### EstimateSection
 - Section header: `flex items-center gap-3 py-3 border-b border-slate-200`
-  - DragHandle: `text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing` — ≡ icon
+  - DragHandle: `text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing` — ≡ icon; button element carries `aria-label="Reorder"`
   - Section label input: `flex-1 text-base font-semibold text-slate-900 border-0 bg-transparent focus:outline-none focus:border-b-2 focus:border-blue-600 placeholder:text-slate-400`
-  - Section actions ⋮: `text-slate-400 hover:text-slate-600 ml-auto`
+  - Section actions ⋮: `text-slate-400 hover:text-slate-600 ml-auto`; button element carries `aria-label="Row actions"`
 - Section body: line item rows stacked, no padding beyond row padding
 - AddLineItemButton: `text-blue-600 text-sm pl-9 py-2 hover:text-blue-700` (indented to align with line item content, past drag handle)
 
@@ -281,13 +286,13 @@ The editor body uses `pb-24` to ensure the last section is not obscured by the s
 - At rest: `hover:bg-slate-50`
 - In edit mode: `bg-white ring-1 ring-slate-200 rounded`
 - Column widths (flex-based, no hard px on Description to allow flex-grow):
-  - DragHandle: `w-5 shrink-0 text-slate-300 group-hover:text-slate-500`
+  - DragHandle: `w-5 shrink-0 text-slate-300 group-hover:text-slate-500`; button carries `aria-label="Reorder"`
   - Description: `flex-1 min-w-0` (grows to fill)
   - Qty: `w-16 shrink-0 text-right`
   - Unit Price: `w-24 shrink-0 text-right`
   - Markup %: `w-20 shrink-0 text-right`
   - Line Total: `w-24 shrink-0 text-right font-semibold text-slate-900` (computed, read-only display)
-  - Actions ⋮: `w-8 shrink-0`
+  - Actions ⋮: `w-8 shrink-0`; button carries `aria-label="Row actions"`
 - Cell inputs (edit mode): `w-full text-sm bg-transparent border-0 focus:outline-none focus:ring-1 focus:ring-blue-600 rounded px-1`
 - Money inputs (Qty, Unit Price, Markup %): `text-right`
 - Column header row above first section's line items: `text-xs font-semibold text-slate-400 uppercase tracking-wide` — Description | Qty | Unit Price | Markup | Total | (blank for actions)
