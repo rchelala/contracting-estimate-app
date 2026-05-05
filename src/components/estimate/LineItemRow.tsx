@@ -6,6 +6,7 @@ import { useSyncQueue } from '../../stores/syncQueueStore'
 import { lineItemTotal, formatCents, dollarsToCents, centsToDollars } from '../../utils/money'
 import LineItemActions from './LineItemActions'
 import OptionalBadge from './OptionalBadge'
+import AISuggestedBadge from './AISuggestedBadge'
 import DragHandle from './DragHandle'
 import AttachPhotoButton from './AttachPhotoButton'
 import AttachmentThumbnails from './AttachmentThumbnails'
@@ -86,6 +87,7 @@ export default function LineItemRow({ lineItemId, index, readOnly }: Props) {
             }}
           />
           {snapshot.optional && <OptionalBadge />}
+          {snapshot.source === 'ai' && <AISuggestedBadge />}
         </div>
         <input
           type="number"

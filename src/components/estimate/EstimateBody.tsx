@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import type { DragEndEvent } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
@@ -17,7 +18,12 @@ export default function EstimateBody() {
   const reorderSections = useEditorStore((s) => s.reorderSections)
   const updateSectionLocal = useEditorStore((s) => s.updateSectionLocal)
   const enqueue = useSyncQueue((s) => s.enqueue)
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }))
+  const pointerSensorOptions = useMemo(
+    () => ({ activationConstraint: { distance: 4 } }),
+    [],
+  )
+  const pointerSensor = useSensor(PointerSensor, pointerSensorOptions)
+  const sensors = useSensors(pointerSensor)
 
   if (!estimate) return null
 

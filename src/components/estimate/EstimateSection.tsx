@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import type { DragEndEvent } from '@dnd-kit/core'
@@ -27,7 +27,12 @@ export default function EstimateSection({ sectionId, readOnly }: Props) {
   const enqueue = useSyncQueue((s) => s.enqueue)
 
   const [confirmDelete, setConfirmDelete] = useState(false)
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }))
+  const pointerSensorOptions = useMemo(
+    () => ({ activationConstraint: { distance: 4 } }),
+    [],
+  )
+  const pointerSensor = useSensor(PointerSensor, pointerSensorOptions)
+  const sensors = useSensors(pointerSensor)
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: sectionId,

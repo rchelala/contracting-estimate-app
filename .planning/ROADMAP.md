@@ -62,7 +62,8 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Contractor can accept, edit, or delete any AI-suggested item before the estimate is saved
   3. Every AI call is logged server-side (tokens, cost, model, latency) and AI content is tagged source='ai' in the database; the Anthropic key is never exposed to the client
   4. Free-tier contractor sees their remaining estimate count on the dashboard and is prompted to upgrade when at or near the 5/month limit; Pro-tier contractor has no limit shown
-**Plans**: TBD
+**Plans**: 1 plan
+  - [x] 03-01-PLAN.md — AI drafting implementation: API route, frontend service, UI integration, AI badges, free-tier gating (completed 2026-05-04)
 **UI hint**: yes
 
 ## Progress
@@ -74,4 +75,4 @@ Phases execute in order: 1 → 2 → 3
 |-------|----------------|--------|-----------|
 | 1. Auth, Org & Dashboard | 0/4 | Not started | - |
 | 2. Estimate Editor | 5/5 | Complete   | 2026-05-03 |
-| 3. AI Drafting & Billing | 0/TBD | Not started | - |
+| 3. AI Drafting & Billing | 1/1 | Complete   | 2026-05-04 |

@@ -15,19 +15,19 @@ CREATE POLICY "members can read estimate attachments"
   ON storage.objects FOR SELECT
   USING (
     bucket_id = 'estimate-attachments'
-    AND public.is_org_member(((storage.foldername(name))[1])::uuid)
+    AND public.is_org_member(((storage.foldername(name))[0])::uuid)
   );
 
 CREATE POLICY "members can upload estimate attachments"
   ON storage.objects FOR INSERT
   WITH CHECK (
     bucket_id = 'estimate-attachments'
-    AND public.is_org_member(((storage.foldername(name))[1])::uuid)
+    AND public.is_org_member(((storage.foldername(name))[0])::uuid)
   );
 
 CREATE POLICY "members can delete estimate attachments"
   ON storage.objects FOR DELETE
   USING (
     bucket_id = 'estimate-attachments'
-    AND public.is_org_member(((storage.foldername(name))[1])::uuid)
+    AND public.is_org_member(((storage.foldername(name))[0])::uuid)
   );

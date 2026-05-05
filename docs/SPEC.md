@@ -257,13 +257,12 @@ EstimateFlow uses Anthropic Claude via server-side API calls only. There are two
 ```json
 {
   "description": "string — contractor's free-text job description",
-  "organization_id": "uuid",
   "estimate_id": "uuid — pre-created estimate to populate"
 }
 ```
 
 **Behavior:**
-1. Validate the request is from an authenticated user who belongs to the org.
+1. Validate the request is authorized using the contractor's bearer token and that the user belongs to the estimate's organization.
 2. Send the description + a structured prompt to Claude requesting JSON output.
 3. Parse and validate the returned JSON (sections + line items with low/typical/high unit prices).
 4. Insert sections and line items into the DB, all tagged `source: 'ai'`.
@@ -373,6 +372,7 @@ AI features are **included by default** on all plans (Free and Pro).
 - No separate AI add-on or usage meter shown to the user at launch.
 - Cost is absorbed into plan pricing.
 - `ai_usage_events` table is in place so metering can be introduced later if costs require it without a schema change.
+- Free-tier contractors are limited to 5 new estimates per plan period; AI drafting requests are gated server-side and return an upgrade prompt when the limit is reached.
 - If per-org AI spend exceeds a threshold (initially $50/org/month), an internal alert fires for manual review. This is an ops safeguard, not user-facing.
 
 ---
