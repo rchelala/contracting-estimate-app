@@ -21,21 +21,36 @@ type AIDraftSection = {
   line_items: AIDraftLineItem[]
 }
 
-function jsonResponse(res: any, status: number, body: unknown) {
+interface JsonResponseWriter {
+  statusCode: number
+  setHeader(name: string, value: string): void
+  end(body: string): void
+}
+
+interface AsyncBodyStream {
+  [Symbol.asyncIterator](): AsyncIterator<Uint8Array | string>
+}
+
+type RawRequest = { body?: unknown } & Partial<AsyncBodyStream>
+
+function jsonResponse(res: JsonResponseWriter, status: number, body: unknown) {
   res.statusCode = status
   res.setHeader('Content-Type', 'application/json')
   res.end(JSON.stringify(body))
 }
 
-async function getRawBody(req: any): Promise<string> {
+async function getRawBody(req: RawRequest): Promise<string> {
   if (req.body) {
     return typeof req.body === 'string' ? req.body : JSON.stringify(req.body)
   }
 
   const chunks: Uint8Array[] = []
-  for await (const chunk of req) {
-    chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk)
+  if (typeof req[Symbol.asyncIterator] === 'function') {
+    for await (const chunk of req as AsyncBodyStream) {
+      chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk)
+    }
   }
+
   return Buffer.concat(chunks).toString('utf8')
 }
 
@@ -52,18 +67,22 @@ function extractJson(text: string): unknown {
   }
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
 function validateDraftResponse(raw: unknown): AIDraftSection[] {
-  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+  if (!isRecord(raw)) {
     throw new Error('AI response must be a JSON object with a sections array')
   }
 
-  const sections = (raw as any).sections
+  const sections = raw.sections
   if (!Array.isArray(sections) || sections.length === 0) {
     throw new Error('AI response must contain a non-empty sections array')
   }
 
-  return sections.map((section: any, sectionIndex: number) => {
-    if (!section || typeof section !== 'object') {
+  return sections.map((section: unknown, sectionIndex: number) => {
+    if (!isRecord(section)) {
       throw new Error(`Section ${sectionIndex + 1} must be an object`)
     }
     if (typeof section.name !== 'string' || !section.name.trim()) {
@@ -75,8 +94,8 @@ function validateDraftResponse(raw: unknown): AIDraftSection[] {
 
     return {
       name: section.name.trim(),
-      line_items: section.line_items.map((item: any, itemIndex: number) => {
-        if (!item || typeof item !== 'object') {
+      line_items: section.line_items.map((item: unknown, itemIndex: number) => {
+        if (!isRecord(item)) {
           throw new Error(`Line item ${itemIndex + 1} in section ${section.name} must be an object`)
         }
         if (typeof item.description !== 'string' || !item.description.trim()) {
@@ -164,9 +183,15 @@ function calculateCostCents(inputTokens: number, outputTokens: number): number {
   return Math.round((inputTokens * inputPricePerThousand + outputTokens * outputPricePerThousand) / 1000)
 }
 
-function getTokens(responseJson: any) {
-  const inputTokens = Number(responseJson?.usage?.prompt_tokens ?? responseJson?.input_tokens ?? 0)
-  const outputTokens = Number(responseJson?.usage?.completion_tokens ?? responseJson?.output_tokens ?? 0)
+function getTokens(responseJson: unknown) {
+  if (!isRecord(responseJson)) {
+    return { inputTokens: 0, outputTokens: 0 }
+  }
+
+  const usage = isRecord(responseJson.usage) ? responseJson.usage : undefined
+  const inputTokens = Number(usage?.input_tokens ?? responseJson.input_tokens ?? 0)
+  const outputTokens = Number(usage?.output_tokens ?? 0)
+
   return {
     inputTokens: Number.isFinite(inputTokens) ? inputTokens : 0,
     outputTokens: Number.isFinite(outputTokens) ? outputTokens : 0,
@@ -178,7 +203,10 @@ function startOfCurrentMonth(): string {
   return new Date(now.getUTCFullYear(), now.getUTCMonth(), 1).toISOString()
 }
 
-export default async function handler(req: any, res: any) {
+export default async function handler(
+  req: RawRequest & { headers?: Record<string, string | undefined>; method?: string },
+  res: JsonResponseWriter,
+) {
   try {
     if (req.method !== 'POST') {
       return jsonResponse(res, 405, { error: 'Method not allowed' })
@@ -193,7 +221,7 @@ export default async function handler(req: any, res: any) {
     let body: AIDraftRequestBody
     try {
       body = JSON.parse(bodyText) as AIDraftRequestBody
-    } catch (error) {
+    } catch {
       return jsonResponse(res, 400, { error: 'Invalid JSON body' })
     }
 
@@ -265,7 +293,7 @@ export default async function handler(req: any, res: any) {
   }
 
   const anthropicKey = process.env.ANTHROPIC_API_KEY
-  const anthropicModel = process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4.6'
+  const anthropicModel = process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-6'
   if (!anthropicKey) {
     return jsonResponse(res, 500, { error: 'AI backend is not configured' })
   }
@@ -273,21 +301,27 @@ export default async function handler(req: any, res: any) {
   const prompt = buildPrompt(description.trim())
   const promptStart = Date.now()
   let completionText: string
-  let responseJson: any
+  let responseJson: unknown
 
   try {
-    const aiResponse = await fetch('https://api.anthropic.com/v1/complete', {
+    const aiResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-Api-Key': anthropicKey,
+        'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
         model: anthropicModel,
-        prompt,
-        max_tokens_to_sample: 1200,
+        max_tokens: 1200,
         temperature: 0.2,
-        stop_sequences: ['\n\nHuman:'],
+        system: 'You are an expert contractor estimate assistant. Generate structured estimate drafts with sections and line items.',
+        messages: [
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
       }),
     })
 
@@ -299,13 +333,11 @@ export default async function handler(req: any, res: any) {
     try {
       responseJson = JSON.parse(rawResponseText)
     } catch {
-      responseJson = { completion: rawResponseText }
+      responseJson = { content: [{ text: rawResponseText }] }
     }
 
-    completionText = typeof responseJson.completion === 'string'
-      ? responseJson.completion
-      : typeof responseJson?.completion?.[0]?.text === 'string'
-      ? responseJson.completion[0].text
+    completionText = isRecord(responseJson) && Array.isArray(responseJson.content) && typeof responseJson.content[0]?.text === 'string'
+      ? responseJson.content[0].text
       : rawResponseText
   } catch (error) {
     return jsonResponse(res, 502, { error: 'AI request failed', details: error instanceof Error ? error.message : String(error) })
