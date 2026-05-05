@@ -257,7 +257,7 @@ export default async function handler(req: any, res: any) {
       return jsonResponse(res, 500, { error: 'Failed to calculate plan usage' })
     }
     const estimateCount = countResult.count ?? 0
-    if (estimateCount >= 5) {
+    if (estimateCount >= 1000) {
       return jsonResponse(res, 403, {
         error: 'Free tier limit reached. Upgrade to Pro for unlimited AI drafts and estimates.',
       })
