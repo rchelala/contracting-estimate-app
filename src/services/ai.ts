@@ -30,9 +30,17 @@ export async function draftEstimate(estimateId: string, description: string): Pr
     body: JSON.stringify({ estimate_id: estimateId, description }),
   })
 
-  const body = await response.json()
+  const textBody = await response.text()
+  let body: any
+  try {
+    body = JSON.parse(textBody)
+  } catch {
+    body = null
+  }
+
   if (!response.ok) {
-    throw new Error((body && (body.error as string)) || 'AI draft request failed')
+    const details = body?.error ? body.error : textBody
+    throw new Error(details || 'AI draft request failed')
   }
 
   // Refetch the estimate to get the updated data with AI-generated sections and line items

@@ -1,4 +1,4 @@
-import { serviceSupabase, createAuthSupabase } from '../lib/supabase.js'
+import { getServiceSupabase, createAuthSupabase } from '../lib/supabase.js'
 
 interface AIDraftRequestBody {
   estimate_id: string
@@ -179,22 +179,23 @@ function startOfCurrentMonth(): string {
 }
 
 export default async function handler(req: any, res: any) {
-  if (req.method !== 'POST') {
-    return jsonResponse(res, 405, { error: 'Method not allowed' })
-  }
-
-  const authorization = req.headers?.authorization
-  if (!authorization?.startsWith('Bearer ')) {
-    return jsonResponse(res, 401, { error: 'Authentication required' })
-  }
-
-  const bodyText = await getRawBody(req)
-  let body: AIDraftRequestBody
   try {
-    body = JSON.parse(bodyText) as AIDraftRequestBody
-  } catch (error) {
-    return jsonResponse(res, 400, { error: 'Invalid JSON body' })
-  }
+    if (req.method !== 'POST') {
+      return jsonResponse(res, 405, { error: 'Method not allowed' })
+    }
+
+    const authorization = req.headers?.authorization
+    if (!authorization?.startsWith('Bearer ')) {
+      return jsonResponse(res, 401, { error: 'Authentication required' })
+    }
+
+    const bodyText = await getRawBody(req)
+    let body: AIDraftRequestBody
+    try {
+      body = JSON.parse(bodyText) as AIDraftRequestBody
+    } catch (error) {
+      return jsonResponse(res, 400, { error: 'Invalid JSON body' })
+    }
 
   const { estimate_id: estimateId, description } = body
   if (!estimateId || typeof estimateId !== 'string') {
@@ -210,6 +211,7 @@ export default async function handler(req: any, res: any) {
     return jsonResponse(res, 401, { error: 'Invalid authentication token' })
   }
 
+  const serviceSupabase = getServiceSupabase()
   const estimateResult = await serviceSupabase
     .from('estimates')
     .select('id,organization_id,status')
@@ -408,4 +410,10 @@ export default async function handler(req: any, res: any) {
       line_item_ids: insertedLineItems.filter((item) => item.section_id === section.id).map((item) => item.id),
     })),
   })
+  } catch (error) {
+    return jsonResponse(res, 500, {
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : String(error),
+    })
+  }
 }
