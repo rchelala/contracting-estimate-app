@@ -148,6 +148,7 @@ function buildPrompt(description: string): string {
 
 Requirements:
 - Return ONLY valid JSON.
+- Do not wrap the JSON in markdown fences, backticks, or code blocks.
 - Use integer cents for all unit prices.
 - Each line item must include description, quantity, unit, unit_price_low_cents, unit_price_typical_cents, unit_price_high_cents, markup_pct, and taxable.
 - Avoid any text outside the JSON object.
@@ -313,8 +314,8 @@ export default async function handler(
       },
       body: JSON.stringify({
         model: anthropicModel,
-        max_tokens: 1200,
-        temperature: 0.2,
+        max_tokens: 3000,
+        temperature: 0.0,
         system: 'You are an expert contractor estimate assistant. Generate structured estimate drafts with sections and line items.',
         messages: [
           {
@@ -350,7 +351,10 @@ export default async function handler(
   } catch (error) {
     return jsonResponse(res, 502, {
       error: 'Failed to parse AI response',
-      details: error instanceof Error ? error.message : 'Invalid AI payload',
+      details:
+        error instanceof Error
+          ? error.message
+          : 'Invalid AI payload. The AI output may have been truncated or did not return valid JSON.',
     })
   }
 
