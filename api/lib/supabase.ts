@@ -1,5 +1,4 @@
 import { createClient } from '@supabase/supabase-js'
-import type { Database } from '../../src/types/database.types'
 
 function ensureSupabaseEnv(): void {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -22,7 +21,7 @@ export function getServiceSupabase() {
   ensureSupabaseEnv()
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  return createClient<Database>(supabaseUrl!, supabaseServiceRoleKey!, {
+  return createClient(supabaseUrl!, supabaseServiceRoleKey!, {
     auth: { persistSession: false },
   })
 }
@@ -31,7 +30,7 @@ export function createAuthSupabase(authorization: string) {
   ensureSupabaseEnv()
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabasePublishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-  return createClient<Database>(supabaseUrl!, supabasePublishableKey!, {
+  return createClient(supabaseUrl!, supabasePublishableKey!, {
     global: { headers: { Authorization: authorization } },
     auth: { persistSession: false },
   })
