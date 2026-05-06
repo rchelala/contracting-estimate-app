@@ -31,15 +31,25 @@ export async function draftEstimate(estimateId: string, description: string): Pr
   })
 
   const textBody = await response.text()
-  let body: any
+  let body: unknown
   try {
     body = JSON.parse(textBody)
   } catch {
     body = null
   }
 
+  function isErrorPayload(value: unknown): value is { error?: string } {
+    return (
+      typeof value === 'object' &&
+      value !== null &&
+      'error' in value &&
+      (typeof (value as { error?: unknown }).error === 'string' ||
+        typeof (value as { error?: unknown }).error === 'undefined')
+    )
+  }
+
   if (!response.ok) {
-    const details = body?.error ? body.error : textBody
+    const details = isErrorPayload(body) && body.error ? body.error : textBody
     throw new Error(details || 'AI draft request failed')
   }
 
