@@ -21,6 +21,13 @@ type AIDraftSection = {
   line_items: AIDraftLineItem[]
 }
 
+type AIProviderAttempt = {
+  responseJson: unknown
+  completionText: string
+  inputTokens: number
+  outputTokens: number
+}
+
 interface JsonResponseWriter {
   statusCode: number
   setHeader(name: string, value: string): void
@@ -219,27 +226,6 @@ Requirements:
 
 Job description:
 ${description}
-
-Output format:
-{
-  "sections": [
-    {
-      "name": "string",
-      "line_items": [
-        {
-          "description": "string",
-          "quantity": number,
-          "unit": "string",
-          "unit_price_low_cents": integer,
-          "unit_price_typical_cents": integer,
-          "unit_price_high_cents": integer,
-          "markup_pct": number,
-          "taxable": boolean
-        }
-      ]
-    }
-  ]
-}
 `}
 
 function calculateCostCents(inputTokens: number, outputTokens: number): number {
@@ -386,6 +372,65 @@ function buildDraftTool() {
   }
 }
 
+async function requestAIDraft(
+  anthropicKey: string,
+  anthropicModel: string,
+  prompt: string,
+  retryReason?: string,
+): Promise<AIProviderAttempt> {
+  const userContent = retryReason
+    ? `${prompt}
+
+Previous tool input was invalid: ${retryReason}
+
+Call create_estimate_draft again. The tool input must include at least one section, and every section must include at least one line item. Never return an empty sections array.`
+    : prompt
+
+  const aiResponse = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Api-Key': anthropicKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: anthropicModel,
+      max_tokens: 4000,
+      temperature: 0.0,
+      system:
+        'You are an expert contractor estimate assistant. You must call create_estimate_draft with useful, non-empty estimate sections and line items.',
+      tools: [buildDraftTool()],
+      tool_choice: { type: 'tool', name: 'create_estimate_draft' },
+      messages: [
+        {
+          role: 'user',
+          content: userContent,
+        },
+      ],
+    }),
+  })
+
+  const rawResponseText = await aiResponse.text()
+  if (!aiResponse.ok) {
+    throw new Error(`AI provider error: ${rawResponseText}`)
+  }
+
+  let responseJson: unknown
+  try {
+    responseJson = JSON.parse(rawResponseText)
+  } catch {
+    responseJson = { content: [{ text: rawResponseText }] }
+  }
+
+  const { inputTokens, outputTokens } = getTokens(responseJson)
+  return {
+    responseJson,
+    completionText: getCompletionText(responseJson, rawResponseText),
+    inputTokens,
+    outputTokens,
+  }
+}
+
 function startOfCurrentMonth(): string {
   const now = new Date()
   return new Date(now.getUTCFullYear(), now.getUTCMonth(), 1).toISOString()
@@ -488,61 +533,45 @@ export default async function handler(
 
   const prompt = buildPrompt(description.trim())
   const promptStart = Date.now()
-  let completionText: string
-  let responseJson: unknown
+  let inputTokens = 0
+  let outputTokens = 0
+  const providerAttempts: AIProviderAttempt[] = []
 
   try {
-    const aiResponse = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Api-Key': anthropicKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: anthropicModel,
-        max_tokens: 3000,
-        temperature: 0.0,
-        system: 'You are an expert contractor estimate assistant. Generate structured estimate drafts with sections and line items.',
-        tools: [buildDraftTool()],
-        tool_choice: { type: 'tool', name: 'create_estimate_draft' },
-        messages: [
-          {
-            role: 'user',
-            content: prompt,
-          },
-        ],
-      }),
-    })
-
-    const rawResponseText = await aiResponse.text()
-    if (!aiResponse.ok) {
-      return jsonResponse(res, 502, { error: 'AI provider error', details: rawResponseText })
-    }
-
-    try {
-      responseJson = JSON.parse(rawResponseText)
-    } catch {
-      responseJson = { content: [{ text: rawResponseText }] }
-    }
-
-    completionText = getCompletionText(responseJson, rawResponseText)
+    providerAttempts.push(await requestAIDraft(anthropicKey, anthropicModel, prompt))
   } catch (error) {
     return jsonResponse(res, 502, { error: 'AI request failed', details: error instanceof Error ? error.message : String(error) })
   }
 
-  let aiSections: AIDraftSection[]
+  let aiSections: AIDraftSection[] | null = null
+  let parseError = 'Invalid AI payload. The AI output may have been truncated or did not return valid JSON.'
   try {
-    const parsed = getDraftPayload(responseJson, completionText)
-    aiSections = validateDraftResponse(parsed)
+    for (let attemptIndex = 0; attemptIndex < 2; attemptIndex += 1) {
+      const attempt = providerAttempts[attemptIndex]
+      if (!attempt) {
+        throw new Error(parseError)
+      }
+
+      try {
+        const parsed = getDraftPayload(attempt.responseJson, attempt.completionText)
+        aiSections = validateDraftResponse(parsed)
+        break
+      } catch (error) {
+        parseError = error instanceof Error ? error.message : parseError
+        if (attemptIndex === 0) {
+          providerAttempts.push(await requestAIDraft(anthropicKey, anthropicModel, prompt, parseError))
+        }
+      }
+    }
   } catch (error) {
     return jsonResponse(res, 502, {
       error: 'Failed to parse AI response',
-      details:
-        error instanceof Error
-          ? error.message
-          : 'Invalid AI payload. The AI output may have been truncated or did not return valid JSON.',
+      details: error instanceof Error ? error.message : parseError,
     })
+  }
+
+  if (!aiSections) {
+    return jsonResponse(res, 502, { error: 'Failed to parse AI response', details: parseError })
   }
 
   const maxSectionPositionResult = await serviceSupabase
@@ -610,7 +639,10 @@ export default async function handler(
     return jsonResponse(res, 500, { error: 'Failed to recalculate estimate totals' })
   }
 
-  const { inputTokens, outputTokens } = getTokens(responseJson)
+  for (const attempt of providerAttempts) {
+    inputTokens += attempt.inputTokens
+    outputTokens += attempt.outputTokens
+  }
   const latencyMs = Date.now() - promptStart
   const costCents = calculateCostCents(inputTokens, outputTokens)
   await serviceSupabase.from('ai_usage_events').insert({
