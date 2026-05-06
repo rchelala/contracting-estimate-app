@@ -1,4 +1,4 @@
-import { getServiceSupabase, createAuthSupabase } from '../lib/supabase.js'
+import { getServiceSupabase, createAuthSupabase } from '../lib/supabase'
 
 interface AIDraftRequestBody {
   estimate_id: string
