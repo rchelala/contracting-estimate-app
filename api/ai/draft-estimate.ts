@@ -55,16 +55,79 @@ async function getRawBody(req: RawRequest): Promise<string> {
 }
 
 function extractJson(text: string): unknown {
+  const cleaned = removeJsonFences(text).trim()
+
   try {
-    return JSON.parse(text)
+    return JSON.parse(cleaned)
   } catch {
-    const start = text.indexOf('{')
-    const end = text.lastIndexOf('}')
-    if (start >= 0 && end > start) {
-      return JSON.parse(text.slice(start, end + 1))
+    const jsonBlock = findJsonBlock(cleaned)
+    if (jsonBlock) {
+      return JSON.parse(jsonBlock)
     }
+
+    const wrapped = wrapBareSections(cleaned)
+    if (wrapped) {
+      return JSON.parse(wrapped)
+    }
+
     throw new Error('Failed to parse JSON from AI response')
   }
+}
+
+function removeJsonFences(text: string): string {
+  const fenced = text.replace(/```(?:json)?\s*([\s\S]*?)\s*```/gi, '$1')
+  return fenced.replace(/`([^`]+)`/g, '$1')
+}
+
+function findJsonBlock(text: string): string | null {
+  const startIndex = text.indexOf('{')
+  if (startIndex < 0) return null
+
+  let depth = 0
+  let inString = false
+  let escape = false
+
+  for (let i = startIndex; i < text.length; i += 1) {
+    const char = text[i]
+
+    if (escape) {
+      escape = false
+      continue
+    }
+
+    if (char === '\\') {
+      escape = true
+      continue
+    }
+
+    if (char === '"') {
+      inString = !inString
+      continue
+    }
+
+    if (inString) {
+      continue
+    }
+
+    if (char === '{') {
+      depth += 1
+    } else if (char === '}') {
+      depth -= 1
+      if (depth === 0) {
+        return text.slice(startIndex, i + 1)
+      }
+    }
+  }
+
+  return null
+}
+
+function wrapBareSections(text: string): string | null {
+  const trimmed = text.trim()
+  if (/^("?sections"?\s*:)/i.test(trimmed)) {
+    return `{${trimmed}}`
+  }
+  return null
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -197,6 +260,34 @@ function getTokens(responseJson: unknown) {
     inputTokens: Number.isFinite(inputTokens) ? inputTokens : 0,
     outputTokens: Number.isFinite(outputTokens) ? outputTokens : 0,
   }
+}
+
+function getCompletionText(responseJson: unknown, rawResponseText: string): string {
+  if (isRecord(responseJson)) {
+    if (typeof responseJson.completion === 'string') {
+      return responseJson.completion
+    }
+
+    if (Array.isArray(responseJson.content) && typeof responseJson.content[0]?.text === 'string') {
+      return responseJson.content[0].text
+    }
+
+    if (Array.isArray(responseJson.output) && isRecord(responseJson.output[0])) {
+      const outputItem = responseJson.output[0] as Record<string, unknown>
+      if (Array.isArray(outputItem.content) && typeof outputItem.content[0]?.text === 'string') {
+        return outputItem.content[0].text
+      }
+      if (typeof outputItem.text === 'string') {
+        return outputItem.text
+      }
+    }
+
+    if (typeof responseJson.output === 'string') {
+      return responseJson.output
+    }
+  }
+
+  return rawResponseText
 }
 
 function startOfCurrentMonth(): string {
@@ -337,9 +428,7 @@ export default async function handler(
       responseJson = { content: [{ text: rawResponseText }] }
     }
 
-    completionText = isRecord(responseJson) && Array.isArray(responseJson.content) && typeof responseJson.content[0]?.text === 'string'
-      ? responseJson.content[0].text
-      : rawResponseText
+    completionText = getCompletionText(responseJson, rawResponseText)
   } catch (error) {
     return jsonResponse(res, 502, { error: 'AI request failed', details: error instanceof Error ? error.message : String(error) })
   }
