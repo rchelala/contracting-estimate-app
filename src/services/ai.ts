@@ -38,18 +38,23 @@ export async function draftEstimate(estimateId: string, description: string): Pr
     body = null
   }
 
-  function isErrorPayload(value: unknown): value is { error?: string } {
+  function isErrorPayload(value: unknown): value is { error?: string; details?: string } {
     return (
       typeof value === 'object' &&
       value !== null &&
       'error' in value &&
       (typeof (value as { error?: unknown }).error === 'string' ||
-        typeof (value as { error?: unknown }).error === 'undefined')
+        typeof (value as { error?: unknown }).error === 'undefined') &&
+      (typeof (value as { details?: unknown }).details === 'string' ||
+        typeof (value as { details?: unknown }).details === 'undefined')
     )
   }
 
   if (!response.ok) {
-    const details = isErrorPayload(body) && body.error ? body.error : textBody
+    const details =
+      isErrorPayload(body) && body.error
+        ? [body.error, body.details].filter(Boolean).join(': ')
+        : textBody
     throw new Error(details || 'AI draft request failed')
   }
 

@@ -262,28 +262,33 @@ function getTokens(responseJson: unknown) {
   }
 }
 
-function getCompletionText(responseJson: unknown, rawResponseText: string): string {
+export function collectTextContent(value: unknown): string[] {
+  if (!isRecord(value)) {
+    return []
+  }
+
+  const directText = typeof value.text === 'string' ? [value.text] : []
+  const completion = typeof value.completion === 'string' ? [value.completion] : []
+  const output = typeof value.output === 'string' ? [value.output] : []
+
+  const nestedText = ['content', 'output']
+    .flatMap((key) => {
+      const nested = value[key]
+      if (!Array.isArray(nested)) {
+        return []
+      }
+
+      return nested.flatMap((item) => collectTextContent(item))
+    })
+
+  return [...completion, ...output, ...directText, ...nestedText].filter((text) => text.trim().length > 0)
+}
+
+export function getCompletionText(responseJson: unknown, rawResponseText: string): string {
   if (isRecord(responseJson)) {
-    if (typeof responseJson.completion === 'string') {
-      return responseJson.completion
-    }
-
-    if (Array.isArray(responseJson.content) && typeof responseJson.content[0]?.text === 'string') {
-      return responseJson.content[0].text
-    }
-
-    if (Array.isArray(responseJson.output) && isRecord(responseJson.output[0])) {
-      const outputItem = responseJson.output[0] as Record<string, unknown>
-      if (Array.isArray(outputItem.content) && typeof outputItem.content[0]?.text === 'string') {
-        return outputItem.content[0].text
-      }
-      if (typeof outputItem.text === 'string') {
-        return outputItem.text
-      }
-    }
-
-    if (typeof responseJson.output === 'string') {
-      return responseJson.output
+    const textParts = collectTextContent(responseJson)
+    if (textParts.length > 0) {
+      return textParts.join('\n')
     }
   }
 
