@@ -207,14 +207,15 @@ function validateDraftResponse(raw: unknown): AIDraftSection[] {
 }
 
 function buildPrompt(description: string): string {
-  return `You are an expert contractor estimate assistant. Generate a structured estimate draft with sections and line items based on the job description below.
+  return `Generate a contractor estimate draft for the job description below.
 
 Requirements:
-- Return ONLY valid JSON.
-- Do not wrap the JSON in markdown fences, backticks, or code blocks.
+- Use the create_estimate_draft tool.
+- The tool input must include a non-empty sections array.
+- Each section must include at least one line item.
 - Use integer cents for all unit prices.
 - Each line item must include description, quantity, unit, unit_price_low_cents, unit_price_typical_cents, unit_price_high_cents, markup_pct, and taxable.
-- Avoid any text outside the JSON object.
+- If the job description is brief, make reasonable contractor-style assumptions and still create a draft.
 
 Job description:
 ${description}
@@ -284,6 +285,32 @@ export function collectTextContent(value: unknown): string[] {
   return [...completion, ...output, ...directText, ...nestedText].filter((text) => text.trim().length > 0)
 }
 
+export function findToolInput(value: unknown): unknown | null {
+  if (!isRecord(value)) {
+    return null
+  }
+
+  if (value.type === 'tool_use' && isRecord(value.input)) {
+    return value.input
+  }
+
+  for (const key of ['content', 'output']) {
+    const nested = value[key]
+    if (!Array.isArray(nested)) {
+      continue
+    }
+
+    for (const item of nested) {
+      const input = findToolInput(item)
+      if (input) {
+        return input
+      }
+    }
+  }
+
+  return null
+}
+
 export function getCompletionText(responseJson: unknown, rawResponseText: string): string {
   if (isRecord(responseJson)) {
     const textParts = collectTextContent(responseJson)
@@ -293,6 +320,70 @@ export function getCompletionText(responseJson: unknown, rawResponseText: string
   }
 
   return rawResponseText
+}
+
+function getDraftPayload(responseJson: unknown, rawResponseText: string): unknown {
+  const toolInput = findToolInput(responseJson)
+  if (toolInput) {
+    return toolInput
+  }
+
+  return extractJson(getCompletionText(responseJson, rawResponseText))
+}
+
+function buildDraftTool() {
+  return {
+    name: 'create_estimate_draft',
+    description:
+      'Create a structured contractor estimate draft. The input must contain sections, and every section must contain line_items.',
+    input_schema: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['sections'],
+      properties: {
+        sections: {
+          type: 'array',
+          minItems: 1,
+          items: {
+            type: 'object',
+            additionalProperties: false,
+            required: ['name', 'line_items'],
+            properties: {
+              name: { type: 'string', minLength: 1 },
+              line_items: {
+                type: 'array',
+                minItems: 1,
+                items: {
+                  type: 'object',
+                  additionalProperties: false,
+                  required: [
+                    'description',
+                    'quantity',
+                    'unit',
+                    'unit_price_low_cents',
+                    'unit_price_typical_cents',
+                    'unit_price_high_cents',
+                    'markup_pct',
+                    'taxable',
+                  ],
+                  properties: {
+                    description: { type: 'string', minLength: 1 },
+                    quantity: { type: 'number', exclusiveMinimum: 0 },
+                    unit: { type: 'string' },
+                    unit_price_low_cents: { type: 'integer', minimum: 0 },
+                    unit_price_typical_cents: { type: 'integer', minimum: 0 },
+                    unit_price_high_cents: { type: 'integer', minimum: 0 },
+                    markup_pct: { type: 'number', minimum: 0 },
+                    taxable: { type: 'boolean' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  }
 }
 
 function startOfCurrentMonth(): string {
@@ -413,6 +504,8 @@ export default async function handler(
         max_tokens: 3000,
         temperature: 0.0,
         system: 'You are an expert contractor estimate assistant. Generate structured estimate drafts with sections and line items.',
+        tools: [buildDraftTool()],
+        tool_choice: { type: 'tool', name: 'create_estimate_draft' },
         messages: [
           {
             role: 'user',
@@ -440,7 +533,7 @@ export default async function handler(
 
   let aiSections: AIDraftSection[]
   try {
-    const parsed = extractJson(completionText)
+    const parsed = getDraftPayload(responseJson, completionText)
     aiSections = validateDraftResponse(parsed)
   } catch (error) {
     return jsonResponse(res, 502, {

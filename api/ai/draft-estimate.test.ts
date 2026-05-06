@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getCompletionText } from './draft-estimate'
+import { findToolInput, getCompletionText } from './draft-estimate'
 
 const draftJson = JSON.stringify({
   sections: [
@@ -47,5 +47,22 @@ describe('getCompletionText', () => {
 
   it('falls back to the raw response when no text content is available', () => {
     expect(getCompletionText({ content: [{ type: 'thinking' }] }, 'raw body')).toBe('raw body')
+  })
+})
+
+describe('findToolInput', () => {
+  it('reads a forced Anthropic tool input payload', () => {
+    const response = {
+      content: [
+        {
+          type: 'tool_use',
+          id: 'toolu_123',
+          name: 'create_estimate_draft',
+          input: JSON.parse(draftJson),
+        },
+      ],
+    }
+
+    expect(findToolInput(response)).toEqual(JSON.parse(draftJson))
   })
 })
