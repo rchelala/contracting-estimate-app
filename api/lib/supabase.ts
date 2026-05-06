@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import type { Database } from '@/types/database.types'
+import type { Database } from '../../src/types/database.types'
 
 function ensureSupabaseEnv(): void {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
