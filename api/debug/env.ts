@@ -8,7 +8,7 @@ function getEnvValue(name: string): string | undefined {
   return process.env[name]
 }
 
-export default function handler(req: any, res: any) {
+export default function handler(req: { method?: string }, res: { statusCode?: number; setHeader: (name: string, value: string) => void; end: (data: string) => void }) {
   if (req.method !== 'GET') {
     res.statusCode = 405
     res.setHeader('Content-Type', 'application/json')
@@ -17,11 +17,9 @@ export default function handler(req: any, res: any) {
   }
 
   const envNames = [
-    'VITE_SUPABASE_URL',
-    'VITE_SUPABASE_ANON_KEY',
+    'NEXT_PUBLIC_SUPABASE_URL',
+    'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY',
     'SUPABASE_SERVICE_ROLE_KEY',
-    'SUPABASE_URL',
-    'SUPABASE_ANON_KEY',
     'ANTHROPIC_API_KEY',
     'ANTHROPIC_MODEL',
   ]

@@ -105,8 +105,8 @@ Expected: no errors (a few "unused variable" warnings from Vite's default `App.t
 Create `.env.example` with empty values:
 
 ```
-VITE_SUPABASE_URL=
-VITE_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 ```
 
 - [ ] **Step 7: Create .env.local from example**
@@ -1114,8 +1114,8 @@ Copy the `API URL` and `anon key` values.
 Open `.env.local` and paste the values from `supabase start` output:
 
 ```
-VITE_SUPABASE_URL=http://127.0.0.1:54321
-VITE_SUPABASE_ANON_KEY=<anon key from output>
+NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<publishable key from output>
 ```
 
 - [ ] **Step 3: Apply migrations**
@@ -1194,12 +1194,12 @@ Create `src/lib/supabase.ts`:
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from '../types/database.types'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string
+const supabaseUrl = import.meta.env.NEXT_PUBLIC_SUPABASE_URL as string
+const supabaseAnonKey = import.meta.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY as string
 
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error(
-    'VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY must be set in .env.local'
+    'NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY must be set in .env.local'
   )
 }
 

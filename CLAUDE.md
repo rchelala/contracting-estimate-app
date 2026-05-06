@@ -288,7 +288,7 @@ EstimateFlow is a web-first AI-assisted estimating SaaS for contractors. Contrac
 - Event handlers in components: `handleEventName` (e.g., `handleClick`, `handleChange`)
 - React hooks: `use` prefix (e.g., `useAuth`, `useEstimate`, `useAutosave`, `useOffline`)
 - Local variables and parameters: camelCase (e.g., `count`, `unitPriceCents`, `markupPct`)
-- Constants: camelCase for non-global, ALL_CAPS for global constants (e.g., `VITE_SUPABASE_URL`)
+- Constants: camelCase for non-global, ALL_CAPS for global constants (e.g., `NEXT_PUBLIC_SUPABASE_URL`)
 - Money values: suffix with `Cents` when in integer cents (e.g., `unitPriceCents`, `markupPct`)
 - Never use floats for money; always use integer cents as per CLAUDE.md rule
 - Interfaces and types: PascalCase (e.g., `Database`, `Json`)
@@ -363,7 +363,7 @@ EstimateFlow is a web-first AI-assisted estimating SaaS for contractors. Contrac
 - Use `React.FC<Props>` or explicit return type annotation
 - Always use strict TypeScript for props
 ## Multi-Tenant & Security Conventions
-- Public (safe as `VITE_`): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_STRIPE_PUBLISHABLE_KEY`
+- Public (safe as `NEXT_PUBLIC_`): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
 - Secrets (via `/api/*` serverless only): Anthropic API key, Stripe secret key, Resend API key
 <!-- GSD:conventions-end -->
 
