@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TopNav from '../components/layout/TopNav'
 import StatusBadge from '../components/ui/StatusBadge'
-import { listEstimates, duplicateEstimate, type EstimateListRow } from '../services/estimates'
+import Modal from '../components/ui/Modal'
+import { listEstimates, duplicateEstimate, deleteEstimate, type EstimateListRow } from '../services/estimates'
 import { getMyMembership } from '../services/organizations'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
@@ -17,7 +18,7 @@ function NewEstimateButton({ extraClass = '' }: { extraClass?: string }) {
   return (
     <button
       type="button"
-      onClick={() => navigate('/estimates/new')}
+      onClick={() => navigate('/estimates/wizard')}
       className={`bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-md px-4 py-2 focus:outline-hidden focus:ring-3 focus:ring-blue-600 focus:ring-offset-2 ${extraClass}`}
     >
       New Estimate
@@ -28,12 +29,15 @@ function NewEstimateButton({ extraClass = '' }: { extraClass?: string }) {
 interface RowActionsProps {
   estimateId: string
   onDuplicate: (id: string) => void
+  onDelete: (id: string) => void
   duplicating: boolean
+  deleting: boolean
 }
 
-function RowActionsMenu({ estimateId, onDuplicate, duplicating }: RowActionsProps) {
+function RowActionsMenu({ estimateId, onDuplicate, onDelete, duplicating, deleting }: RowActionsProps) {
   const [open, setOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement | null>(null)
+  const busy = duplicating || deleting
 
   useEffect(() => {
     if (!open) return
@@ -53,7 +57,7 @@ function RowActionsMenu({ estimateId, onDuplicate, duplicating }: RowActionsProp
         aria-label="Row actions"
         className="text-slate-400 hover:text-slate-600 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
         onClick={() => setOpen((v) => !v)}
-        disabled={duplicating}
+        disabled={busy}
       >
         ⋮
       </button>
@@ -68,6 +72,16 @@ function RowActionsMenu({ estimateId, onDuplicate, duplicating }: RowActionsProp
             }}
           >
             Duplicate
+          </button>
+          <button
+            type="button"
+            className="w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50"
+            onClick={() => {
+              setOpen(false)
+              onDelete(estimateId)
+            }}
+          >
+            Delete
           </button>
         </div>
       )}
@@ -85,6 +99,9 @@ export default function DashboardPage() {
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const [reloadCounter, setReloadCounter] = useState(0)
   const [duplicatingId, setDuplicatingId] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<EstimateListRow | null>(null)
+  const [actionError, setActionError] = useState<string | null>(null)
 
   // Load org name (via membership → organizations.name)
   useEffect(() => {
@@ -157,6 +174,7 @@ export default function DashboardPage() {
   }
 
   async function handleDuplicate(sourceId: string) {
+    setActionError(null)
     const { data: member } = await supabase
       .from('organization_members')
       .select('organization_id')
@@ -169,6 +187,27 @@ export default function DashboardPage() {
       navigate(`/estimates/${newEstimate.id}`)
     } catch {
       setDuplicatingId(null)
+    }
+  }
+
+  function handleRequestDelete(row: EstimateListRow) {
+    setActionError(null)
+    setDeleteTarget(row)
+  }
+
+  async function handleConfirmDelete() {
+    if (!deleteTarget) return
+    setActionError(null)
+    setDeletingId(deleteTarget.id)
+    try {
+      await deleteEstimate(deleteTarget.id)
+      setRows((current) => current?.filter((row) => row.id !== deleteTarget.id) ?? current)
+      setDeleteTarget(null)
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Failed to delete estimate')
+      setDeleteTarget(null)
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -185,6 +224,12 @@ export default function DashboardPage() {
         </div>
 
         <div className="mt-6">
+          {actionError && (
+            <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {actionError}
+            </div>
+          )}
+
           {/* Loading */}
           {rows === null && !error && (
             <div aria-busy="true" aria-label="Loading estimates">
@@ -258,7 +303,9 @@ export default function DashboardPage() {
                       <RowActionsMenu
                         estimateId={r.id}
                         onDuplicate={handleDuplicate}
+                        onDelete={() => handleRequestDelete(r)}
                         duplicating={duplicatingId === r.id}
+                        deleting={deletingId === r.id}
                       />
                     </td>
                   </tr>
@@ -268,6 +315,35 @@ export default function DashboardPage() {
           )}
         </div>
       </main>
+      <Modal
+        open={deleteTarget !== null}
+        onClose={() => {
+          if (!deletingId) setDeleteTarget(null)
+        }}
+        title={`Delete ${deleteTarget?.estimate_number ?? 'estimate'}?`}
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setDeleteTarget(null)}
+              disabled={deletingId !== null}
+              className="rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-hidden focus:ring-3 focus:ring-blue-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleConfirmDelete}
+              disabled={deletingId !== null}
+              className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 focus:outline-hidden focus:ring-3 focus:ring-red-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {deletingId ? 'Deleting...' : 'Delete'}
+            </button>
+          </>
+        }
+      >
+        This permanently deletes the estimate and its line items.
+      </Modal>
     </div>
   )
 }

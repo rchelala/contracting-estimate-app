@@ -6,6 +6,7 @@ import OnboardingPage from './pages/OnboardingPage'
 import DashboardPage from './pages/DashboardPage'
 import NewEstimatePage from './pages/NewEstimatePage'
 import EstimateEditPage from './pages/EstimateEditPage'
+import EstimateWizardPage from './pages/EstimateWizardPage'
 
 const router = createBrowserRouter([
   { path: '/auth', element: <AuthPage /> },
@@ -16,6 +17,7 @@ const router = createBrowserRouter([
       { path: '/onboarding', element: <OnboardingPage /> },
       { path: '/dashboard', element: <DashboardPage /> },
       { path: '/estimates/new', element: <NewEstimatePage /> },
+      { path: '/estimates/wizard', element: <EstimateWizardPage /> },
       { path: '/estimates/:estimateId', element: <EstimateEditPage /> },
       { path: '/', element: <Navigate to="/dashboard" replace /> },
     ],
@@ -24,5 +26,5 @@ const router = createBrowserRouter([
 ])
 
 export default function App() {
-  return <RouterProvider router={router} />
+  return <RouterProvider router={router} future={{ v7_startTransition: true }} />
 }
