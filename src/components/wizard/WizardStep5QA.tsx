@@ -22,7 +22,7 @@ export function WizardStep5QA() {
     fetchWizardQuestions({
       description,
       photoCount: photoFiles.length,
-      zipCode: zipCode || undefined,
+      ...(zipCode ? { zipCode } : {}),
     })
       .then((questions) => {
         setQAPairs(questions.map((q) => ({ question: q, answer: null })))

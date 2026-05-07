@@ -51,7 +51,7 @@ describe('wizardStore', () => {
       useWizardStore.getState().removePhotoFile(0)
     })
     expect(useWizardStore.getState().photoFiles).toHaveLength(1)
-    expect(useWizardStore.getState().photoFiles[0].name).toBe('b.jpg')
+    expect(useWizardStore.getState().photoFiles[0]!.name).toBe('b.jpg')
   })
 
   it('setQAPairs replaces all pairs', () => {
@@ -69,6 +69,6 @@ describe('wizardStore', () => {
       ])
       useWizardStore.getState().answerQuestion(1, 'Yes')
     })
-    expect(useWizardStore.getState().qaPairs[1].answer).toBe('Yes')
+    expect(useWizardStore.getState().qaPairs[1]!.answer).toBe('Yes')
   })
 })

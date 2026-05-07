@@ -92,7 +92,7 @@ export function WizardGenerating() {
       await draftEstimateFromWizard({
         estimateId: estimate.id,
         description,
-        zipCode: zipCode || undefined,
+        ...(zipCode ? { zipCode } : {}),
         qaPairs,
         attachmentIds,
       })

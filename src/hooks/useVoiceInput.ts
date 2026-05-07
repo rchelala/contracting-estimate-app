@@ -47,7 +47,7 @@ export function useVoiceInput({ onTranscript }: UseVoiceInputOptions): UseVoiceI
     recognition.lang = 'en-US'
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       const latest = event.results[event.resultIndex]
-      if (latest) {
+      if (latest?.[0]) {
         onTranscript(latest[0].transcript)
       }
     }
