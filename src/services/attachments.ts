@@ -3,7 +3,10 @@ import type { EditorAttachment } from '../types/editor'
 
 const BUCKET = 'estimate-attachments'
 const MAX_BYTES = 10 * 1024 * 1024
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+const ALLOWED_TYPES = [
+  'image/jpeg', 'image/png', 'image/webp', 'image/gif',
+  'video/mp4', 'video/quicktime', 'video/webm',
+]
 
 function normalizeStoragePath(storagePath: string): string {
   return storagePath.replaceAll('\\', '/').replace(/^\/+/, '').trim()
