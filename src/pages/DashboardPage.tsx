@@ -345,6 +345,23 @@ export default function DashboardPage() {
             <table className="w-full border border-slate-200 rounded-lg overflow-hidden">
               <thead className="bg-slate-100">
                 <tr>
+                  {selectionMode && (
+                    <th className="w-10 py-2 px-4">
+                      <input
+                        type="checkbox"
+                        aria-label="Select all"
+                        checked={!!sorted && sorted.length > 0 && selectedIds.size === sorted.length}
+                        ref={(el) => {
+                          if (el) {
+                            el.indeterminate =
+                              selectedIds.size > 0 && !!sorted && selectedIds.size < sorted.length
+                          }
+                        }}
+                        onChange={toggleSelectAll}
+                        className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-600"
+                      />
+                    </th>
+                  )}
                   <th className="text-left text-sm font-semibold text-slate-600 py-2 px-4 cursor-pointer w-[100px]" onClick={() => toggleSort('estimate_number')}>
                     Estimate # {sortIndicator('estimate_number')}
                   </th>
@@ -359,31 +376,50 @@ export default function DashboardPage() {
                   <th className="text-left text-sm font-semibold text-slate-600 py-2 px-4 cursor-pointer w-[140px]" onClick={() => toggleSort('updated_at')}>
                     Last Updated {sortIndicator('updated_at')}
                   </th>
-                  <th className="w-10" />
+                  {!selectionMode && <th className="w-10" />}
                 </tr>
               </thead>
               <tbody>
                 {sorted.map((r) => (
                   <tr
                     key={r.id}
-                    onClick={() => navigate(`/estimates/${r.id}`)}
+                    onClick={() => {
+                      if (selectionMode) {
+                        toggleRow(r.id)
+                      } else {
+                        navigate(`/estimates/${r.id}`)
+                      }
+                    }}
                     className="bg-white border-t border-slate-200 hover:bg-slate-50 cursor-pointer"
                   >
+                    {selectionMode && (
+                      <td className="py-2 px-4" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          aria-label={`Select estimate ${r.estimate_number}`}
+                          checked={selectedIds.has(r.id)}
+                          onChange={() => toggleRow(r.id)}
+                          className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-600"
+                        />
+                      </td>
+                    )}
                     <td className="text-sm text-slate-900 py-2 px-4">{r.estimate_number}</td>
                     <td className="text-sm text-slate-900 py-2 px-4">{r.client_name ?? '—'}</td>
                     <td className="text-sm text-slate-900 py-2 px-4">{r.title ?? '—'}</td>
                     <td className="text-sm text-slate-900 py-2 px-4"><StatusBadge status={r.status} /></td>
                     <td className="text-sm text-slate-900 py-2 px-4 text-right">{formatCents(r.total_cents)}</td>
                     <td className="text-sm text-slate-500 py-2 px-4">{formatRelativeDate(r.updated_at)}</td>
-                    <td className="py-2 px-2">
-                      <RowActionsMenu
-                        estimateId={r.id}
-                        onDuplicate={handleDuplicate}
-                        onDelete={() => handleRequestDelete(r)}
-                        duplicating={duplicatingId === r.id}
-                        deleting={deletingId === r.id}
-                      />
-                    </td>
+                    {!selectionMode && (
+                      <td className="py-2 px-2">
+                        <RowActionsMenu
+                          estimateId={r.id}
+                          onDuplicate={handleDuplicate}
+                          onDelete={() => handleRequestDelete(r)}
+                          duplicating={duplicatingId === r.id}
+                          deleting={deletingId === r.id}
+                        />
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
