@@ -268,6 +268,7 @@ export default function DashboardPage() {
   function exitSelectionMode() {
     setSelectionMode(false)
     setSelectedIds(new Set())
+    setBulkDeleteTarget(null)
   }
 
   return (
@@ -311,10 +312,11 @@ export default function DashboardPage() {
               </span>
               <button
                 type="button"
-                disabled={selectedIds.size === 0 || deletingId !== null}
+                disabled={selectedIds.size === 0 || deletingId !== null || (sorted !== null && draftIdsFromSelection(selectedIds, sorted).length === 0)}
                 onClick={() => {
                   if (!sorted) return
                   const drafts = draftIdsFromSelection(selectedIds, sorted)
+                  if (drafts.length === 0) return
                   setBulkDeleteTarget({ selectedCount: selectedIds.size, draftIds: drafts })
                 }}
                 className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 focus:outline-hidden focus:ring-3 focus:ring-red-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
