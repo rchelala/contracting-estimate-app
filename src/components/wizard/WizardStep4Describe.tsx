@@ -6,7 +6,7 @@ export function WizardStep4Describe() {
   const { description, setDescription, setStep } = useWizardStore()
 
   const { isSupported, isListening, start, stop } = useVoiceInput({
-    onTranscript: (text) => setDescription(description + (description ? ' ' : '') + text),
+    onTranscript: (text) => setDescription((prev) => prev + (prev ? ' ' : '') + text),
   })
 
   return (
