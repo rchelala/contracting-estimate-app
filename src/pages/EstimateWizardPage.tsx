@@ -11,7 +11,7 @@ import { WizardStep5QA } from '../components/wizard/WizardStep5QA'
 import { WizardGenerating } from '../components/wizard/WizardGenerating'
 
 export default function EstimateWizardPage() {
-  const { step, reset, setOrganizationId } = useWizardStore()
+  const { step, reset, setOrganizationId, organizationId } = useWizardStore()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -27,6 +27,14 @@ export default function EstimateWizardPage() {
       if (membership) setOrganizationId(membership.organization_id)
     })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (!organizationId && step !== 1) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-slate-400 text-sm">Loading…</div>
+      </div>
+    )
+  }
 
   if (step === 1) return <WizardStep1Client />
   if (step === 2) return <WizardStep2Location />

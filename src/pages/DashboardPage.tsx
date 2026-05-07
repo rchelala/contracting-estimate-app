@@ -198,6 +198,11 @@ export default function DashboardPage() {
   async function handleConfirmDelete() {
     if (!deleteTarget) return
     setActionError(null)
+    if (deleteTarget.status !== 'draft') {
+      setActionError('Only draft estimates can be deleted.')
+      setDeletingId(null)
+      return
+    }
     setDeletingId(deleteTarget.id)
     try {
       await deleteEstimate(deleteTarget.id)
