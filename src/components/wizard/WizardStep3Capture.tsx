@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useMemo, useEffect } from 'react'
 import { useWizardStore } from '../../stores/wizardStore'
 import { WizardShell } from './WizardShell'
 
@@ -16,7 +16,16 @@ export function WizardStep3Capture() {
     Array.from(files).forEach((f) => addPhotoFile(f))
   }
 
-  const thumbnails = photoFiles.map((f) => URL.createObjectURL(f))
+  const thumbnails = useMemo(
+    () => photoFiles.map((f) => URL.createObjectURL(f)),
+    [photoFiles]
+  )
+
+  useEffect(() => {
+    return () => {
+      thumbnails.forEach((url) => URL.revokeObjectURL(url))
+    }
+  }, [thumbnails])
 
   return (
     <WizardShell
