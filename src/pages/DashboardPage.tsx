@@ -127,6 +127,10 @@ export default function DashboardPage() {
   const [actionError, setActionError] = useState<string | null>(null)
   const [selectionMode, setSelectionMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [bulkDeleteTarget, setBulkDeleteTarget] = useState<{
+    selectedCount: number
+    draftIds: string[]
+  } | null>(null)
 
   // Load org name (via membership → organizations.name)
   useEffect(() => {
@@ -300,6 +304,32 @@ export default function DashboardPage() {
         </div>
 
         <div className="mt-6">
+          {selectionMode && (
+            <div className="mb-4 flex items-center gap-3">
+              <span className="text-sm text-slate-600">
+                {selectedIds.size} selected
+              </span>
+              <button
+                type="button"
+                disabled={selectedIds.size === 0 || deletingId !== null}
+                onClick={() => {
+                  if (!sorted) return
+                  const drafts = draftIdsFromSelection(selectedIds, sorted)
+                  setBulkDeleteTarget({ selectedCount: selectedIds.size, draftIds: drafts })
+                }}
+                className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 focus:outline-hidden focus:ring-3 focus:ring-red-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Delete {selectedIds.size > 0 ? selectedIds.size : ''} selected
+              </button>
+              <button
+                type="button"
+                onClick={exitSelectionMode}
+                className="border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm rounded-md px-4 py-2 focus:outline-hidden focus:ring-3 focus:ring-blue-600 focus:ring-offset-2"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
           {actionError && (
             <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {actionError}
