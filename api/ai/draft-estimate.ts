@@ -3,6 +3,9 @@ import { getServiceSupabase, createAuthSupabase } from '../lib/supabase.js'
 interface AIDraftRequestBody {
   estimate_id: string
   description: string
+  zip_code?: string
+  qa_pairs?: { question: string; answer: string | null }[]
+  attachment_ids?: string[]
 }
 
 type AIDraftLineItem = {
@@ -213,6 +216,71 @@ function validateDraftResponse(raw: unknown): AIDraftSection[] {
   })
 }
 
+function buildEnrichedContext(
+  description: string,
+  zipCode?: string,
+  qaPairs?: { question: string; answer: string | null }[]
+): string {
+  let context = description || '(No description provided)'
+
+  if (zipCode) {
+    context += `\n\nJob location ZIP code: ${zipCode} — use regional labor and material pricing for this area.`
+  }
+
+  if (qaPairs && qaPairs.length > 0) {
+    const answered = qaPairs.filter((p) => p.answer)
+    if (answered.length > 0) {
+      context += '\n\nContractor Q&A:\n'
+      answered.forEach((p) => {
+        context += `Q: ${p.question}\nA: ${p.answer}\n`
+      })
+    }
+  }
+
+  return context
+}
+
+async function buildImageBlocks(
+  attachmentIds: string[],
+  serviceSupabase: ReturnType<typeof getServiceSupabase>
+): Promise<Array<{ type: 'image'; source: { type: 'base64'; media_type: string; data: string } }>> {
+  if (!attachmentIds.length) return []
+
+  const { data: attachments } = await serviceSupabase
+    .from('estimate_attachments')
+    .select('storage_path, content_type')
+    .in('id', attachmentIds)
+
+  if (!attachments?.length) return []
+
+  const blocks: Array<{ type: 'image'; source: { type: 'base64'; media_type: string; data: string } }> = []
+
+  for (const att of attachments) {
+    if (!att.content_type.startsWith('image/')) continue
+
+    const { data: signedData } = await serviceSupabase.storage
+      .from('estimate-attachments')
+      .createSignedUrl(att.storage_path, 60)
+
+    if (!signedData?.signedUrl) continue
+
+    try {
+      const imgResponse = await fetch(signedData.signedUrl)
+      const buffer = await imgResponse.arrayBuffer()
+      const base64 = Buffer.from(buffer).toString('base64')
+
+      blocks.push({
+        type: 'image',
+        source: { type: 'base64', media_type: att.content_type, data: base64 },
+      })
+    } catch {
+      // Skip unloadable images
+    }
+  }
+
+  return blocks
+}
+
 function buildPrompt(description: string): string {
   return `Generate a contractor estimate draft for the job description below.
 
@@ -377,14 +445,20 @@ async function requestAIDraft(
   anthropicModel: string,
   prompt: string,
   retryReason?: string,
+  imageBlocks?: Array<{ type: 'image'; source: { type: 'base64'; media_type: string; data: string } }>,
 ): Promise<AIProviderAttempt> {
-  const userContent = retryReason
+  const textContent = retryReason
     ? `${prompt}
 
 Previous tool input was invalid: ${retryReason}
 
 Call create_estimate_draft again. The tool input must include at least one section, and every section must include at least one line item. Never return an empty sections array.`
     : prompt
+
+  const userContentBlocks = [
+    ...(imageBlocks ?? []),
+    { type: 'text', text: textContent },
+  ]
 
   const aiResponse = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -404,7 +478,7 @@ Call create_estimate_draft again. The tool input must include at least one secti
       messages: [
         {
           role: 'user',
-          content: userContent,
+          content: userContentBlocks,
         },
       ],
     }),
@@ -458,7 +532,7 @@ export default async function handler(
       return jsonResponse(res, 400, { error: 'Invalid JSON body' })
     }
 
-  const { estimate_id: estimateId, description } = body
+  const { estimate_id: estimateId, description, zip_code, qa_pairs, attachment_ids } = body
   if (!estimateId || typeof estimateId !== 'string') {
     return jsonResponse(res, 400, { error: 'estimate_id is required' })
   }
@@ -531,14 +605,16 @@ export default async function handler(
     return jsonResponse(res, 500, { error: 'AI backend is not configured' })
   }
 
-  const prompt = buildPrompt(description.trim())
+  const enrichedContext = buildEnrichedContext(description.trim(), zip_code, qa_pairs)
+  const prompt = buildPrompt(enrichedContext)
+  const imageBlocks = await buildImageBlocks(attachment_ids ?? [], serviceSupabase)
   const promptStart = Date.now()
   let inputTokens = 0
   let outputTokens = 0
   const providerAttempts: AIProviderAttempt[] = []
 
   try {
-    providerAttempts.push(await requestAIDraft(anthropicKey, anthropicModel, prompt))
+    providerAttempts.push(await requestAIDraft(anthropicKey, anthropicModel, prompt, undefined, imageBlocks))
   } catch (error) {
     return jsonResponse(res, 502, { error: 'AI request failed', details: error instanceof Error ? error.message : String(error) })
   }
@@ -559,7 +635,7 @@ export default async function handler(
       } catch (error) {
         parseError = error instanceof Error ? error.message : parseError
         if (attemptIndex === 0) {
-          providerAttempts.push(await requestAIDraft(anthropicKey, anthropicModel, prompt, parseError))
+          providerAttempts.push(await requestAIDraft(anthropicKey, anthropicModel, prompt, parseError, imageBlocks))
         }
       }
     }
