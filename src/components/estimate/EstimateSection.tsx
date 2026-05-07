@@ -135,11 +135,24 @@ export default function EstimateSection({ sectionId, readOnly }: Props) {
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
-          <SortableContext items={lineItemIds} strategy={verticalListSortingStrategy}>
-            {lineItemIds.map((id, idx) => (
-              <LineItemRow key={id} lineItemId={id} index={idx} readOnly={readOnly} />
-            ))}
-          </SortableContext>
+          <div className="overflow-x-auto">
+            <div className="grid min-w-[70rem] grid-cols-[1.75rem_minmax(22rem,1fr)_7rem_5rem_6.5rem_5.5rem_7rem_7rem_2rem] gap-3 border-y border-slate-200 bg-white px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+              <div aria-hidden="true" />
+              <div>Description</div>
+              <div>Source</div>
+              <div className="text-right">Qty</div>
+              <div className="text-right">Unit price</div>
+              <div className="text-right">Markup %</div>
+              <div className="text-right">Total</div>
+              <div>Photo</div>
+              <div aria-hidden="true" />
+            </div>
+            <SortableContext items={lineItemIds} strategy={verticalListSortingStrategy}>
+              {lineItemIds.map((id, idx) => (
+                <LineItemRow key={id} lineItemId={id} index={idx} readOnly={readOnly} />
+              ))}
+            </SortableContext>
+          </div>
         </DndContext>
       )}
       {!readOnly && <AddLineItemButton onClick={handleAddLineItem} />}

@@ -99,6 +99,11 @@ export async function markEstimateSent(estimateId: string): Promise<EditorEstima
   return data
 }
 
+export async function deleteEstimate(estimateId: string): Promise<void> {
+  const { error } = await supabase.from('estimates').delete().eq('id', estimateId)
+  if (error) throw error
+}
+
 export async function duplicateEstimate(sourceEstimateId: string, organizationId: string): Promise<EditorEstimate> {
   const source = await getEstimate(sourceEstimateId)
   const { data: estimateNumber, error: rpcErr } = await supabase.rpc('next_estimate_number', { p_org_id: organizationId })

@@ -1,12 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 // Mock the supabase module
-const { mockLimit, mockOrder, mockSelect, mockFrom } = vi.hoisted(() => {
+const { mockDelete, mockEq, mockLimit, mockOrder, mockSelect, mockFrom } = vi.hoisted(() => {
+  const mockDelete = vi.fn()
+  const mockEq = vi.fn()
   const mockLimit = vi.fn()
   const mockOrder = vi.fn()
   const mockSelect = vi.fn()
   const mockFrom = vi.fn()
-  return { mockLimit, mockOrder, mockSelect, mockFrom }
+  return { mockDelete, mockEq, mockLimit, mockOrder, mockSelect, mockFrom }
 })
 
 vi.mock('../lib/supabase', () => ({
@@ -15,7 +17,7 @@ vi.mock('../lib/supabase', () => ({
   },
 }))
 
-import { listEstimates } from './estimates'
+import { deleteEstimate, listEstimates } from './estimates'
 
 describe('listEstimates', () => {
   beforeEach(() => {
@@ -86,5 +88,30 @@ describe('listEstimates', () => {
 
     expect(result.at(0)?.client_name).toBe('Test Client')
     expect(result.at(1)?.client_name).toBeNull()
+  })
+})
+
+describe('deleteEstimate', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockFrom.mockReturnValue({ delete: mockDelete })
+    mockDelete.mockReturnValue({ eq: mockEq })
+  })
+
+  it('deletes the selected estimate by id', async () => {
+    mockEq.mockResolvedValue({ error: null })
+
+    await deleteEstimate('est-1')
+
+    expect(mockFrom).toHaveBeenCalledWith('estimates')
+    expect(mockDelete).toHaveBeenCalled()
+    expect(mockEq).toHaveBeenCalledWith('id', 'est-1')
+  })
+
+  it('rejects with the error when delete fails', async () => {
+    const mockError = new Error('Delete failed')
+    mockEq.mockResolvedValue({ error: mockError })
+
+    await expect(deleteEstimate('est-1')).rejects.toThrow('Delete failed')
   })
 })

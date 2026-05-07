@@ -66,26 +66,30 @@ export default function LineItemRow({ lineItemId, index, readOnly }: Props) {
 
   return (
     <div ref={setNodeRef} style={style}>
-      <div className={`flex items-center gap-2 px-3 py-2 group ${rowBg} hover:bg-slate-50`}>
+      <div
+        className={`grid min-w-[70rem] grid-cols-[1.75rem_minmax(22rem,1fr)_7rem_5rem_6.5rem_5.5rem_7rem_7rem_2rem] items-start gap-3 px-3 py-3 group ${rowBg} hover:bg-slate-50`}
+      >
         <DragHandle
           listeners={listeners as unknown as Record<string, unknown>}
           attributes={attributes as unknown as Record<string, unknown>}
         />
-        <div className="flex-1 min-w-0 flex items-center gap-2">
-          <input
-            type="text"
+        <div className="min-w-0">
+          <textarea
             maxLength={500}
             disabled={readOnly}
             defaultValue={snapshot.description}
-            className="w-full text-sm bg-transparent border-0 focus:outline-none focus:ring-1 focus:ring-blue-600 rounded px-1 disabled:cursor-not-allowed"
+            rows={2}
+            aria-label="Line item description"
+            className="block w-full min-h-10 resize-y text-sm leading-5 bg-transparent border-0 focus:outline-none focus:ring-1 focus:ring-blue-600 rounded px-1 py-0.5 disabled:cursor-not-allowed"
             onBlur={(e) => {
               if (e.target.value !== snapshot.description) patch('description', e.target.value)
             }}
             onKeyDown={(e) => {
-              if (e.key === 'Escape') (e.target as HTMLInputElement).value = snapshot.description
-              if (e.key === 'Enter') (e.target as HTMLInputElement).blur()
+              if (e.key === 'Escape') (e.target as HTMLTextAreaElement).value = snapshot.description
             }}
           />
+        </div>
+        <div className="flex flex-wrap items-start gap-1">
           {snapshot.optional && <OptionalBadge />}
           {snapshot.source === 'ai' && <AISuggestedBadge />}
         </div>
@@ -96,7 +100,8 @@ export default function LineItemRow({ lineItemId, index, readOnly }: Props) {
           step="0.01"
           disabled={readOnly}
           defaultValue={Number(snapshot.quantity)}
-          className="w-16 shrink-0 text-right text-sm bg-transparent border-0 focus:outline-none focus:ring-1 focus:ring-blue-600 rounded px-1 disabled:cursor-not-allowed"
+          aria-label="Quantity"
+          className="w-full text-right text-sm bg-transparent border-0 focus:outline-none focus:ring-1 focus:ring-blue-600 rounded px-1 disabled:cursor-not-allowed"
           onBlur={(e) => {
             const next = clamp(parseFloat(e.target.value), 0, 99999)
             if (next !== Number(snapshot.quantity)) patch('quantity', next)
@@ -109,7 +114,8 @@ export default function LineItemRow({ lineItemId, index, readOnly }: Props) {
           step="0.01"
           disabled={readOnly}
           defaultValue={centsToDollars(snapshot.unit_price_cents)}
-          className="w-24 shrink-0 text-right text-sm bg-transparent border-0 focus:outline-none focus:ring-1 focus:ring-blue-600 rounded px-1 disabled:cursor-not-allowed"
+          aria-label="Unit price"
+          className="w-full text-right text-sm bg-transparent border-0 focus:outline-none focus:ring-1 focus:ring-blue-600 rounded px-1 disabled:cursor-not-allowed"
           onBlur={(e) => {
             const cents = clamp(dollarsToCents(parseFloat(e.target.value || '0')), 0, 99999999)
             if (cents !== snapshot.unit_price_cents) patch('unit_price_cents', cents)
@@ -122,13 +128,14 @@ export default function LineItemRow({ lineItemId, index, readOnly }: Props) {
           step="0.01"
           disabled={readOnly}
           defaultValue={Number(snapshot.markup_pct)}
-          className="w-20 shrink-0 text-right text-sm bg-transparent border-0 focus:outline-none focus:ring-1 focus:ring-blue-600 rounded px-1 disabled:cursor-not-allowed"
+          aria-label="Markup percent"
+          className="w-full text-right text-sm bg-transparent border-0 focus:outline-none focus:ring-1 focus:ring-blue-600 rounded px-1 disabled:cursor-not-allowed"
           onBlur={(e) => {
             const next = clamp(parseFloat(e.target.value || '0'), 0, 1000)
             if (next !== Number(snapshot.markup_pct)) patch('markup_pct', next)
           }}
         />
-        <div className="w-24 shrink-0 text-right font-semibold text-slate-900 text-sm tabular-nums">
+        <div className="text-right font-semibold text-slate-900 text-sm tabular-nums">
           {formatCents(computed)}
         </div>
         <AttachPhotoButton lineItemId={lineItemId} disabled={readOnly} />

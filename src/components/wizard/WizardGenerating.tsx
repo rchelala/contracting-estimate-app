@@ -32,12 +32,6 @@ export function WizardGenerating() {
     setSteps((prev) => prev.map((s, i) => i === index ? { ...s, status } : s))
   }
 
-  useEffect(() => {
-    if (hasRun.current) return
-    hasRun.current = true
-    run()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
   async function run() {
     if (!organizationId) {
       setError('Organization not found. Please reload and try again.')
@@ -117,6 +111,12 @@ export function WizardGenerating() {
       ))
     }
   }
+
+  useEffect(() => {
+    if (hasRun.current) return
+    hasRun.current = true
+    run()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const statusIcon = (status: ProgressStep['status']) => {
     if (status === 'done') return <span className="text-green-500">✓</span>
