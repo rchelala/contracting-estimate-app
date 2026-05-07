@@ -60,7 +60,8 @@ Return ONLY a JSON array of question strings, no explanation. Example:
       messages: [{ role: 'user', content: prompt }],
     })
 
-    const text = message.content[0].type === 'text' ? message.content[0].text.trim() : '[]'
+    const first = message.content[0]
+    const text = first?.type === 'text' ? first.text.trim() : '[]'
     const match = text.match(/\[[\s\S]*\]/)
     const questions: string[] = match ? JSON.parse(match[0]) : []
 
