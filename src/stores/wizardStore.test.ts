@@ -33,6 +33,15 @@ describe('wizardStore', () => {
     expect(useWizardStore.getState().photoFiles).toHaveLength(1)
   })
 
+  it('addPhotoFile ignores files beyond 10', () => {
+    for (let i = 0; i < 11; i++) {
+      act(() => useWizardStore.getState().addPhotoFile(
+        new File([''], `photo-${i}.jpg`, { type: 'image/jpeg' })
+      ))
+    }
+    expect(useWizardStore.getState().photoFiles).toHaveLength(10)
+  })
+
   it('removePhotoFile removes by index', () => {
     const f1 = new File([''], 'a.jpg', { type: 'image/jpeg' })
     const f2 = new File([''], 'b.jpg', { type: 'image/jpeg' })

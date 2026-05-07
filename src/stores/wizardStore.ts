@@ -7,7 +7,7 @@ export interface QAPair {
   answer: string | null
 }
 
-interface WizardState {
+export interface WizardState {
   step: WizardStep
   organizationId: string | null
   // Step 1
