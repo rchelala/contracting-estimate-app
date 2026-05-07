@@ -243,11 +243,10 @@ export default function DashboardPage() {
 
   function toggleSelectAll() {
     if (!sorted) return
-    if (selectedIds.size === sorted.length) {
-      setSelectedIds(new Set())
-    } else {
-      setSelectedIds(new Set(sorted.map((r) => r.id)))
-    }
+    const allIds = sorted.map((r) => r.id)
+    setSelectedIds((prev) =>
+      prev.size === allIds.length ? new Set() : new Set(allIds),
+    )
   }
 
   function toggleRow(id: string) {
