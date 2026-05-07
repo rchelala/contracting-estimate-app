@@ -9,32 +9,10 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 import { formatCents } from '../utils/money'
 import { formatRelativeDate } from '../utils/dates'
+import { draftIdsFromSelection, bulkDeleteModalMessage } from './DashboardPage.helpers'
 
 type SortKey = 'estimate_number' | 'status' | 'total_cents' | 'updated_at'
 type SortDir = 'asc' | 'desc'
-
-export function draftIdsFromSelection(
-  selectedIds: Set<string>,
-  rows: EstimateListRow[],
-): string[] {
-  return rows
-    .filter((r) => selectedIds.has(r.id) && r.status === 'draft')
-    .map((r) => r.id)
-}
-
-export function bulkDeleteModalMessage(
-  selectedCount: number,
-  draftCount: number,
-): string {
-  if (draftCount === 0) {
-    return `None of the ${selectedCount} selected estimate${selectedCount === 1 ? '' : 's'} are drafts — nothing will be deleted.`
-  }
-  const skipped = selectedCount - draftCount
-  if (skipped === 0) {
-    return `Permanently delete ${draftCount} estimate${draftCount === 1 ? '' : 's'} and ${draftCount === 1 ? 'its' : 'their'} line items?`
-  }
-  return `${draftCount} of ${selectedCount} selected estimate${selectedCount === 1 ? '' : 's'} ${draftCount === 1 ? 'is a draft' : 'are drafts'} and will be deleted. ${skipped} non-draft estimate${skipped === 1 ? '' : 's'} will be skipped.`
-}
 
 function NewEstimateButton({ extraClass = '' }: { extraClass?: string }) {
   const navigate = useNavigate()
@@ -275,16 +253,28 @@ export default function DashboardPage() {
     if (!bulkDeleteTarget || bulkDeleteTarget.draftIds.length === 0) return
     setActionError(null)
     setDeletingId('bulk')
+    const deletedIds: string[] = []
     try {
       for (const id of bulkDeleteTarget.draftIds) {
         await deleteEstimate(id)
+        deletedIds.push(id)
       }
       setRows((current) =>
-        current?.filter((r) => !bulkDeleteTarget.draftIds.includes(r.id)) ?? current
+        current?.filter((r) => !deletedIds.includes(r.id)) ?? current
       )
       setBulkDeleteTarget(null)
       exitSelectionMode()
     } catch (err) {
+      if (deletedIds.length > 0) {
+        setRows((current) =>
+          current?.filter((r) => !deletedIds.includes(r.id)) ?? current
+        )
+        setSelectedIds((prev) => {
+          const next = new Set(prev)
+          deletedIds.forEach((id) => next.delete(id))
+          return next
+        })
+      }
       setActionError(err instanceof Error ? err.message : 'Failed to delete some estimates')
       setBulkDeleteTarget(null)
     } finally {

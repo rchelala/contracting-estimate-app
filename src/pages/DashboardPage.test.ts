@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { draftIdsFromSelection, bulkDeleteModalMessage } from './DashboardPage'
+import { draftIdsFromSelection, bulkDeleteModalMessage } from './DashboardPage.helpers'
 import type { EstimateListRow } from '../services/estimates'
 
 function makeRow(id: string, status: EstimateListRow['status']): EstimateListRow {
