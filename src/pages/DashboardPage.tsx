@@ -319,7 +319,7 @@ export default function DashboardPage() {
                 }}
                 className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 focus:outline-hidden focus:ring-3 focus:ring-red-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Delete {selectedIds.size > 0 ? selectedIds.size : ''} selected
+                Delete {selectedIds.size} selected
               </button>
               <button
                 type="button"
