@@ -47,13 +47,19 @@ describe('draftIdsFromSelection', () => {
 describe('bulkDeleteModalMessage', () => {
   it('all drafts — singular', () => {
     expect(bulkDeleteModalMessage(1, 1)).toBe(
-      'Permanently delete 1 estimate and their line items?'
+      'Permanently delete 1 estimate and its line items?'
     )
   })
 
   it('all drafts — plural', () => {
     expect(bulkDeleteModalMessage(3, 3)).toBe(
       'Permanently delete 3 estimates and their line items?'
+    )
+  })
+
+  it('zero drafts selected — nothing to delete', () => {
+    expect(bulkDeleteModalMessage(3, 0)).toBe(
+      'None of the 3 selected estimates are drafts — nothing will be deleted.'
     )
   })
 
