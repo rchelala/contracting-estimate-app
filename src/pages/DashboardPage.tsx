@@ -125,6 +125,8 @@ export default function DashboardPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<EstimateListRow | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
+  const [selectionMode, setSelectionMode] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
   // Load org name (via membership → organizations.name)
   useEffect(() => {
@@ -239,6 +241,32 @@ export default function DashboardPage() {
     }
   }
 
+  function toggleSelectAll() {
+    if (!sorted) return
+    if (selectedIds.size === sorted.length) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(sorted.map((r) => r.id)))
+    }
+  }
+
+  function toggleRow(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
+      return next
+    })
+  }
+
+  function exitSelectionMode() {
+    setSelectionMode(false)
+    setSelectedIds(new Set())
+  }
+
   return (
     <div className="min-h-screen bg-slate-50">
       <TopNav />
@@ -248,7 +276,28 @@ export default function DashboardPage() {
             <h1 className="text-xl font-semibold text-slate-900 leading-[1.3]">Estimates</h1>
             {orgName && <p className="mt-1 text-sm text-slate-500">{orgName}</p>}
           </div>
-          <NewEstimateButton />
+          <div className="flex items-center gap-2">
+            {!selectionMode ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setSelectionMode(true)}
+                  className="border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm rounded-md px-4 py-2 focus:outline-hidden focus:ring-3 focus:ring-blue-600 focus:ring-offset-2"
+                >
+                  Select
+                </button>
+                <NewEstimateButton />
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={exitSelectionMode}
+                className="border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm rounded-md px-4 py-2 focus:outline-hidden focus:ring-3 focus:ring-blue-600 focus:ring-offset-2"
+              >
+                Cancel
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="mt-6">
