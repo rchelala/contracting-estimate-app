@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 
 interface UseVoiceInputOptions {
   onTranscript: (text: string) => void
@@ -40,27 +40,33 @@ export function useVoiceInput({ onTranscript }: UseVoiceInputOptions): UseVoiceI
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null)
 
   const start = useCallback(() => {
-    if (!SpeechRecognitionClass) return
+    if (!SpeechRecognitionClass || isListening) return
     const recognition = new SpeechRecognitionClass()
     recognition.continuous = true
     recognition.interimResults = false
     recognition.lang = 'en-US'
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      const transcript = Array.from(event.results)
-        .map((r) => r[0].transcript)
-        .join(' ')
-      onTranscript(transcript)
+      const latest = event.results[event.resultIndex]
+      if (latest) {
+        onTranscript(latest[0].transcript)
+      }
     }
     recognition.onend = () => setIsListening(false)
     recognition.onerror = () => setIsListening(false)
     recognition.start()
     recognitionRef.current = recognition
     setIsListening(true)
-  }, [SpeechRecognitionClass, onTranscript])
+  }, [SpeechRecognitionClass, isListening, onTranscript])
 
   const stop = useCallback(() => {
     recognitionRef.current?.stop()
     setIsListening(false)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      recognitionRef.current?.stop()
+    }
   }, [])
 
   return { isSupported, isListening, start, stop }
