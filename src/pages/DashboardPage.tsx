@@ -262,7 +262,6 @@ export default function DashboardPage() {
       setRows((current) =>
         current?.filter((r) => !deletedIds.includes(r.id)) ?? current
       )
-      setBulkDeleteTarget(null)
       exitSelectionMode()
     } catch (err) {
       if (deletedIds.length > 0) {
