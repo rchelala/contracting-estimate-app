@@ -13,6 +13,26 @@ import { formatRelativeDate } from '../utils/dates'
 type SortKey = 'estimate_number' | 'status' | 'total_cents' | 'updated_at'
 type SortDir = 'asc' | 'desc'
 
+export function draftIdsFromSelection(
+  selectedIds: Set<string>,
+  rows: EstimateListRow[],
+): string[] {
+  return rows
+    .filter((r) => selectedIds.has(r.id) && r.status === 'draft')
+    .map((r) => r.id)
+}
+
+export function bulkDeleteModalMessage(
+  selectedCount: number,
+  draftCount: number,
+): string {
+  const skipped = selectedCount - draftCount
+  if (skipped === 0) {
+    return `Permanently delete ${draftCount} estimate${draftCount === 1 ? '' : 's'} and their line items?`
+  }
+  return `${draftCount} of ${selectedCount} selected estimate${selectedCount === 1 ? '' : 's'} ${draftCount === 1 ? 'is a draft' : 'are drafts'} and will be deleted. ${skipped} non-draft estimate${skipped === 1 ? '' : 's'} will be skipped.`
+}
+
 function NewEstimateButton({ extraClass = '' }: { extraClass?: string }) {
   const navigate = useNavigate()
   return (
