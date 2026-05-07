@@ -12,9 +12,14 @@ export function WizardStep1Client() {
   const [clients, setClients] = useState<ClientRow[]>([])
   const [showNewForm, setShowNewForm] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   useEffect(() => {
-    listClients().then((rows) => { setClients(rows); setLoading(false) })
+    listClients()
+      .then((rows) => setClients(rows))
+      .catch(() => {})
+      .finally(() => setLoading(false))
   }, [])
 
   const filtered = clients.filter(
@@ -26,20 +31,38 @@ export function WizardStep1Client() {
   const canContinue = clientId !== null || newClientName.trim().length > 0
 
   async function handleContinue() {
-    if (newClientName.trim() && !clientId && organizationId) {
-      const created = await createClient({
-        organization_id: organizationId,
-        name: newClientName.trim(),
-        email: newClientEmail || null,
-        phone: newClientPhone || null,
-      })
-      setClientId(created.id)
+    setSaveError(null)
+    if (newClientName.trim() && !clientId) {
+      if (!organizationId) {
+        setSaveError('Organization not loaded yet. Please wait a moment and try again.')
+        return
+      }
+      setSaving(true)
+      try {
+        const created = await createClient({
+          organization_id: organizationId,
+          name: newClientName.trim(),
+          email: newClientEmail || null,
+          phone: newClientPhone || null,
+        })
+        setClientId(created.id)
+      } catch (err) {
+        setSaving(false)
+        setSaveError(err instanceof Error ? err.message : 'Failed to create client. Try again.')
+        return
+      }
+      setSaving(false)
     }
     setStep(2)
   }
 
   const initials = (name: string) =>
-    name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()
+    name.split(' ')
+      .filter(Boolean)
+      .map((w) => w[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase()
 
   return (
     <WizardShell
@@ -118,9 +141,13 @@ export function WizardStep1Client() {
         </div>
       )}
 
+      {saveError && (
+        <p className="text-red-500 text-sm mb-3">{saveError}</p>
+      )}
+
       <button
         onClick={handleContinue}
-        disabled={!canContinue}
+        disabled={!canContinue || saving}
         className="w-full bg-blue-500 text-white rounded-lg py-2.5 font-semibold text-sm disabled:opacity-40"
       >
         Continue →
