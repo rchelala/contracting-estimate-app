@@ -271,6 +271,27 @@ export default function DashboardPage() {
     setBulkDeleteTarget(null)
   }
 
+  async function handleConfirmBulkDelete() {
+    if (!bulkDeleteTarget || bulkDeleteTarget.draftIds.length === 0) return
+    setActionError(null)
+    setDeletingId('bulk')
+    try {
+      for (const id of bulkDeleteTarget.draftIds) {
+        await deleteEstimate(id)
+      }
+      setRows((current) =>
+        current?.filter((r) => !bulkDeleteTarget.draftIds.includes(r.id)) ?? current
+      )
+      setBulkDeleteTarget(null)
+      exitSelectionMode()
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Failed to delete some estimates')
+      setBulkDeleteTarget(null)
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-slate-50">
       <TopNav />
@@ -487,6 +508,37 @@ export default function DashboardPage() {
         }
       >
         This permanently deletes the estimate and its line items.
+      </Modal>
+      <Modal
+        open={bulkDeleteTarget !== null}
+        onClose={() => {
+          if (!deletingId) setBulkDeleteTarget(null)
+        }}
+        title={`Delete ${bulkDeleteTarget?.selectedCount ?? 0} selected estimate${(bulkDeleteTarget?.selectedCount ?? 0) === 1 ? '' : 's'}?`}
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setBulkDeleteTarget(null)}
+              disabled={deletingId !== null}
+              className="rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-hidden focus:ring-3 focus:ring-blue-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleConfirmBulkDelete}
+              disabled={deletingId !== null || (bulkDeleteTarget?.draftIds.length ?? 0) === 0}
+              className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 focus:outline-hidden focus:ring-3 focus:ring-red-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {deletingId ? 'Deleting...' : `Delete ${bulkDeleteTarget?.draftIds.length ?? 0} estimate${(bulkDeleteTarget?.draftIds.length ?? 0) === 1 ? '' : 's'}`}
+            </button>
+          </>
+        }
+      >
+        {bulkDeleteTarget
+          ? bulkDeleteModalMessage(bulkDeleteTarget.selectedCount, bulkDeleteTarget.draftIds.length)
+          : ''}
       </Modal>
     </div>
   )
