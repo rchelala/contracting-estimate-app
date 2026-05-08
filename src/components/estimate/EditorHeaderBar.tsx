@@ -57,7 +57,7 @@ export default function EditorHeaderBar({ onSendClick }: Props) {
           <button
             type="button"
             disabled={readOnly}
-            data-testid="send-button"
+            data-testid="send-button-desktop"
             onClick={onSendClick}
             className="flex items-center gap-2 bg-linear-to-br from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -75,7 +75,7 @@ export default function EditorHeaderBar({ onSendClick }: Props) {
         <button
           type="button"
           disabled={readOnly}
-          data-testid="send-button"
+          data-testid="send-button-mobile"
           onClick={onSendClick}
           className="flex items-center gap-2 bg-linear-to-br from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
