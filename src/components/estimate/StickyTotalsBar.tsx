@@ -24,7 +24,7 @@ export default function StickyTotalsBar() {
   const total = subtotal + tax
 
   return (
-    <div className="fixed bottom-0 left-0 w-full h-14 bg-white border-t border-stone-200 flex items-center justify-end gap-6 px-6 z-30">
+    <div className="fixed bottom-0 left-0 w-full h-14 bg-white border-t border-stone-200 flex items-center justify-end gap-3 sm:gap-6 px-3 sm:px-6 z-30">
       <div className="flex items-center gap-2">
         <span className="text-xs font-semibold text-stone-400 uppercase tracking-wide">Subtotal</span>
         <span className="text-sm font-semibold text-stone-900">{formatCents(subtotal)}</span>
