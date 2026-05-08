@@ -8,6 +8,7 @@ interface UseVoiceInputResult {
   isSupported: boolean
   isListening: boolean
   error: string | null
+  interimText: string
   start: () => void
   stop: () => void
 }
@@ -42,6 +43,7 @@ export function useVoiceInput({ onTranscript }: UseVoiceInputOptions): UseVoiceI
   const isSupported = !!SpeechRecognitionClass
   const [isListening, setIsListening] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [interimText, setInterimText] = useState('')
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null)
   // Tracks whether the user intends to be recording — separate from browser session state.
   // Chrome can fire onend/onerror before setIsListening(true) is processed, which would
@@ -54,15 +56,21 @@ export function useVoiceInput({ onTranscript }: UseVoiceInputOptions): UseVoiceI
     if (!SpeechRecognitionClass) return
     const recognition = new SpeechRecognitionClass()
     recognition.continuous = true
-    recognition.interimResults = false
+    recognition.interimResults = true
     recognition.lang = 'en-US'
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       const latest = event.results[event.resultIndex]
       if (latest?.[0]) {
-        onTranscriptRef.current(latest[0].transcript)
+        if (latest.isFinal) {
+          setInterimText('')
+          onTranscriptRef.current(latest[0].transcript)
+        } else {
+          setInterimText(latest[0].transcript)
+        }
       }
     }
     recognition.onend = () => {
+      setInterimText('')
       if (activeRef.current) {
         // Delay before restarting — Chrome/Edge throw if you call start() immediately after end.
         setTimeout(() => {
@@ -114,6 +122,7 @@ export function useVoiceInput({ onTranscript }: UseVoiceInputOptions): UseVoiceI
     recognitionRef.current?.abort()
     recognitionRef.current = null
     setIsListening(false)
+    setInterimText('')
   }, [])
 
   useEffect(() => {
@@ -123,5 +132,5 @@ export function useVoiceInput({ onTranscript }: UseVoiceInputOptions): UseVoiceI
     }
   }, [])
 
-  return { isSupported, isListening, error, start, stop }
+  return { isSupported, isListening, error, interimText, start, stop }
 }

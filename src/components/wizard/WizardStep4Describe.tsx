@@ -5,8 +5,11 @@ import { WizardShell } from './WizardShell'
 export function WizardStep4Describe() {
   const { description, setDescription, setStep } = useWizardStore()
 
-  const { isSupported, isListening, error, start, stop } = useVoiceInput({
-    onTranscript: (text) => setDescription(description + (description ? ' ' : '') + text),
+  const { isSupported, isListening, error, interimText, start, stop } = useVoiceInput({
+    onTranscript: (text) => {
+      const current = useWizardStore.getState().description
+      setDescription(current + (current ? ' ' : '') + text)
+    },
   })
 
   return (
@@ -22,7 +25,9 @@ export function WizardStep4Describe() {
           className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm resize-none leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500"
           rows={5}
           placeholder="e.g. Replace roof on 2,000 sq ft home, tear-off needed, been leaking in the northeast corner for 2 weeks..."
-          value={description}
+          value={isListening && interimText
+            ? description + (description ? ' ' : '') + interimText
+            : description}
           onChange={(e) => setDescription(e.target.value)}
         />
         {isSupported && (
