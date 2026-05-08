@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Robot, CheckCircle, CircleNotch, X, Circle } from '@phosphor-icons/react'
 import { useWizardStore } from '../../stores/wizardStore'
 import { createEstimate, updateEstimate } from '../../services/estimates'
 import { uploadAttachment } from '../../services/attachments'
@@ -39,11 +40,9 @@ export function WizardGenerating() {
     }
 
     try {
-      // Step 1: Create estimate
       updateStep(0, 'running')
       const estimate = await createEstimate(organizationId)
 
-      // Attach client if provided
       let resolvedClientId = clientId
       if (!resolvedClientId && newClientName.trim()) {
         const created = await createClient({
@@ -61,7 +60,6 @@ export function WizardGenerating() {
 
       updateStep(0, 'done')
 
-      // Step 2: Upload photos and video
       updateStep(1, 'running')
       const attachmentIds: string[] = []
 
@@ -85,7 +83,6 @@ export function WizardGenerating() {
 
       updateStep(1, 'done')
 
-      // Steps 3 & 4: AI drafting
       updateStep(2, 'running')
       updateStep(3, 'running')
 
@@ -100,7 +97,6 @@ export function WizardGenerating() {
       updateStep(2, 'done')
       updateStep(3, 'done')
 
-      // Navigate to editor
       reset()
       navigate(`/estimates/${estimate.id}`)
     } catch (err) {
@@ -119,35 +115,33 @@ export function WizardGenerating() {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const statusIcon = (status: ProgressStep['status']) => {
-    if (status === 'done') return <span className="text-green-500">✓</span>
-    if (status === 'running') return <span className="text-blue-500 animate-spin inline-block">⟳</span>
-    if (status === 'error') return <span className="text-red-500">✕</span>
-    return <span className="text-slate-300">○</span>
+    if (status === 'done') return <CheckCircle size={16} weight="fill" className="text-green-500" />
+    if (status === 'running') return <CircleNotch size={16} className="text-orange-500 animate-spin" />
+    if (status === 'error') return <X size={16} weight="bold" className="text-red-500" />
+    return <Circle size={16} className="text-stone-300" />
   }
 
   const statusColor = (status: ProgressStep['status']) => {
     if (status === 'done') return 'text-green-600'
-    if (status === 'running') return 'text-blue-600'
+    if (status === 'running') return 'text-orange-600'
     if (status === 'error') return 'text-red-600'
-    return 'text-slate-400'
+    return 'text-stone-400'
   }
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm text-center">
-        {/* Robot icon */}
-        <div className="mx-auto w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-4xl mb-5">
-          🤖
+        <div className="mx-auto w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center mb-5">
+          <Robot size={36} weight="fill" className="text-orange-500" />
         </div>
 
-        <h1 className="text-xl font-bold mb-2">Drafting your estimate…</h1>
-        <p className="text-slate-400 text-sm leading-relaxed mb-6">
+        <h1 className="text-xl font-bold text-stone-900 mb-2 tracking-tight">Drafting your estimate…</h1>
+        <p className="text-stone-400 text-sm leading-relaxed mb-6">
           {photoFiles.length > 0 && `Analyzing ${photoFiles.length} photo${photoFiles.length > 1 ? 's' : ''} + `}
           your description
           {zipCode && ` · Factoring in zip ${zipCode} rates`}
         </p>
 
-        {/* Progress steps */}
         <div className="text-left space-y-2.5">
           {steps.map((s, i) => (
             <div key={i} className={`flex items-center gap-3 text-sm ${statusColor(s.status)}`}>
@@ -158,7 +152,7 @@ export function WizardGenerating() {
         </div>
 
         {error && (
-          <div className="mt-6 bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-700">
+          <div className="mt-6 bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700">
             <p className="font-semibold mb-1">Something went wrong</p>
             <p className="mb-3">{error}</p>
             <button
