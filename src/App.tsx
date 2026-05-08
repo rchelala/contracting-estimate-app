@@ -8,10 +8,12 @@ import NewEstimatePage from './pages/NewEstimatePage'
 import EstimateEditPage from './pages/EstimateEditPage'
 import EstimateWizardPage from './pages/EstimateWizardPage'
 import SettingsPage from './pages/SettingsPage'
+import ClientViewPage from './pages/ClientViewPage'
 
 const router = createBrowserRouter([
   { path: '/auth', element: <AuthPage /> },
   { path: '/auth/callback', element: <AuthCallback /> },
+  { path: '/e/:token', element: <ClientViewPage /> },
   {
     element: <RequireAuth />,
     children: [
