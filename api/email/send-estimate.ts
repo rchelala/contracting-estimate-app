@@ -80,7 +80,7 @@ export default async function handler(
   const appUrl = (process.env.VITE_APP_URL ?? 'http://localhost:5173').replace(/\/$/, '')
   const estimateUrl = `${appUrl}/e/${estimate.public_token}`
 
-  const orgName = (estimate.organizations as { name: string } | null)?.name ?? 'Your contractor'
+  const orgName = (estimate.organizations as unknown as { name: string } | null)?.name ?? 'Your contractor'
 
   const sections = (estimate.estimate_sections as Array<{
     id: string; name: string; position: number
