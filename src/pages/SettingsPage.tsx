@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { EnvelopeSimple, Buildings, UserCircle } from '@phosphor-icons/react'
+import { useNavigate } from 'react-router-dom'
+import { EnvelopeSimple, Buildings, UserCircle, House } from '@phosphor-icons/react'
 import TopNav from '../components/layout/TopNav'
 import { useAuth } from '../hooks/useAuth'
 import { getMyMembership, type MyMembership } from '../services/organizations'
@@ -15,6 +16,7 @@ function getInitials(email: string | undefined): string {
 
 export default function SettingsPage() {
   const { session } = useAuth()
+  const navigate = useNavigate()
   const [membership, setMembership] = useState<MyMembership | null>(null)
   const [orgName, setOrgName] = useState<string | null>(null)
 
@@ -46,7 +48,17 @@ export default function SettingsPage() {
     <div className="min-h-screen bg-stone-50">
       <TopNav />
       <main className="px-6 pt-8 pb-16 max-w-2xl mx-auto">
-        <h1 className="text-2xl font-extrabold text-stone-900 tracking-tight">Settings</h1>
+        <div className="flex items-center -ml-1">
+          <button
+            type="button"
+            aria-label="Go to dashboard"
+            onClick={() => navigate('/dashboard')}
+            className="w-9 h-9 flex items-center justify-center rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 focus:outline-hidden focus:ring-2 focus:ring-orange-500"
+          >
+            <House size={18} />
+          </button>
+          <h1 className="text-2xl font-extrabold text-stone-900 tracking-tight ml-2">Settings</h1>
+        </div>
 
         {/* Profile */}
         <section className="mt-6">

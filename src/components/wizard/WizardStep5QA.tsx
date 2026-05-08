@@ -1,18 +1,29 @@
 // src/components/wizard/WizardStep5QA.tsx
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { House } from '@phosphor-icons/react'
 import { useWizardStore } from '../../stores/wizardStore'
 import { useVoiceInput } from '../../hooks/useVoiceInput'
 import { fetchWizardQuestions } from '../../services/wizard'
+import Modal from '../ui/Modal'
 
 export function WizardStep5QA() {
   const {
     description, zipCode, photoFiles, qaPairs, setQAPairs, answerQuestion,
     currentQuestionIndex, setCurrentQuestionIndex, showAllMode, setShowAllMode, setStep,
+    reset,
   } = useWizardStore()
 
+  const navigate = useNavigate()
   const [loadingQuestions, setLoadingQuestions] = useState(true)
   const [inputText, setInputText] = useState('')
   const [fetchError, setFetchError] = useState<string | null>(null)
+  const [showLeaveModal, setShowLeaveModal] = useState(false)
+
+  function handleLeaveConfirm() {
+    reset()
+    navigate('/dashboard')
+  }
 
   const { isSupported, isListening, error: voiceError, interimText, start, stop } = useVoiceInput({
     onTranscript: (text) => setInputText((prev) => prev + (prev ? ' ' : '') + text),
@@ -68,7 +79,17 @@ export function WizardStep5QA() {
     <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-        <button onClick={() => setStep(4)} className="text-slate-400 text-sm w-14">← Back</button>
+        <div className="flex items-center gap-1 w-24">
+          <button
+            type="button"
+            aria-label="Go to dashboard"
+            onClick={() => setShowLeaveModal(true)}
+            className="flex items-center justify-center w-8 h-8 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 focus:outline-hidden focus:ring-2 focus:ring-orange-500"
+          >
+            <House size={16} weight="bold" />
+          </button>
+          <button onClick={() => setStep(4)} className="text-slate-400 text-sm">← Back</button>
+        </div>
         <span className="font-semibold text-sm">New Estimate</span>
         <button
           onClick={() => setShowAllMode(!showAllMode)}
@@ -210,6 +231,32 @@ export function WizardStep5QA() {
           </>
         )}
       </div>
+
+      <Modal
+        open={showLeaveModal}
+        onClose={() => setShowLeaveModal(false)}
+        title="Leave estimate?"
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setShowLeaveModal(false)}
+              className="px-4 py-2 text-sm font-medium text-stone-700 border border-stone-200 rounded-lg hover:bg-stone-50"
+            >
+              Stay
+            </button>
+            <button
+              type="button"
+              onClick={handleLeaveConfirm}
+              className="px-4 py-2 text-sm font-semibold text-white bg-orange-500 hover:bg-orange-600 rounded-lg"
+            >
+              Leave
+            </button>
+          </>
+        }
+      >
+        Your progress will be lost if you leave now.
+      </Modal>
     </div>
   )
 }
