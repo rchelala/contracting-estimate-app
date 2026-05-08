@@ -104,6 +104,30 @@ export async function deleteEstimate(estimateId: string): Promise<void> {
   if (error) throw error
 }
 
+export async function sendEstimate(
+  estimateId: string,
+  to: string,
+  subject: string,
+  message: string
+): Promise<void> {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session?.access_token) throw new Error('Not authenticated')
+
+  const response = await fetch('/api/email/send-estimate', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${session.access_token}`,
+    },
+    body: JSON.stringify({ estimate_id: estimateId, to, subject, message }),
+  })
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({})) as { error?: string }
+    throw new Error(body.error ?? 'Failed to send estimate')
+  }
+}
+
 export async function duplicateEstimate(sourceEstimateId: string, organizationId: string): Promise<EditorEstimate> {
   const source = await getEstimate(sourceEstimateId)
   const { data: estimateNumber, error: rpcErr } = await supabase.rpc('next_estimate_number', { p_org_id: organizationId })

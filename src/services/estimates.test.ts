@@ -1,23 +1,31 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 // Mock the supabase module
-const { mockDelete, mockEq, mockLimit, mockOrder, mockSelect, mockFrom } = vi.hoisted(() => {
+const { mockDelete, mockEq, mockLimit, mockOrder, mockSelect, mockFrom, mockGetSession } = vi.hoisted(() => {
   const mockDelete = vi.fn()
   const mockEq = vi.fn()
   const mockLimit = vi.fn()
   const mockOrder = vi.fn()
   const mockSelect = vi.fn()
   const mockFrom = vi.fn()
-  return { mockDelete, mockEq, mockLimit, mockOrder, mockSelect, mockFrom }
+  const mockGetSession = vi.fn()
+  return { mockDelete, mockEq, mockLimit, mockOrder, mockSelect, mockFrom, mockGetSession }
 })
 
 vi.mock('../lib/supabase', () => ({
   supabase: {
     from: mockFrom,
+    auth: {
+      getSession: mockGetSession,
+    },
   },
 }))
 
-import { deleteEstimate, listEstimates } from './estimates'
+// Mock fetch globally
+const mockFetch = vi.fn()
+vi.stubGlobal('fetch', mockFetch)
+
+import { deleteEstimate, listEstimates, sendEstimate } from './estimates'
 
 describe('listEstimates', () => {
   beforeEach(() => {
@@ -113,5 +121,61 @@ describe('deleteEstimate', () => {
     mockEq.mockResolvedValue({ error: mockError })
 
     await expect(deleteEstimate('est-1')).rejects.toThrow('Delete failed')
+  })
+})
+
+describe('sendEstimate', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('POSTs to /api/email/send-estimate with correct payload', async () => {
+    mockGetSession.mockResolvedValue({
+      data: { session: { access_token: 'test-token' } },
+      error: null,
+    } as never)
+    mockFetch.mockResolvedValue({ ok: true })
+
+    await sendEstimate('est-123', 'client@example.com', 'Estimate #0012', 'Hi!')
+
+    expect(mockFetch).toHaveBeenCalledWith('/api/email/send-estimate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer test-token',
+      },
+      body: JSON.stringify({
+        estimate_id: 'est-123',
+        to: 'client@example.com',
+        subject: 'Estimate #0012',
+        message: 'Hi!',
+      }),
+    })
+  })
+
+  it('throws when response is not ok', async () => {
+    mockGetSession.mockResolvedValue({
+      data: { session: { access_token: 'test-token' } },
+      error: null,
+    } as never)
+    mockFetch.mockResolvedValue({
+      ok: false,
+      json: async () => ({ error: 'Resend failed' }),
+    })
+
+    await expect(
+      sendEstimate('est-123', 'client@example.com', 'Subject', '')
+    ).rejects.toThrow('Resend failed')
+  })
+
+  it('throws Not authenticated when no session', async () => {
+    mockGetSession.mockResolvedValue({
+      data: { session: null },
+      error: null,
+    } as never)
+
+    await expect(
+      sendEstimate('est-123', 'client@example.com', 'Subject', '')
+    ).rejects.toThrow('Not authenticated')
   })
 })
