@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowsDownUp, ArrowUp, ArrowDown, DotsThreeVertical, MagnifyingGlass, Plus, Funnel } from '@phosphor-icons/react'
+import { ArrowsDownUp, ArrowUp, ArrowDown, CaretRight, DotsThreeVertical, MagnifyingGlass, Plus, Funnel } from '@phosphor-icons/react'
 import TopNav from '../components/layout/TopNav'
 import StatusBadge from '../components/ui/StatusBadge'
 import Modal from '../components/ui/Modal'
@@ -439,9 +439,28 @@ export default function DashboardPage() {
               {sorted.map((r) => (
                 <div
                   key={r.id}
-                  className="flex items-center gap-3 px-4 py-3 bg-white active:bg-stone-50 cursor-pointer min-h-15"
-                  onClick={() => navigate(`/estimates/${r.id}`)}
+                  className={`flex items-center gap-3 px-4 py-3 cursor-pointer min-h-15 ${
+                    selectionMode && selectedIds.has(r.id)
+                      ? 'bg-orange-50 active:bg-orange-100'
+                      : 'bg-white active:bg-stone-50'
+                  }`}
+                  onClick={() => {
+                    if (selectionMode) {
+                      toggleRow(r.id)
+                    } else {
+                      navigate(`/estimates/${r.id}`)
+                    }
+                  }}
                 >
+                  {selectionMode && (
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                      selectedIds.has(r.id)
+                        ? 'border-orange-500 bg-orange-500'
+                        : 'border-stone-300'
+                    }`}>
+                      {selectedIds.has(r.id) && <span className="text-white text-xs">✓</span>}
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-stone-900 truncate">
                       {r.client_name ?? 'No client'}
@@ -459,7 +478,7 @@ export default function DashboardPage() {
                     </span>
                     <StatusBadge status={r.status} />
                   </div>
-                  <span className="text-stone-300 text-lg">›</span>
+                  <CaretRight size={16} className="text-stone-300 shrink-0" />
                 </div>
               ))}
             </div>
