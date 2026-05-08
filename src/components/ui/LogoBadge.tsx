@@ -10,7 +10,7 @@ export default function LogoBadge({ size = 28 }: Props) {
   return (
     <div
       style={{ width: size, height: size }}
-      className="bg-gradient-to-br from-orange-600 to-orange-500 rounded-lg flex items-center justify-center shrink-0"
+      className="bg-linear-to-br from-orange-600 to-orange-500 rounded-lg flex items-center justify-center shrink-0"
     >
       <FileText weight="fill" size={iconSize} color="white" />
     </div>
