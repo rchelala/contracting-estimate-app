@@ -1,9 +1,9 @@
-// src/components/wizard/WizardShell.tsx
 import type { ReactNode } from 'react'
+import { ArrowLeft } from '@phosphor-icons/react'
 
 interface WizardShellProps {
-  step: number        // 1–5
-  totalSteps?: number // default 5
+  step: number
+  totalSteps?: number
   title: string
   subtitle?: string
   onBack?: () => void
@@ -24,40 +24,39 @@ export function WizardShell({
 }: WizardShellProps) {
   const progress = (step / totalSteps) * 100
   const isLastStep = step === totalSteps
-  const barColor = isLastStep ? 'bg-amber-400' : 'bg-blue-500'
+  const barColor = isLastStep ? 'bg-amber-400' : 'bg-orange-500'
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-stone-100">
         <button
           onClick={onBack}
-          className="text-slate-400 text-sm w-14"
+          className="flex items-center gap-1 text-stone-400 hover:text-stone-600 text-sm w-14 disabled:opacity-0"
           disabled={!onBack}
         >
-          {onBack ? '← Back' : ''}
+          {onBack && <><ArrowLeft size={14} weight="bold" /> Back</>}
         </button>
-        <span className="font-semibold text-sm">New Estimate</span>
+        <span className="font-semibold text-sm text-stone-900">New Estimate</span>
         <button
           onClick={onSkip}
-          className="text-blue-500 text-sm w-14 text-right"
+          className="text-orange-500 hover:text-orange-600 text-sm w-14 text-right font-medium"
+          disabled={!onSkip}
+          style={{ visibility: onSkip ? 'visible' : 'hidden' }}
         >
-          {onSkip ? skipLabel : ''}
+          {skipLabel}
         </button>
       </div>
 
-      {/* Body */}
       <div className="flex-1 px-4 py-5 max-w-lg mx-auto w-full">
-        {/* Progress bar */}
-        <div className="h-1 bg-slate-200 rounded-full mb-5">
+        <div className="h-1.5 bg-stone-100 rounded-full mb-5">
           <div
-            className={`h-1 rounded-full transition-all duration-300 ${barColor}`}
+            className={`h-1.5 rounded-full transition-all duration-300 ${barColor}`}
             style={{ width: `${progress}%` }}
           />
         </div>
 
-        <h1 className="text-xl font-bold mb-1">{title}</h1>
-        {subtitle && <p className="text-slate-500 text-sm mb-5">{subtitle}</p>}
+        <h1 className="text-xl font-extrabold text-stone-900 mb-1 tracking-tight">{title}</h1>
+        {subtitle && <p className="text-stone-500 text-sm mb-5">{subtitle}</p>}
 
         {children}
       </div>

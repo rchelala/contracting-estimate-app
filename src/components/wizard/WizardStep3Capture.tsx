@@ -1,4 +1,5 @@
 import { useRef, useMemo, useEffect } from 'react'
+import { Camera, Images, FilmSlate, X, Plus } from '@phosphor-icons/react'
 import { useWizardStore } from '../../stores/wizardStore'
 import { WizardShell } from './WizardShell'
 
@@ -35,28 +36,27 @@ export function WizardStep3Capture() {
       onBack={() => setStep(2)}
       onSkip={() => setStep(4)}
     >
-      {/* Photo grid */}
       <div className="grid grid-cols-3 gap-2 mb-3">
         {thumbnails.map((url, i) => (
-          <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-slate-100">
+          <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-stone-100">
             <img src={url} alt="" className="w-full h-full object-cover" />
             <button
               onClick={() => removePhotoFile(i)}
-              className="absolute top-1 right-1 bg-black/40 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+              className="absolute top-1 right-1 bg-black/40 text-white rounded-full w-5 h-5 flex items-center justify-center"
             >
-              ✕
+              <X size={10} weight="bold" />
             </button>
           </div>
         ))}
 
         {videoFile && (
-          <div className="relative aspect-square rounded-lg overflow-hidden bg-slate-200 flex items-center justify-center">
-            <span className="text-2xl">🎬</span>
+          <div className="relative aspect-square rounded-xl overflow-hidden bg-stone-200 flex items-center justify-center">
+            <FilmSlate size={28} weight="fill" className="text-stone-500" />
             <button
               onClick={() => setVideoFile(null)}
-              className="absolute top-1 right-1 bg-black/40 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+              className="absolute top-1 right-1 bg-black/40 text-white rounded-full w-5 h-5 flex items-center justify-center"
             >
-              ✕
+              <X size={10} weight="bold" />
             </button>
           </div>
         )}
@@ -64,69 +64,44 @@ export function WizardStep3Capture() {
         {photoFiles.length < 10 && (
           <button
             onClick={() => photoInputRef.current?.click()}
-            className="aspect-square rounded-lg border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-400 text-2xl hover:border-blue-300 hover:text-blue-400"
+            className="aspect-square rounded-xl border-2 border-dashed border-stone-200 flex items-center justify-center text-stone-400 hover:border-orange-300 hover:text-orange-400"
           >
-            +
+            <Plus size={24} weight="bold" />
           </button>
         )}
       </div>
 
-      {/* Upload buttons */}
       <div className="grid grid-cols-3 gap-2 mb-5">
         <button
           onClick={() => cameraInputRef.current?.click()}
-          className="border border-slate-200 rounded-lg py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
+          className="flex items-center justify-center gap-1.5 border border-stone-200 rounded-lg py-2 text-sm font-medium text-stone-600 hover:bg-stone-50"
         >
-          📷 Camera
+          <Camera size={15} weight="fill" /> Camera
         </button>
         <button
           onClick={() => photoInputRef.current?.click()}
-          className="border border-slate-200 rounded-lg py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
+          className="flex items-center justify-center gap-1.5 border border-stone-200 rounded-lg py-2 text-sm font-medium text-stone-600 hover:bg-stone-50"
         >
-          🖼 Library
+          <Images size={15} weight="fill" /> Library
         </button>
         <button
           onClick={() => videoInputRef.current?.click()}
           disabled={!!videoFile}
-          className="border border-slate-200 rounded-lg py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-40"
+          className="flex items-center justify-center gap-1.5 border border-stone-200 rounded-lg py-2 text-sm font-medium text-stone-600 hover:bg-stone-50 disabled:opacity-40"
         >
-          🎬 Video
+          <FilmSlate size={15} weight="fill" /> Video
         </button>
       </div>
 
-      {/* Hidden inputs */}
-      <input
-        ref={photoInputRef}
-        type="file"
-        accept={ACCEPTED_IMAGES}
-        multiple
-        className="hidden"
-        onChange={(e) => handlePhotoFiles(e.target.files)}
-      />
-      <input
-        ref={cameraInputRef}
-        type="file"
-        accept={ACCEPTED_IMAGES}
-        capture="environment"
-        className="hidden"
-        onChange={(e) => handlePhotoFiles(e.target.files)}
-      />
-      <input
-        ref={videoInputRef}
-        type="file"
-        accept={ACCEPTED_VIDEO}
-        className="hidden"
-        onChange={(e) => {
-          const f = e.target.files?.[0]
-          if (f) setVideoFile(f)
-        }}
-      />
+      <input ref={photoInputRef} type="file" accept={ACCEPTED_IMAGES} multiple className="hidden" onChange={(e) => handlePhotoFiles(e.target.files)} />
+      <input ref={cameraInputRef} type="file" accept={ACCEPTED_IMAGES} capture="environment" className="hidden" onChange={(e) => handlePhotoFiles(e.target.files)} />
+      <input ref={videoInputRef} type="file" accept={ACCEPTED_VIDEO} className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setVideoFile(f) }} />
 
       <button
         onClick={() => setStep(4)}
-        className="w-full bg-blue-500 text-white rounded-lg py-2.5 font-semibold text-sm"
+        className="w-full bg-linear-to-br from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white rounded-lg py-2.5 font-semibold text-sm shadow-sm"
       >
-        Continue →
+        Continue
       </button>
     </WizardShell>
   )
