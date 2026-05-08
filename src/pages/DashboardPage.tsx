@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { ArrowsDownUp, ArrowUp, ArrowDown, DotsThreeVertical, MagnifyingGlass, Plus, Funnel } from '@phosphor-icons/react'
 import TopNav from '../components/layout/TopNav'
 import StatusBadge from '../components/ui/StatusBadge'
 import Modal from '../components/ui/Modal'
@@ -20,8 +21,9 @@ function NewEstimateButton({ extraClass = '' }: { extraClass?: string }) {
     <button
       type="button"
       onClick={() => navigate('/estimates/wizard')}
-      className={`bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-md px-4 py-2 focus:outline-hidden focus:ring-3 focus:ring-blue-600 focus:ring-offset-2 ${extraClass}`}
+      className={`bg-linear-to-br from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white font-semibold text-sm rounded-lg px-4 py-2 flex items-center gap-2 shadow-sm focus:outline-hidden focus:ring-3 focus:ring-orange-500 focus:ring-offset-2 ${extraClass}`}
     >
+      <Plus size={14} weight="bold" />
       New Estimate
     </button>
   )
@@ -56,17 +58,17 @@ function RowActionsMenu({ estimateId, onDuplicate, onDelete, duplicating, deleti
       <button
         type="button"
         aria-label="Row actions"
-        className="text-slate-400 hover:text-slate-600 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
+        className="text-stone-400 hover:text-stone-600 px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
         onClick={() => setOpen((v) => !v)}
         disabled={busy}
       >
-        ⋮
+        <DotsThreeVertical size={16} weight="bold" />
       </button>
       {open && (
-        <div className="absolute right-0 z-10 mt-1 w-36 rounded-md border border-slate-200 bg-white shadow-md">
+        <div className="absolute right-0 z-10 mt-1 w-36 rounded-lg border border-stone-200 bg-white shadow-md">
           <button
             type="button"
-            className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+            className="w-full text-left px-4 py-2 text-sm text-stone-700 hover:bg-stone-50"
             onClick={() => {
               setOpen(false)
               onDuplicate(estimateId)
@@ -110,7 +112,6 @@ export default function DashboardPage() {
     draftIds: string[]
   } | null>(null)
 
-  // Load org name (via membership → organizations.name)
   useEffect(() => {
     if (!session) return
     let cancelled = false
@@ -131,7 +132,6 @@ export default function DashboardPage() {
     return () => { cancelled = true }
   }, [session])
 
-  // Load estimates — reset state via Promise chain to avoid synchronous setState in effect body
   useEffect(() => {
     let cancelled = false
     Promise.resolve()
@@ -166,6 +166,15 @@ export default function DashboardPage() {
     return copy
   }, [rows, sortKey, sortDir])
 
+  const statCounts = useMemo(() => {
+    if (!rows) return null
+    return {
+      draft: rows.filter((r) => r.status === 'draft').length,
+      sent: rows.filter((r) => r.status === 'sent').length,
+      approved: rows.filter((r) => r.status === 'approved').length,
+    }
+  }, [rows])
+
   function toggleSort(key: SortKey) {
     if (key === sortKey) {
       setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))
@@ -176,8 +185,10 @@ export default function DashboardPage() {
   }
 
   function sortIndicator(key: SortKey) {
-    if (key !== sortKey) return <span className="text-slate-400">↕</span>
-    return <span className="text-blue-600">{sortDir === 'asc' ? '↑' : '↓'}</span>
+    if (key !== sortKey) return <ArrowsDownUp size={13} className="inline ml-1 text-stone-400" />
+    return sortDir === 'asc'
+      ? <ArrowUp size={13} className="inline ml-1 text-orange-500" />
+      : <ArrowDown size={13} className="inline ml-1 text-orange-500" />
   }
 
   async function handleDuplicate(sourceId: string) {
@@ -282,13 +293,14 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-stone-50">
       <TopNav />
-      <main className="px-6 pt-8">
-        <div className="flex items-center justify-between">
+      <main className="px-6 pt-8 pb-16">
+        {/* Header */}
+        <div className="flex items-end justify-between">
           <div>
-            <h1 className="text-xl font-semibold text-slate-900 leading-[1.3]">Estimates</h1>
-            {orgName && <p className="mt-1 text-sm text-slate-500">{orgName}</p>}
+            <h1 className="text-2xl font-extrabold text-stone-900 tracking-tight">Estimates</h1>
+            {orgName && <p className="mt-1 text-sm text-stone-500">{orgName}</p>}
           </div>
           <div className="flex items-center gap-2">
             {!selectionMode ? (
@@ -296,7 +308,7 @@ export default function DashboardPage() {
                 <button
                   type="button"
                   onClick={() => setSelectionMode(true)}
-                  className="border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm rounded-md px-4 py-2 focus:outline-hidden focus:ring-3 focus:ring-blue-600 focus:ring-offset-2"
+                  className="border border-stone-200 bg-white hover:bg-stone-50 text-stone-700 font-semibold text-sm rounded-lg px-4 py-2 focus:outline-hidden focus:ring-3 focus:ring-orange-500 focus:ring-offset-2"
                 >
                   Select
                 </button>
@@ -306,7 +318,7 @@ export default function DashboardPage() {
               <button
                 type="button"
                 onClick={exitSelectionMode}
-                className="border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm rounded-md px-4 py-2 focus:outline-hidden focus:ring-3 focus:ring-blue-600 focus:ring-offset-2"
+                className="border border-stone-200 bg-white hover:bg-stone-50 text-stone-700 font-semibold text-sm rounded-lg px-4 py-2 focus:outline-hidden focus:ring-3 focus:ring-orange-500 focus:ring-offset-2"
               >
                 Cancel
               </button>
@@ -314,10 +326,48 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Stat cards */}
+        {statCounts && (
+          <div className="mt-6 grid grid-cols-3 gap-4">
+            <div className="bg-white border border-stone-200 rounded-xl p-4">
+              <p className="text-xs font-semibold text-stone-400 uppercase tracking-wide">Drafts</p>
+              <p className="mt-1 text-2xl font-extrabold text-stone-900">{statCounts.draft}</p>
+              <p className="text-xs text-stone-500 mt-0.5">In progress</p>
+            </div>
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+              <p className="text-xs font-semibold text-amber-700 uppercase tracking-wide">Sent</p>
+              <p className="mt-1 text-2xl font-extrabold text-stone-900">{statCounts.sent}</p>
+              <p className="text-xs text-stone-500 mt-0.5">Awaiting response</p>
+            </div>
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+              <p className="text-xs font-semibold text-green-700 uppercase tracking-wide">Approved</p>
+              <p className="mt-1 text-2xl font-extrabold text-stone-900">{statCounts.approved}</p>
+              <p className="text-xs text-stone-500 mt-0.5">Approved</p>
+            </div>
+          </div>
+        )}
+
         <div className="mt-6">
+          {/* Search + filter bar */}
+          {!selectionMode && sorted && sorted.length > 0 && (
+            <div className="flex gap-3 mb-4">
+              <div className="flex-1 flex items-center gap-2 bg-white border border-stone-200 rounded-lg px-3 py-2">
+                <MagnifyingGlass size={15} className="text-stone-400 shrink-0" />
+                <span className="text-sm text-stone-400">Search estimates or clients…</span>
+              </div>
+              <button
+                type="button"
+                className="flex items-center gap-2 border border-stone-200 bg-white hover:bg-stone-50 text-stone-600 font-medium text-sm rounded-lg px-3 py-2"
+              >
+                <Funnel size={14} />
+                Filter
+              </button>
+            </div>
+          )}
+
           {selectionMode && (
             <div className="mb-4 flex items-center gap-3">
-              <span className="text-sm text-slate-600">
+              <span className="text-sm text-stone-600">
                 {selectedIds.size} selected
               </span>
               <button
@@ -329,21 +379,22 @@ export default function DashboardPage() {
                   if (drafts.length === 0) return
                   setBulkDeleteTarget({ selectedCount: selectedIds.size, draftIds: drafts })
                 }}
-                className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 focus:outline-hidden focus:ring-3 focus:ring-red-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 focus:outline-hidden focus:ring-3 focus:ring-red-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Delete {selectedIds.size} selected
               </button>
               <button
                 type="button"
                 onClick={exitSelectionMode}
-                className="border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm rounded-md px-4 py-2 focus:outline-hidden focus:ring-3 focus:ring-blue-600 focus:ring-offset-2"
+                className="border border-stone-200 bg-white hover:bg-stone-50 text-stone-700 font-semibold text-sm rounded-lg px-4 py-2 focus:outline-hidden focus:ring-3 focus:ring-orange-500 focus:ring-offset-2"
               >
                 Cancel
               </button>
             </div>
           )}
+
           {actionError && (
-            <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {actionError}
             </div>
           )}
@@ -352,7 +403,7 @@ export default function DashboardPage() {
           {rows === null && !error && (
             <div aria-busy="true" aria-label="Loading estimates">
               {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="h-10 bg-slate-100 animate-pulse rounded mb-2" />
+                <div key={i} className="h-10 bg-stone-100 animate-pulse rounded-lg mb-2" />
               ))}
             </div>
           )}
@@ -360,12 +411,12 @@ export default function DashboardPage() {
           {/* Error */}
           {error && (
             <div className="mt-12 text-center">
-              <h2 className="text-xl font-semibold text-slate-900">Couldn&apos;t load your estimates</h2>
-              <p className="mt-1 text-sm text-slate-500">Check your connection and try again.</p>
+              <h2 className="text-xl font-semibold text-stone-900">Couldn&apos;t load your estimates</h2>
+              <p className="mt-1 text-sm text-stone-500">Check your connection and try again.</p>
               <button
                 type="button"
                 onClick={() => setReloadCounter((c) => c + 1)}
-                className="mt-4 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm rounded-md px-4 py-2 focus:outline-hidden focus:ring-3 focus:ring-blue-600 focus:ring-offset-2"
+                className="mt-4 border border-stone-200 bg-white hover:bg-stone-50 text-stone-700 font-semibold text-sm rounded-lg px-4 py-2 focus:outline-hidden focus:ring-3 focus:ring-orange-500 focus:ring-offset-2"
               >
                 Reload estimates
               </button>
@@ -375,100 +426,103 @@ export default function DashboardPage() {
           {/* Empty */}
           {sorted && sorted.length === 0 && !error && (
             <div className="mt-12 flex flex-col items-center text-center">
-              <div className="w-16 h-16 border-2 border-dashed border-slate-200 rounded-lg" aria-hidden="true" />
-              <h2 className="mt-4 text-xl font-semibold text-slate-900">No estimates yet</h2>
-              <p className="mt-1 text-sm text-slate-500">Create your first estimate to get started.</p>
+              <div className="w-16 h-16 border-2 border-dashed border-stone-200 rounded-xl" aria-hidden="true" />
+              <h2 className="mt-4 text-xl font-semibold text-stone-900">No estimates yet</h2>
+              <p className="mt-1 text-sm text-stone-500">Create your first estimate to get started.</p>
               <NewEstimateButton extraClass="mt-4" />
             </div>
           )}
 
           {/* Table */}
           {sorted && sorted.length > 0 && (
-            <table className="w-full border border-slate-200 rounded-lg overflow-hidden">
-              <thead className="bg-slate-100">
-                <tr>
-                  {selectionMode && (
-                    <th className="w-10 py-2 px-4">
-                      <input
-                        type="checkbox"
-                        aria-label="Select all"
-                        checked={!!sorted && sorted.length > 0 && selectedIds.size === sorted.length}
-                        ref={(el) => {
-                          if (el) {
-                            el.indeterminate =
-                              selectedIds.size > 0 && !!sorted && selectedIds.size < sorted.length
-                          }
-                        }}
-                        onChange={toggleSelectAll}
-                        className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-600"
-                      />
-                    </th>
-                  )}
-                  <th className="text-left text-sm font-semibold text-slate-600 py-2 px-4 cursor-pointer w-[100px]" onClick={() => toggleSort('estimate_number')}>
-                    Estimate # {sortIndicator('estimate_number')}
-                  </th>
-                  <th className="text-left text-sm font-semibold text-slate-600 py-2 px-4">Client</th>
-                  <th className="text-left text-sm font-semibold text-slate-600 py-2 px-4">Title</th>
-                  <th className="text-left text-sm font-semibold text-slate-600 py-2 px-4 cursor-pointer w-[100px]" onClick={() => toggleSort('status')}>
-                    Status {sortIndicator('status')}
-                  </th>
-                  <th className="text-right text-sm font-semibold text-slate-600 py-2 px-4 cursor-pointer w-[100px]" onClick={() => toggleSort('total_cents')}>
-                    Total {sortIndicator('total_cents')}
-                  </th>
-                  <th className="text-left text-sm font-semibold text-slate-600 py-2 px-4 cursor-pointer w-[140px]" onClick={() => toggleSort('updated_at')}>
-                    Last Updated {sortIndicator('updated_at')}
-                  </th>
-                  {!selectionMode && <th className="w-10" />}
-                </tr>
-              </thead>
-              <tbody>
-                {sorted.map((r) => (
-                  <tr
-                    key={r.id}
-                    onClick={() => {
-                      if (selectionMode) {
-                        toggleRow(r.id)
-                      } else {
-                        navigate(`/estimates/${r.id}`)
-                      }
-                    }}
-                    className="bg-white border-t border-slate-200 hover:bg-slate-50 cursor-pointer"
-                  >
+            <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-stone-50 border-b border-stone-200">
+                  <tr>
                     {selectionMode && (
-                      <td className="py-2 px-4" onClick={(e) => e.stopPropagation()}>
+                      <th className="w-10 py-2 px-4">
                         <input
                           type="checkbox"
-                          aria-label={`Select estimate ${r.estimate_number}`}
-                          checked={selectedIds.has(r.id)}
-                          onChange={() => toggleRow(r.id)}
-                          className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-600"
+                          aria-label="Select all"
+                          checked={!!sorted && sorted.length > 0 && selectedIds.size === sorted.length}
+                          ref={(el) => {
+                            if (el) {
+                              el.indeterminate =
+                                selectedIds.size > 0 && !!sorted && selectedIds.size < sorted.length
+                            }
+                          }}
+                          onChange={toggleSelectAll}
+                          className="h-4 w-4 rounded border-stone-300 text-orange-600 focus:ring-orange-500"
                         />
-                      </td>
+                      </th>
                     )}
-                    <td className="text-sm text-slate-900 py-2 px-4">{r.estimate_number}</td>
-                    <td className="text-sm text-slate-900 py-2 px-4">{r.client_name ?? '—'}</td>
-                    <td className="text-sm text-slate-900 py-2 px-4">{r.title ?? '—'}</td>
-                    <td className="text-sm text-slate-900 py-2 px-4"><StatusBadge status={r.status} /></td>
-                    <td className="text-sm text-slate-900 py-2 px-4 text-right">{formatCents(r.total_cents)}</td>
-                    <td className="text-sm text-slate-500 py-2 px-4">{formatRelativeDate(r.updated_at)}</td>
-                    {!selectionMode && (
-                      <td className="py-2 px-2">
-                        <RowActionsMenu
-                          estimateId={r.id}
-                          onDuplicate={handleDuplicate}
-                          onDelete={() => handleRequestDelete(r)}
-                          duplicating={duplicatingId === r.id}
-                          deleting={deletingId === r.id}
-                        />
-                      </td>
-                    )}
+                    <th className="text-left text-xs font-semibold text-stone-500 uppercase tracking-wide py-3 px-4 cursor-pointer w-[100px]" onClick={() => toggleSort('estimate_number')}>
+                      Est # {sortIndicator('estimate_number')}
+                    </th>
+                    <th className="text-left text-xs font-semibold text-stone-500 uppercase tracking-wide py-3 px-4">Client</th>
+                    <th className="text-left text-xs font-semibold text-stone-500 uppercase tracking-wide py-3 px-4">Title</th>
+                    <th className="text-left text-xs font-semibold text-stone-500 uppercase tracking-wide py-3 px-4 cursor-pointer w-[110px]" onClick={() => toggleSort('status')}>
+                      Status {sortIndicator('status')}
+                    </th>
+                    <th className="text-right text-xs font-semibold text-stone-500 uppercase tracking-wide py-3 px-4 cursor-pointer w-[100px]" onClick={() => toggleSort('total_cents')}>
+                      Total {sortIndicator('total_cents')}
+                    </th>
+                    <th className="text-left text-xs font-semibold text-stone-500 uppercase tracking-wide py-3 px-4 cursor-pointer w-[140px]" onClick={() => toggleSort('updated_at')}>
+                      Updated {sortIndicator('updated_at')}
+                    </th>
+                    {!selectionMode && <th className="w-10" />}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {sorted.map((r, idx) => (
+                    <tr
+                      key={r.id}
+                      onClick={() => {
+                        if (selectionMode) {
+                          toggleRow(r.id)
+                        } else {
+                          navigate(`/estimates/${r.id}`)
+                        }
+                      }}
+                      className={`border-t border-stone-100 hover:bg-stone-50 cursor-pointer ${idx % 2 === 0 ? 'bg-white' : 'bg-stone-50/50'}`}
+                    >
+                      {selectionMode && (
+                        <td className="py-3 px-4" onClick={(e) => e.stopPropagation()}>
+                          <input
+                            type="checkbox"
+                            aria-label={`Select estimate ${r.estimate_number}`}
+                            checked={selectedIds.has(r.id)}
+                            onChange={() => toggleRow(r.id)}
+                            className="h-4 w-4 rounded border-stone-300 text-orange-600 focus:ring-orange-500"
+                          />
+                        </td>
+                      )}
+                      <td className="text-sm font-semibold text-orange-600 py-3 px-4">{r.estimate_number}</td>
+                      <td className="text-sm font-medium text-stone-900 py-3 px-4">{r.client_name ?? '—'}</td>
+                      <td className="text-sm text-stone-600 py-3 px-4">{r.title ?? '—'}</td>
+                      <td className="text-sm py-3 px-4"><StatusBadge status={r.status} /></td>
+                      <td className="text-sm font-semibold text-stone-900 py-3 px-4 text-right">{formatCents(r.total_cents)}</td>
+                      <td className="text-sm text-stone-400 py-3 px-4">{formatRelativeDate(r.updated_at)}</td>
+                      {!selectionMode && (
+                        <td className="py-3 px-2">
+                          <RowActionsMenu
+                            estimateId={r.id}
+                            onDuplicate={handleDuplicate}
+                            onDelete={() => handleRequestDelete(r)}
+                            duplicating={duplicatingId === r.id}
+                            deleting={deletingId === r.id}
+                          />
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </main>
+
       <Modal
         open={deleteTarget !== null}
         onClose={() => {
@@ -481,7 +535,7 @@ export default function DashboardPage() {
               type="button"
               onClick={() => setDeleteTarget(null)}
               disabled={deletingId !== null}
-              className="rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-hidden focus:ring-3 focus:ring-blue-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-lg border border-stone-200 bg-white px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-50 focus:outline-hidden focus:ring-3 focus:ring-orange-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
             >
               Cancel
             </button>
@@ -489,7 +543,7 @@ export default function DashboardPage() {
               type="button"
               onClick={handleConfirmDelete}
               disabled={deletingId !== null}
-              className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 focus:outline-hidden focus:ring-3 focus:ring-red-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 focus:outline-hidden focus:ring-3 focus:ring-red-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {deletingId ? 'Deleting...' : 'Delete'}
             </button>
@@ -498,6 +552,7 @@ export default function DashboardPage() {
       >
         This permanently deletes the estimate and its line items.
       </Modal>
+
       <Modal
         open={bulkDeleteTarget !== null}
         onClose={() => {
@@ -510,7 +565,7 @@ export default function DashboardPage() {
               type="button"
               onClick={() => setBulkDeleteTarget(null)}
               disabled={deletingId !== null}
-              className="rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-hidden focus:ring-3 focus:ring-blue-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-lg border border-stone-200 bg-white px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-50 focus:outline-hidden focus:ring-3 focus:ring-orange-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
             >
               Cancel
             </button>
@@ -518,7 +573,7 @@ export default function DashboardPage() {
               type="button"
               onClick={handleConfirmBulkDelete}
               disabled={deletingId !== null || (bulkDeleteTarget?.draftIds.length ?? 0) === 0}
-              className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 focus:outline-hidden focus:ring-3 focus:ring-red-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 focus:outline-hidden focus:ring-3 focus:ring-red-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {deletingId ? 'Deleting...' : `Delete ${bulkDeleteTarget?.draftIds.length ?? 0} estimate${(bulkDeleteTarget?.draftIds.length ?? 0) === 1 ? '' : 's'}`}
             </button>
