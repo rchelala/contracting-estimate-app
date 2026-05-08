@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { DotsThreeVertical } from '@phosphor-icons/react'
 
 interface Props {
   optional: boolean
@@ -26,17 +27,17 @@ export default function LineItemActions({ optional, onToggleOptional, onDelete, 
         type="button"
         aria-label="Row actions"
         disabled={disabled}
-        className="text-slate-400 hover:text-slate-600 min-h-[44px] w-8 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+        className="text-stone-400 hover:text-stone-600 min-h-[44px] w-8 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
         onClick={() => setOpen((v) => !v)}
       >
-        ⋮
+        <DotsThreeVertical size={16} weight="bold" />
       </button>
       {open && (
-        <div role="menu" className="absolute right-0 mt-1 w-44 bg-white border border-slate-200 rounded-md shadow-md z-20 py-1">
+        <div role="menu" className="absolute right-0 mt-1 w-44 bg-white border border-stone-200 rounded-lg shadow-md z-20 py-1">
           <button
             role="menuitem"
             type="button"
-            className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+            className="w-full text-left px-3 py-2 text-sm text-stone-700 hover:bg-stone-50"
             onClick={() => { onToggleOptional(); setOpen(false) }}
           >
             {optional ? 'Remove optional' : 'Mark optional'}
@@ -44,7 +45,7 @@ export default function LineItemActions({ optional, onToggleOptional, onDelete, 
           <button
             role="menuitem"
             type="button"
-            className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-slate-50"
+            className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50"
             onClick={() => { onDelete(); setOpen(false) }}
           >
             Delete

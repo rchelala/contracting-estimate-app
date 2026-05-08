@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
+import { Camera } from '@phosphor-icons/react'
 import { uploadAttachment } from '../../services/attachments'
 import { useEditorStore } from '../../stores/editorStore'
 
@@ -14,7 +15,6 @@ export default function AttachPhotoButton({ lineItemId, disabled }: Props) {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Clear error after 5 seconds
   useEffect(() => {
     if (error) {
       const timer = setTimeout(() => setError(null), 5000)
@@ -28,14 +28,12 @@ export default function AttachPhotoButton({ lineItemId, disabled }: Props) {
       setError('Unable to find line item. Please try refreshing.')
       return
     }
-    
     console.log('[AttachPhotoButton] Uploading file:', {
       fileName: file.name,
       fileSize: file.size,
       fileType: file.type,
       lineItemId,
     })
-    
     setUploading(true)
     setError(null)
     try {
@@ -48,7 +46,6 @@ export default function AttachPhotoButton({ lineItemId, disabled }: Props) {
       })
       console.log('[AttachPhotoButton] Upload successful:', att.id)
       addAttachmentLocal(att)
-      // Reset input so same file can be selected again
       if (inputRef.current) inputRef.current.value = ''
     } catch (e) {
       const errorMsg = e instanceof Error ? e.message : 'Upload failed. Try again.'
@@ -74,11 +71,12 @@ export default function AttachPhotoButton({ lineItemId, disabled }: Props) {
       <button
         type="button"
         disabled={disabled || uploading}
-        className="text-slate-400 text-xs hover:text-slate-600 disabled:opacity-50"
+        className="text-stone-400 hover:text-stone-600 disabled:opacity-50 flex items-center gap-1"
         onClick={() => inputRef.current?.click()}
         title={error || 'Attach a photo'}
       >
-        {uploading ? 'Uploading...' : 'Attach photo'}
+        <Camera size={14} />
+        {uploading && <span className="text-xs">Uploading…</span>}
       </button>
       {error && (
         <span className="text-red-500 text-xs ml-2 inline-block max-w-xs truncate" title={error}>

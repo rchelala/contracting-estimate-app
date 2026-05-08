@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes } from 'react'
+import { DotsSixVertical } from '@phosphor-icons/react'
 
 interface Props {
   listeners?: Record<string, unknown>
@@ -13,11 +14,11 @@ export default function DragHandle({ listeners, attributes, className }: Props) 
     <button
       type="button"
       aria-label="Reorder"
-      className={`text-slate-300 hover:text-slate-500 active:text-slate-700 cursor-grab active:cursor-grabbing min-h-[44px] w-5 flex items-center justify-center ${className ?? ''}`}
+      className={`text-stone-300 hover:text-stone-500 active:text-stone-700 cursor-grab active:cursor-grabbing min-h-[44px] w-5 flex items-center justify-center ${className ?? ''}`}
       {...attributeProps}
       {...listenerProps}
     >
-      <span aria-hidden="true">≡</span>
+      <DotsSixVertical size={16} weight="bold" aria-hidden="true" />
     </button>
   )
 }

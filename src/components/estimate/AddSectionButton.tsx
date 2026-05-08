@@ -1,3 +1,5 @@
+import { Plus } from '@phosphor-icons/react'
+
 interface Props {
   onClick: () => void
   disabled?: boolean
@@ -8,10 +10,11 @@ export default function AddSectionButton({ onClick, disabled }: Props) {
     <button
       type="button"
       disabled={disabled}
-      className="text-blue-600 text-sm py-2 hover:text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+      className="flex items-center gap-1.5 bg-linear-to-br from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
       onClick={onClick}
     >
-      + Add section
+      <Plus size={14} weight="bold" />
+      Add section
     </button>
   )
 }

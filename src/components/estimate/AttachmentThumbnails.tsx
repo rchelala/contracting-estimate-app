@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { X } from '@phosphor-icons/react'
 import { useEditorStore } from '../../stores/editorStore'
 import { deleteAttachment, getAttachmentUrl } from '../../services/attachments'
 
@@ -65,28 +66,28 @@ export default function AttachmentThumbnails({ lineItemId, readOnly }: Props) {
             <img
               src={urls[a.id]}
               alt={a.filename}
-              className="w-12 h-12 rounded-sm object-cover border border-slate-200"
+              className="w-12 h-12 rounded-md object-cover border border-stone-200"
             />
           ) : loadErrors[a.id] ? (
             <div
-              className="w-12 h-12 rounded-sm bg-red-50 border border-red-200 flex items-center justify-center"
+              className="w-12 h-12 rounded-md bg-red-50 border border-red-200 flex items-center justify-center"
               title={loadErrors[a.id]}
             >
               <span className="text-xs text-red-500">!</span>
             </div>
           ) : (
-            <div className="w-12 h-12 rounded-sm bg-slate-100 animate-pulse" />
+            <div className="w-12 h-12 rounded-md bg-stone-100 animate-pulse" />
           )}
           {!readOnly && (
             <button
               type="button"
               aria-label="Remove photo"
-              className="absolute -top-1 -right-1 bg-white border border-slate-200 rounded-full w-4 h-4 text-xs text-slate-500 hover:text-red-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute -top-1 -right-1 bg-white border border-stone-200 rounded-full w-4 h-4 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:border-red-300 hover:text-red-600 text-stone-400"
               onClick={() => {
                 void handleRemove(a.id, a.storage_path)
               }}
             >
-              ×
+              <X size={8} weight="bold" />
             </button>
           )}
         </div>
