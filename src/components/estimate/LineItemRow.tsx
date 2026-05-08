@@ -1,4 +1,4 @@
-import { useState, useEffect, type MouseEvent } from 'react'
+import { useState, type MouseEvent } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { CaretDown } from '@phosphor-icons/react'
@@ -30,14 +30,11 @@ export default function LineItemRow({ lineItemId, index, readOnly }: Props) {
   const removeLocal = useEditorStore((s) => s.removeLineItemLocal)
   const enqueue = useSyncQueue((s) => s.enqueue)
 
-  // Start collapsed; expand on mount for new (empty) items so the user can fill them in immediately
-  const [isExpanded, setIsExpanded] = useState(false)
-
-  useEffect(() => {
-    if (item && !item.description) {
-      setIsExpanded(true)
-    }
-  }, []) // only on mount — don't react to description changes
+  // Start expanded for new (empty) items so the user can fill them in immediately
+  const [isExpanded, setIsExpanded] = useState(() => {
+    const initial = useEditorStore.getState().lineItemsById[lineItemId]
+    return !initial?.description
+  })
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: lineItemId,
