@@ -1,3 +1,4 @@
+import { PaperPlaneTilt } from '@phosphor-icons/react'
 import { useEditorStore } from '../../stores/editorStore'
 import { useSyncQueue } from '../../stores/syncQueueStore'
 import ClientDropdown from './ClientDropdown'
@@ -27,7 +28,7 @@ export default function EditorHeaderBar({ onSendClick }: Props) {
   }
 
   return (
-    <header className="flex items-center h-14 px-6 bg-white border-b border-slate-200">
+    <header className="flex items-center h-14 px-6 bg-white border-b border-stone-200">
       <ClientDropdown readOnly={readOnly} />
       <input
         type="text"
@@ -36,7 +37,7 @@ export default function EditorHeaderBar({ onSendClick }: Props) {
         disabled={readOnly}
         value={title}
         onChange={(e) => handleTitleChange(e.target.value)}
-        className="flex-1 text-base font-semibold text-slate-900 border-0 bg-transparent mx-4 focus:outline-none focus:ring-0 placeholder:text-slate-400 disabled:cursor-not-allowed"
+        className="flex-1 text-base font-semibold text-stone-900 border-0 bg-transparent mx-4 focus:outline-none focus:ring-0 placeholder:text-stone-400 disabled:cursor-not-allowed"
       />
       {readOnly ? <StatusBadge status="sent" /> : <SaveIndicator />}
       <button
@@ -44,9 +45,10 @@ export default function EditorHeaderBar({ onSendClick }: Props) {
         disabled={readOnly}
         data-testid="send-button"
         onClick={onSendClick}
-        className="bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="flex items-center gap-2 bg-linear-to-br from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Send →
+        Send
+        <PaperPlaneTilt size={14} weight="fill" />
       </button>
     </header>
   )

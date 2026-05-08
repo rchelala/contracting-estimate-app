@@ -24,24 +24,24 @@ export default function StickyTotalsBar() {
   const total = subtotal + tax
 
   return (
-    <div className="fixed bottom-0 left-0 w-full h-14 bg-white border-t border-slate-200 flex items-center justify-end gap-6 px-6 z-30">
+    <div className="fixed bottom-0 left-0 w-full h-14 bg-white border-t border-stone-200 flex items-center justify-end gap-6 px-6 z-30">
       <div className="flex items-center gap-2">
-        <span className="text-sm text-slate-500">Subtotal:</span>
-        <span className="text-sm font-semibold text-slate-900">{formatCents(subtotal)}</span>
+        <span className="text-xs font-semibold text-stone-400 uppercase tracking-wide">Subtotal</span>
+        <span className="text-sm font-semibold text-stone-900">{formatCents(subtotal)}</span>
       </div>
       {tax > 0 && (
         <>
-          <span className="text-slate-300">·</span>
+          <div className="h-5 w-px bg-stone-200" />
           <div className="flex items-center gap-2">
-            <span className="text-sm text-slate-500">Tax:</span>
-            <span className="text-sm font-semibold text-slate-900">{formatCents(tax)}</span>
+            <span className="text-xs font-semibold text-stone-400 uppercase tracking-wide">Tax</span>
+            <span className="text-sm font-semibold text-stone-900">{formatCents(tax)}</span>
           </div>
         </>
       )}
-      <span className="text-slate-300">·</span>
+      <div className="h-5 w-px bg-stone-200" />
       <div className="flex items-center gap-2">
-        <span className="text-sm text-slate-500">Total:</span>
-        <span className="text-xl font-semibold text-slate-900">{formatCents(total)}</span>
+        <span className="text-xs font-semibold text-stone-400 uppercase tracking-wide">Total</span>
+        <span className="text-xl font-extrabold text-orange-600 tracking-tight">{formatCents(total)}</span>
       </div>
     </div>
   )
