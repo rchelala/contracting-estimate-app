@@ -3,6 +3,7 @@ import { ThemeSupa } from '@supabase/auth-ui-shared'
 import { Navigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
+import LogoBadge from '../components/ui/LogoBadge'
 
 /**
  * /auth page — sign in / sign up form using Supabase Auth UI.
@@ -19,12 +20,13 @@ export default function AuthPage() {
   if (session) return <Navigate to="/auth/callback" replace />
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
-      <div className="w-full max-w-[400px] bg-white rounded-lg shadow-xs border border-slate-200 p-8">
-        <h1 className="text-[28px] font-semibold text-slate-900 text-center mb-4 leading-[1.2]">
-          EstimateFlow
-        </h1>
-        <p className="text-sm text-slate-500 text-center mb-8 leading-[1.5]">
+    <div className="min-h-screen flex items-center justify-center bg-stone-50 px-4">
+      <div className="w-full max-w-[400px] bg-white rounded-xl shadow-sm border border-stone-200 p-8">
+        <div className="flex items-center justify-center gap-2.5 mb-4">
+          <LogoBadge size={32} />
+          <span className="text-2xl font-extrabold text-stone-900 tracking-tight">EstimateFlow</span>
+        </div>
+        <p className="text-sm text-stone-500 text-center mb-8 leading-[1.5]">
           Professional estimates in minutes.
         </p>
         <Auth
@@ -33,8 +35,8 @@ export default function AuthPage() {
             theme: ThemeSupa,
             variables: {
               default: {
-                colors: { brand: '#2563EB', brandAccent: '#1D4ED8' },
-                radii: { borderRadiusButton: '6px', inputBorderRadius: '6px' },
+                colors: { brand: '#ea580c', brandAccent: '#c2410c' },
+                radii: { borderRadiusButton: '8px', inputBorderRadius: '8px' },
               },
             },
           }}
