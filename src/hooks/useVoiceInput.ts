@@ -63,8 +63,10 @@ export function useVoiceInput({ onTranscript }: UseVoiceInputOptions): UseVoiceI
     recognition.onend = () => {
       if (activeRef.current) {
         // Chrome ends sessions on silence or network timeout even with continuous=true.
-        // Restart with a fresh instance so recording continues uninterrupted.
-        createAndStart()
+        // Delay before restarting — Chrome throws if you call start() immediately after end.
+        setTimeout(() => {
+          if (activeRef.current) createAndStart()
+        }, 250)
       } else {
         setIsListening(false)
       }
