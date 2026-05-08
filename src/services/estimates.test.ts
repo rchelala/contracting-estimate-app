@@ -168,6 +168,21 @@ describe('sendEstimate', () => {
     ).rejects.toThrow('Resend failed')
   })
 
+  it('throws fallback message when error field is absent in non-ok response', async () => {
+    mockGetSession.mockResolvedValue({
+      data: { session: { access_token: 'test-token' } },
+      error: null,
+    } as never)
+    mockFetch.mockResolvedValue({
+      ok: false,
+      json: async () => ({}),  // no error field
+    })
+
+    await expect(
+      sendEstimate('est-123', 'client@example.com', 'Subject', '')
+    ).rejects.toThrow('Failed to send estimate')
+  })
+
   it('throws Not authenticated when no session', async () => {
     mockGetSession.mockResolvedValue({
       data: { session: null },
