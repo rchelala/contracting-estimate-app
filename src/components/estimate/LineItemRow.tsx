@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, type MouseEvent } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { CaretDown } from '@phosphor-icons/react'
@@ -30,8 +30,14 @@ export default function LineItemRow({ lineItemId, index, readOnly }: Props) {
   const removeLocal = useEditorStore((s) => s.removeLineItemLocal)
   const enqueue = useSyncQueue((s) => s.enqueue)
 
-  // Start expanded for new (empty) items so the user can fill them in immediately
-  const [isExpanded, setIsExpanded] = useState<boolean>(() => !item?.description)
+  // Start collapsed; expand on mount for new (empty) items so the user can fill them in immediately
+  const [isExpanded, setIsExpanded] = useState(false)
+
+  useEffect(() => {
+    if (item && !item.description) {
+      setIsExpanded(true)
+    }
+  }, []) // only on mount — don't react to description changes
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: lineItemId,
@@ -74,13 +80,16 @@ export default function LineItemRow({ lineItemId, index, readOnly }: Props) {
       {/* ── Mobile card (< 640px) ── */}
       <div className="block sm:hidden">
         {/* Collapsed header row — always visible */}
-        <div
-          className="flex items-center gap-3 px-4 py-3 bg-white border-b border-stone-200 min-h-[44px] cursor-pointer"
+        <button
+          type="button"
+          className="flex items-center gap-3 px-4 py-3 w-full text-left bg-white border-b border-stone-200 min-h-[44px] cursor-pointer"
           onClick={() => setIsExpanded((prev) => !prev)}
+          aria-expanded={isExpanded}
         >
           <DragHandle
             listeners={listeners as unknown as Record<string, unknown>}
             attributes={attributes as unknown as Record<string, unknown>}
+            onClick={(e: MouseEvent<HTMLButtonElement>) => e.stopPropagation()}
           />
           <div className="flex-1 min-w-0 font-medium text-stone-900 truncate text-sm">
             {snapshot.description || 'New item'}
@@ -94,10 +103,10 @@ export default function LineItemRow({ lineItemId, index, readOnly }: Props) {
             aria-hidden="true"
             className={`shrink-0 text-stone-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
           />
-        </div>
+        </button>
 
-        {/* Expanded detail panel */}
-        {isExpanded && (
+        {/* Expanded detail panel — kept mounted (hidden) to preserve unsaved input */}
+        <div className={isExpanded ? 'block' : 'hidden'}>
           <div className="px-4 pb-4 pt-2 bg-stone-50 border-b border-stone-200 space-y-3">
             {/* Description */}
             <div>
@@ -212,7 +221,7 @@ export default function LineItemRow({ lineItemId, index, readOnly }: Props) {
               />
             </div>
           </div>
-        )}
+        </div>
       </div>
 
       {/* ── Desktop grid (≥ 640px) ── */}
@@ -296,7 +305,9 @@ export default function LineItemRow({ lineItemId, index, readOnly }: Props) {
           disabled={readOnly}
         />
       </div>
-      <AttachmentThumbnails lineItemId={lineItemId} readOnly={readOnly} />
+      <div className="hidden sm:block">
+        <AttachmentThumbnails lineItemId={lineItemId} readOnly={readOnly} />
+      </div>
     </div>
   )
 }
