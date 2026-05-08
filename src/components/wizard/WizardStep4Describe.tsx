@@ -5,7 +5,7 @@ import { WizardShell } from './WizardShell'
 export function WizardStep4Describe() {
   const { description, setDescription, setStep } = useWizardStore()
 
-  const { isSupported, isListening, start, stop } = useVoiceInput({
+  const { isSupported, isListening, error, start, stop } = useVoiceInput({
     onTranscript: (text) => setDescription(description + (description ? ' ' : '') + text),
   })
 
@@ -38,7 +38,12 @@ export function WizardStep4Describe() {
         )}
       </div>
 
-      {isSupported && (
+      {error && (
+        <div className="bg-red-50 rounded-lg px-3 py-2 text-sm text-red-600 mb-3">
+          {error}
+        </div>
+      )}
+      {isSupported && !error && (
         <div className="bg-blue-50 rounded-lg px-3 py-2 text-sm text-blue-600 flex items-center gap-2 mb-5">
           <span>💡</span>
           <span>

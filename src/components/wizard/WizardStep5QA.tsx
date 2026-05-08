@@ -14,7 +14,7 @@ export function WizardStep5QA() {
   const [inputText, setInputText] = useState('')
   const [fetchError, setFetchError] = useState<string | null>(null)
 
-  const { isSupported, isListening, start, stop } = useVoiceInput({
+  const { isSupported, isListening, error: voiceError, start, stop } = useVoiceInput({
     onTranscript: (text) => setInputText((prev) => prev + (prev ? ' ' : '') + text),
   })
 
@@ -149,6 +149,11 @@ export function WizardStep5QA() {
                   )}
                 </div>
 
+                {voiceError && (
+                  <div className="bg-red-50 rounded-lg px-3 py-2 text-sm text-red-600 mb-2">
+                    {voiceError}
+                  </div>
+                )}
                 <div className="flex items-center justify-between mb-4">
                   <button onClick={handleSkipQuestion} className="text-sm text-slate-400">
                     Skip question →

@@ -7,6 +7,7 @@ interface UseVoiceInputOptions {
 interface UseVoiceInputResult {
   isSupported: boolean
   isListening: boolean
+  error: string | null
   start: () => void
   stop: () => void
 }
@@ -40,6 +41,7 @@ export function useVoiceInput({ onTranscript }: UseVoiceInputOptions): UseVoiceI
 
   const isSupported = !!SpeechRecognitionClass
   const [isListening, setIsListening] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null)
   // Tracks whether the user intends to be recording — separate from browser session state.
   // Chrome can fire onend/onerror before setIsListening(true) is processed, which would
@@ -62,8 +64,7 @@ export function useVoiceInput({ onTranscript }: UseVoiceInputOptions): UseVoiceI
     }
     recognition.onend = () => {
       if (activeRef.current) {
-        // Chrome ends sessions on silence or network timeout even with continuous=true.
-        // Delay before restarting — Chrome throws if you call start() immediately after end.
+        // Delay before restarting — Chrome/Edge throw if you call start() immediately after end.
         setTimeout(() => {
           if (activeRef.current) createAndStart()
         }, 250)
@@ -72,18 +73,29 @@ export function useVoiceInput({ onTranscript }: UseVoiceInputOptions): UseVoiceI
       }
     }
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      if (event.error === 'not-allowed' || event.error === 'audio-capture') {
-        // Permanent errors — stop intending to listen so onend doesn't restart.
+      console.error('[useVoiceInput] onerror:', event.error)
+      if (
+        event.error === 'not-allowed' ||
+        event.error === 'audio-capture' ||
+        event.error === 'service-not-allowed'
+      ) {
         activeRef.current = false
         setIsListening(false)
+        setError(
+          event.error === 'not-allowed' || event.error === 'service-not-allowed'
+            ? 'Microphone access denied. Check browser settings.'
+            : 'No microphone found.'
+        )
       }
-      // Transient errors (no-speech, network) let onend fire and restart naturally.
+      // Transient errors (no-speech, network, aborted) let onend fire and restart naturally.
     }
     try {
       recognition.start()
-    } catch {
+    } catch (e) {
+      console.error('[useVoiceInput] start() threw:', e)
       activeRef.current = false
       setIsListening(false)
+      setError('Could not start microphone.')
       return
     }
     recognitionRef.current = recognition
@@ -91,6 +103,7 @@ export function useVoiceInput({ onTranscript }: UseVoiceInputOptions): UseVoiceI
 
   const start = useCallback(() => {
     if (!SpeechRecognitionClass || activeRef.current) return
+    setError(null)
     activeRef.current = true
     setIsListening(true)
     createAndStart()
@@ -110,5 +123,5 @@ export function useVoiceInput({ onTranscript }: UseVoiceInputOptions): UseVoiceI
     }
   }, [])
 
-  return { isSupported, isListening, start, stop }
+  return { isSupported, isListening, error, start, stop }
 }
