@@ -39,9 +39,7 @@ export function WizardStep5QA() {
     if (!inputText.trim()) return
     answerQuestion(currentQuestionIndex, inputText.trim())
     setInputText('')
-    if (currentQuestionIndex < qaPairs.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1)
-    }
+    setCurrentQuestionIndex(currentQuestionIndex + 1)
   }
 
   function handleSkipQuestion() {
@@ -97,9 +95,9 @@ export function WizardStep5QA() {
           <>
             <h1 className="text-xl font-bold mb-1">A few quick questions</h1>
             <p className="text-slate-400 text-xs mb-5">
-              {qaPairs.length > 0
-                ? `Step 5 of 5 · Question ${currentQuestionIndex + 1} of ${qaPairs.length}`
-                : 'Step 5 of 5 · Ready to generate'}
+              {qaPairs.length === 0 || !currentPair
+                ? 'Step 5 of 5 · Ready to generate'
+                : `Step 5 of 5 · Question ${currentQuestionIndex + 1} of ${qaPairs.length}`}
             </p>
 
             {/* Previous answered questions */}

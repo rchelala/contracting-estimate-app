@@ -1,4 +1,5 @@
-import { PaperPlaneTilt } from '@phosphor-icons/react'
+import { useNavigate } from 'react-router-dom'
+import { ArrowLeft, PaperPlaneTilt } from '@phosphor-icons/react'
 import { useEditorStore } from '../../stores/editorStore'
 import { useSyncQueue } from '../../stores/syncQueueStore'
 import ClientDropdown from './ClientDropdown'
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export default function EditorHeaderBar({ onSendClick }: Props) {
+  const navigate = useNavigate()
   const estimate = useEditorStore((s) => s.estimate)
   const readOnly = useEditorStore((s) => s.readOnly)
   const setEstimateField = useEditorStore((s) => s.setEstimateField)
@@ -28,7 +30,15 @@ export default function EditorHeaderBar({ onSendClick }: Props) {
   }
 
   return (
-    <header className="flex items-center h-14 px-6 bg-white border-b border-stone-200">
+    <header className="flex items-center h-14 px-6 bg-white border-b border-stone-200 gap-3">
+      <button
+        type="button"
+        aria-label="Back to estimates"
+        onClick={() => navigate('/dashboard')}
+        className="w-9 h-9 flex items-center justify-center rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 focus:outline-hidden focus:ring-2 focus:ring-orange-500 shrink-0"
+      >
+        <ArrowLeft size={18} weight="bold" />
+      </button>
       <ClientDropdown readOnly={readOnly} />
       <input
         type="text"
@@ -37,7 +47,7 @@ export default function EditorHeaderBar({ onSendClick }: Props) {
         disabled={readOnly}
         value={title}
         onChange={(e) => handleTitleChange(e.target.value)}
-        className="flex-1 text-base font-semibold text-stone-900 border-0 bg-transparent mx-4 focus:outline-none focus:ring-0 placeholder:text-stone-400 disabled:cursor-not-allowed"
+        className="flex-1 text-base font-semibold text-stone-900 border-0 bg-transparent mx-2 focus:outline-none focus:ring-0 placeholder:text-stone-400 disabled:cursor-not-allowed"
       />
       {readOnly ? <StatusBadge status="sent" /> : <SaveIndicator />}
       <button

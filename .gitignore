@@ -26,6 +26,7 @@ dist-ssr
 
 # AI agent artifacts
 .claude/
+.superpowers/
 tmp-playwright-screenshots/
 .tmp-vite.*.log
 .auth/

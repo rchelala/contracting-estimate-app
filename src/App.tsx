@@ -7,6 +7,7 @@ import DashboardPage from './pages/DashboardPage'
 import NewEstimatePage from './pages/NewEstimatePage'
 import EstimateEditPage from './pages/EstimateEditPage'
 import EstimateWizardPage from './pages/EstimateWizardPage'
+import SettingsPage from './pages/SettingsPage'
 
 const router = createBrowserRouter([
   { path: '/auth', element: <AuthPage /> },
@@ -19,6 +20,7 @@ const router = createBrowserRouter([
       { path: '/estimates/new', element: <NewEstimatePage /> },
       { path: '/estimates/wizard', element: <EstimateWizardPage /> },
       { path: '/estimates/:estimateId', element: <EstimateEditPage /> },
+      { path: '/settings', element: <SettingsPage /> },
       { path: '/', element: <Navigate to="/dashboard" replace /> },
     ],
   },
