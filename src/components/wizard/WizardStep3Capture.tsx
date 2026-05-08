@@ -36,7 +36,7 @@ export function WizardStep3Capture() {
       onBack={() => setStep(2)}
       onSkip={() => setStep(4)}
     >
-      <div className="grid grid-cols-3 gap-2 mb-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
         {thumbnails.map((url, i) => (
           <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-stone-100">
             <img src={url} alt="" className="w-full h-full object-cover" />
