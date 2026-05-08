@@ -295,7 +295,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-stone-50">
       <TopNav />
-      <main className="px-6 pt-8 pb-16">
+      <main className="px-4 sm:px-6 pt-8 pb-16">
         {/* Header */}
         <div className="flex items-end justify-between">
           <div>
@@ -328,7 +328,7 @@ export default function DashboardPage() {
 
         {/* Stat cards */}
         {statCounts && (
-          <div className="mt-6 grid grid-cols-3 gap-4">
+          <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-4">
             <div className="bg-white border border-stone-200 rounded-xl p-4">
               <p className="text-xs font-semibold text-stone-400 uppercase tracking-wide">Drafts</p>
               <p className="mt-1 text-2xl font-extrabold text-stone-900">{statCounts.draft}</p>
@@ -339,7 +339,7 @@ export default function DashboardPage() {
               <p className="mt-1 text-2xl font-extrabold text-stone-900">{statCounts.sent}</p>
               <p className="text-xs text-stone-500 mt-0.5">Awaiting response</p>
             </div>
-            <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4 col-span-2 sm:col-span-1">
               <p className="text-xs font-semibold text-green-700 uppercase tracking-wide">Approved</p>
               <p className="mt-1 text-2xl font-extrabold text-stone-900">{statCounts.approved}</p>
               <p className="text-xs text-stone-500 mt-0.5">Approved</p>
@@ -360,7 +360,7 @@ export default function DashboardPage() {
                 className="flex items-center gap-2 border border-stone-200 bg-white hover:bg-stone-50 text-stone-600 font-medium text-sm rounded-lg px-3 py-2"
               >
                 <Funnel size={14} />
-                Filter
+                <span className="hidden sm:inline">Filter</span>
               </button>
             </div>
           )}
@@ -433,9 +433,41 @@ export default function DashboardPage() {
             </div>
           )}
 
+          {/* Mobile card list */}
+          {sorted && sorted.length > 0 && (
+            <div className="block sm:hidden divide-y divide-stone-200">
+              {sorted.map((r) => (
+                <div
+                  key={r.id}
+                  className="flex items-center gap-3 px-4 py-3 bg-white active:bg-stone-50 cursor-pointer min-h-15"
+                  onClick={() => navigate(`/estimates/${r.id}`)}
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-stone-900 truncate">
+                      {r.client_name ?? 'No client'}
+                    </div>
+                    <div className="text-sm text-stone-600 truncate">
+                      {r.title}
+                    </div>
+                    <div className="text-xs text-stone-400 mt-0.5">
+                      Est. #{r.estimate_number} · {formatRelativeDate(r.updated_at)}
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <span className="font-bold text-stone-900 text-sm">
+                      {formatCents(r.total_cents ?? 0)}
+                    </span>
+                    <StatusBadge status={r.status} />
+                  </div>
+                  <span className="text-stone-300 text-lg">›</span>
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Table */}
           {sorted && sorted.length > 0 && (
-            <div className="bg-white border border-stone-200 rounded-xl overflow-hidden">
+            <div className="hidden sm:block bg-white border border-stone-200 rounded-xl overflow-hidden">
               <table className="w-full">
                 <thead className="bg-stone-50 border-b border-stone-200">
                   <tr>
