@@ -39,7 +39,7 @@ export default function TopNav() {
         <LogoBadge size={28} />
         <span className="text-sm font-bold text-stone-900 tracking-tight">EstimateFlow</span>
       </div>
-      <div className="flex items-center gap-8">
+      <div className="hidden sm:flex items-center gap-8">
         <NavLink to="/dashboard" className={linkClass}>Estimates</NavLink>
       </div>
       <div className="flex items-center gap-1">
