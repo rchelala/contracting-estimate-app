@@ -30,36 +30,59 @@ export default function EditorHeaderBar({ onSendClick }: Props) {
   }
 
   return (
-    <header className="flex items-center h-14 px-6 bg-white border-b border-stone-200 gap-3">
-      <button
-        type="button"
-        aria-label="Back to estimates"
-        onClick={() => navigate('/dashboard')}
-        className="w-9 h-9 flex items-center justify-center rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 focus:outline-hidden focus:ring-2 focus:ring-orange-500 shrink-0"
-      >
-        <ArrowLeft size={18} weight="bold" />
-      </button>
-      <ClientDropdown readOnly={readOnly} />
-      <input
-        type="text"
-        placeholder="Untitled estimate"
-        maxLength={200}
-        disabled={readOnly}
-        value={title}
-        onChange={(e) => handleTitleChange(e.target.value)}
-        className="flex-1 text-base font-semibold text-stone-900 border-0 bg-transparent mx-2 focus:outline-none focus:ring-0 placeholder:text-stone-400 disabled:cursor-not-allowed"
-      />
-      {readOnly ? <StatusBadge status="sent" /> : <SaveIndicator />}
-      <button
-        type="button"
-        disabled={readOnly}
-        data-testid="send-button"
-        onClick={onSendClick}
-        className="flex items-center gap-2 bg-linear-to-br from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Send
-        <PaperPlaneTilt size={14} weight="fill" />
-      </button>
+    <header className="flex flex-col sm:flex-row sm:items-center sm:h-14 bg-white border-b border-stone-200">
+      {/* Row 1 (mobile) / Full row (desktop): back button + title + save indicator */}
+      <div className="flex items-center h-12 sm:h-full px-4 sm:px-6 gap-3 flex-1">
+        <button
+          type="button"
+          aria-label="Back to estimates"
+          onClick={() => navigate('/dashboard')}
+          className="w-9 h-9 flex items-center justify-center rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 focus:outline-hidden focus:ring-2 focus:ring-orange-500 shrink-0"
+        >
+          <ArrowLeft size={18} weight="bold" />
+        </button>
+        <input
+          type="text"
+          placeholder="Untitled estimate"
+          maxLength={200}
+          disabled={readOnly}
+          value={title}
+          onChange={(e) => handleTitleChange(e.target.value)}
+          className="flex-1 text-base font-semibold text-stone-900 border-0 bg-transparent focus:outline-none focus:ring-0 placeholder:text-stone-400 disabled:cursor-not-allowed"
+        />
+        {readOnly ? <StatusBadge status="sent" /> : <SaveIndicator />}
+        {/* Client dropdown and send button — desktop only in this row */}
+        <div className="hidden sm:contents">
+          <ClientDropdown readOnly={readOnly} />
+          <button
+            type="button"
+            disabled={readOnly}
+            data-testid="send-button"
+            onClick={onSendClick}
+            className="flex items-center gap-2 bg-linear-to-br from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Send
+            <PaperPlaneTilt size={14} weight="fill" />
+          </button>
+        </div>
+      </div>
+
+      {/* Row 2 (mobile only): client dropdown + send button */}
+      <div className="flex sm:hidden items-center h-11 px-4 gap-3 border-t border-stone-100">
+        <div className="flex-1">
+          <ClientDropdown readOnly={readOnly} />
+        </div>
+        <button
+          type="button"
+          disabled={readOnly}
+          data-testid="send-button"
+          onClick={onSendClick}
+          className="flex items-center gap-2 bg-linear-to-br from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Send
+          <PaperPlaneTilt size={14} weight="fill" />
+        </button>
+      </div>
     </header>
   )
 }
