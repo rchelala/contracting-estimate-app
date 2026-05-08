@@ -6,7 +6,7 @@ import OfflineBanner from '../components/estimate/OfflineBanner'
 import ReadOnlyBanner from '../components/estimate/ReadOnlyBanner'
 import StickyTotalsBar from '../components/estimate/StickyTotalsBar'
 import EstimateBody from '../components/estimate/EstimateBody'
-import MarkAsSentModal from '../components/estimate/MarkAsSentModal'
+import SendEstimateModal from '../components/estimate/SendEstimateModal'
 import { useEstimate } from '../hooks/useEstimate'
 import { useAutosave } from '../hooks/useAutosave'
 import { useOnlineStatus } from '../hooks/useOnlineStatus'
@@ -45,7 +45,7 @@ export default function EstimateEditPage() {
         <EstimateBody />
       </main>
       <StickyTotalsBar />
-      <MarkAsSentModal open={sendOpen} onClose={() => setSendOpen(false)} />
+      <SendEstimateModal open={sendOpen} onClose={() => setSendOpen(false)} />
     </div>
   )
 }
