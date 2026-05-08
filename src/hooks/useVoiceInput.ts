@@ -17,10 +17,13 @@ type SpeechRecognitionInstance = {
   lang: string
   onresult: ((event: SpeechRecognitionEvent) => void) | null
   onend: (() => void) | null
-  onerror: ((event: Event) => void) | null
+  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null
   start: () => void
   stop: () => void
+  abort: () => void
 }
+
+type SpeechRecognitionErrorEvent = Event & { error: string }
 
 declare global {
   interface Window {
@@ -38,9 +41,15 @@ export function useVoiceInput({ onTranscript }: UseVoiceInputOptions): UseVoiceI
   const isSupported = !!SpeechRecognitionClass
   const [isListening, setIsListening] = useState(false)
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null)
+  // Tracks whether the user intends to be recording — separate from browser session state.
+  // Chrome can fire onend/onerror before setIsListening(true) is processed, which would
+  // leave isListening stuck at true (guard blocks re-start). Using a ref avoids that race.
+  const activeRef = useRef(false)
+  const onTranscriptRef = useRef(onTranscript)
+  onTranscriptRef.current = onTranscript
 
-  const start = useCallback(() => {
-    if (!SpeechRecognitionClass || isListening) return
+  const createAndStart = useCallback(() => {
+    if (!SpeechRecognitionClass) return
     const recognition = new SpeechRecognitionClass()
     recognition.continuous = true
     recognition.interimResults = false
@@ -48,24 +57,54 @@ export function useVoiceInput({ onTranscript }: UseVoiceInputOptions): UseVoiceI
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       const latest = event.results[event.resultIndex]
       if (latest?.[0]) {
-        onTranscript(latest[0].transcript)
+        onTranscriptRef.current(latest[0].transcript)
       }
     }
-    recognition.onend = () => setIsListening(false)
-    recognition.onerror = () => setIsListening(false)
-    recognition.start()
+    recognition.onend = () => {
+      if (activeRef.current) {
+        // Chrome ends sessions on silence or network timeout even with continuous=true.
+        // Restart with a fresh instance so recording continues uninterrupted.
+        createAndStart()
+      } else {
+        setIsListening(false)
+      }
+    }
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      if (event.error === 'not-allowed' || event.error === 'audio-capture') {
+        // Permanent errors — stop intending to listen so onend doesn't restart.
+        activeRef.current = false
+        setIsListening(false)
+      }
+      // Transient errors (no-speech, network) let onend fire and restart naturally.
+    }
+    try {
+      recognition.start()
+    } catch {
+      activeRef.current = false
+      setIsListening(false)
+      return
+    }
     recognitionRef.current = recognition
+  }, [SpeechRecognitionClass])
+
+  const start = useCallback(() => {
+    if (!SpeechRecognitionClass || activeRef.current) return
+    activeRef.current = true
     setIsListening(true)
-  }, [SpeechRecognitionClass, isListening, onTranscript])
+    createAndStart()
+  }, [SpeechRecognitionClass, createAndStart])
 
   const stop = useCallback(() => {
-    recognitionRef.current?.stop()
+    activeRef.current = false
+    recognitionRef.current?.abort()
+    recognitionRef.current = null
     setIsListening(false)
   }, [])
 
   useEffect(() => {
     return () => {
-      recognitionRef.current?.stop()
+      activeRef.current = false
+      recognitionRef.current?.abort()
     }
   }, [])
 
