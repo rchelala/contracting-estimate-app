@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowsDownUp, ArrowUp, ArrowDown, CaretRight, DotsThreeVertical, MagnifyingGlass, Plus, Funnel } from '@phosphor-icons/react'
+import { ArrowsDownUp, ArrowUp, ArrowDown, CaretRight, Check, DotsThreeVertical, MagnifyingGlass, Plus, Funnel } from '@phosphor-icons/react'
 import TopNav from '../components/layout/TopNav'
 import StatusBadge from '../components/ui/StatusBadge'
 import Modal from '../components/ui/Modal'
@@ -453,13 +453,25 @@ export default function DashboardPage() {
                   }}
                 >
                   {selectionMode && (
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                      selectedIds.has(r.id)
-                        ? 'border-orange-500 bg-orange-500'
-                        : 'border-stone-300'
-                    }`}>
-                      {selectedIds.has(r.id) && <span className="text-white text-xs">✓</span>}
-                    </div>
+                    <label
+                      className="shrink-0 cursor-pointer"
+                      onClick={(e) => e.stopPropagation()}
+                      aria-label={`Select estimate ${r.estimate_number}`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(r.id)}
+                        onChange={() => toggleRow(r.id)}
+                        className="sr-only"
+                      />
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                        selectedIds.has(r.id)
+                          ? 'border-orange-500 bg-orange-500'
+                          : 'border-stone-300'
+                      }`}>
+                        {selectedIds.has(r.id) && <Check size={12} weight="bold" className="text-white" />}
+                      </div>
+                    </label>
                   )}
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-stone-900 truncate">
