@@ -30,3 +30,4 @@ dist-ssr
 tmp-playwright-screenshots/
 .tmp-vite.*.log
 .auth/
+.worktrees/
