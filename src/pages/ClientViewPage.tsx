@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { formatCents, lineItemTotal } from '../utils/money'
 import StatusBadge from '../components/ui/StatusBadge'
+import { submitApproval } from '../services/estimates'
 import type { EstimateStatus } from '../services/estimates'
 
 interface LineItem {
@@ -31,6 +32,7 @@ interface ClientEstimate {
   status: EstimateStatus
   sent_at: string | null
   public_token: string
+  approved_by_name: string | null
   organizations: { name: string } | null
   estimate_sections: Section[]
 }
@@ -41,13 +43,19 @@ export default function ClientViewPage() {
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
 
+  const [name, setName] = useState('')
+  const [message, setMessage] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [result, setResult] = useState<'approved' | 'rejected' | null>(null)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+
   useEffect(() => {
     if (!token) return
     supabase
       .from('estimates')
       .select(`
         id, estimate_number, title, total_cents, subtotal_cents, tax_cents,
-        status, sent_at, public_token,
+        status, sent_at, public_token, approved_by_name,
         organizations ( name ),
         estimate_sections (
           id, name, position,
@@ -60,11 +68,28 @@ export default function ClientViewPage() {
         if (error || !data) {
           setNotFound(true)
         } else {
-          setEstimate(data as ClientEstimate)
+          const est = data as ClientEstimate
+          setEstimate(est)
+          if (est.status === 'approved') setResult('approved')
+          else if (est.status === 'rejected') setResult('rejected')
         }
         setLoading(false)
       })
   }, [token])
+
+  async function handleAction(action: 'approve' | 'reject') {
+    if (!token || !name.trim()) return
+    setSubmitting(true)
+    setSubmitError(null)
+    try {
+      const res = await submitApproval(token, name.trim(), action, message.trim() || undefined)
+      setResult(res.status)
+    } catch {
+      setSubmitError('Something went wrong — please try again.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -150,6 +175,74 @@ export default function ClientViewPage() {
                 <span>{formatCents(estimate.tax_cents)}</span>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Approval form — shown only when estimate is sent and not yet actioned */}
+        {estimate.status === 'sent' && !result && (
+          <div className="bg-white rounded-xl shadow-sm p-4 space-y-3">
+            <p className="text-sm font-semibold text-slate-800">Your Response</p>
+            <div>
+              <label className="block text-xs text-slate-500 mb-1" htmlFor="approval-name">
+                Your name <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="approval-name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                disabled={submitting}
+                placeholder="Jane Smith"
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-400 disabled:opacity-50"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-slate-500 mb-1" htmlFor="approval-message">
+                Message to contractor <span className="text-slate-400">(optional)</span>
+              </label>
+              <textarea
+                id="approval-message"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                disabled={submitting}
+                rows={3}
+                placeholder="Looks great, please proceed."
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-400 disabled:opacity-50 resize-none"
+              />
+            </div>
+            {submitError && (
+              <p className="text-xs text-red-600">{submitError}</p>
+            )}
+            <div className="flex gap-2 pt-1">
+              <button
+                onClick={() => handleAction('approve')}
+                disabled={!name.trim() || submitting}
+                className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-40 text-white text-sm font-semibold py-2.5 rounded-lg transition-colors"
+              >
+                {submitting ? 'Submitting…' : 'Approve Estimate'}
+              </button>
+              <button
+                onClick={() => handleAction('reject')}
+                disabled={!name.trim() || submitting}
+                className="flex-1 border border-red-300 text-red-600 hover:bg-red-50 disabled:opacity-40 text-sm font-semibold py-2.5 rounded-lg transition-colors"
+              >
+                Reject Estimate
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Confirmation banner — shown after action or if already actioned */}
+        {result === 'approved' && (
+          <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+            <p className="text-sm font-semibold text-green-800">Estimate approved</p>
+            <p className="text-xs text-green-700 mt-1">{orgName} has been notified.</p>
+          </div>
+        )}
+        {result === 'rejected' && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+            <p className="text-sm font-semibold text-amber-800">Estimate declined</p>
+            <p className="text-xs text-amber-700 mt-1">{orgName} has been notified.</p>
           </div>
         )}
 

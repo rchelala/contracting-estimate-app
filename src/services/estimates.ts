@@ -128,6 +128,24 @@ export async function sendEstimate(
   }
 }
 
+export async function submitApproval(
+  token: string,
+  name: string,
+  action: 'approve' | 'reject',
+  message?: string
+): Promise<{ ok: boolean; status: 'approved' | 'rejected' }> {
+  const response = await fetch('/api/estimate/approve', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, name, action, message }),
+  })
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({})) as { error?: string }
+    throw new Error(body.error ?? 'Failed to submit approval')
+  }
+  return response.json() as Promise<{ ok: boolean; status: 'approved' | 'rejected' }>
+}
+
 export async function duplicateEstimate(sourceEstimateId: string, organizationId: string): Promise<EditorEstimate> {
   const source = await getEstimate(sourceEstimateId)
   const { data: estimateNumber, error: rpcErr } = await supabase.rpc('next_estimate_number', { p_org_id: organizationId })
