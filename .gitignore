@@ -24,6 +24,9 @@ dist-ssr
 *.sw?
 .vercel
 
+# Remotion video project (large assets — video hosted on Supabase Storage)
+remotion/
+
 # AI agent artifacts
 .claude/
 .superpowers/

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { EnvelopeSimple, Buildings, UserCircle, House } from '@phosphor-icons/react'
+import { Link, useNavigate } from 'react-router-dom'
+import { EnvelopeSimple, Buildings, UserCircle, House, PlayCircle } from '@phosphor-icons/react'
 import TopNav from '../components/layout/TopNav'
 import { useAuth } from '../hooks/useAuth'
 import { getMyMembership, type MyMembership } from '../services/organizations'
@@ -77,6 +77,15 @@ export default function SettingsPage() {
               )}
             </div>
             <EnvelopeSimple size={18} className="text-stone-300 ml-auto shrink-0" />
+          </div>
+          <div className="mt-3 flex justify-end">
+            <Link
+              to="/how-it-works"
+              className="inline-flex items-center gap-1.5 text-sm text-orange-600 hover:text-orange-700 font-medium transition-colors"
+            >
+              <PlayCircle size={15} />
+              Watch intro video
+            </Link>
           </div>
         </section>
 

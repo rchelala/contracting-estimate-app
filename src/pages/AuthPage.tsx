@@ -1,6 +1,6 @@
 import { Auth } from '@supabase/auth-ui-react'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
-import { Navigate } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 import LogoBadge from '../components/ui/LogoBadge'
@@ -43,6 +43,12 @@ export default function AuthPage() {
           providers={[]}
           redirectTo={`${window.location.origin}/auth/callback`}
         />
+        <p className="mt-5 text-center text-sm text-stone-400">
+          New to EstimateFlow?{' '}
+          <Link to="/how-it-works" className="text-orange-600 hover:text-orange-700 font-medium transition-colors">
+            See how it works →
+          </Link>
+        </p>
       </div>
     </div>
   )

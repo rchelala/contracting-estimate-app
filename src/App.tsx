@@ -9,11 +9,13 @@ import EstimateEditPage from './pages/EstimateEditPage'
 import EstimateWizardPage from './pages/EstimateWizardPage'
 import SettingsPage from './pages/SettingsPage'
 import ClientViewPage from './pages/ClientViewPage'
+import HowItWorksPage from './pages/HowItWorksPage'
 
 const router = createBrowserRouter([
   { path: '/auth', element: <AuthPage /> },
   { path: '/auth/callback', element: <AuthCallback /> },
   { path: '/e/:token', element: <ClientViewPage /> },
+  { path: '/how-it-works', element: <HowItWorksPage /> },
   {
     element: <RequireAuth />,
     children: [
