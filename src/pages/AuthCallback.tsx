@@ -17,6 +17,12 @@ export default function AuthCallback() {
 
   useEffect(() => {
     let cancelled = false
+    // Read type from the URL hash before the SDK clears it on session exchange.
+    // Supabase appends #access_token=...&type=signup when the user clicks a
+    // confirmation link, which lets us route them to the verified success page.
+    const hashParams = new URLSearchParams(window.location.hash.substring(1))
+    const authType = hashParams.get('type')
+
     async function run() {
       const {
         data: { session },
@@ -24,6 +30,10 @@ export default function AuthCallback() {
       if (cancelled) return
       if (!session) {
         navigate('/auth', { replace: true })
+        return
+      }
+      if (authType === 'signup') {
+        navigate('/auth/email-verified', { replace: true })
         return
       }
       const { data: membership, error } = await supabase

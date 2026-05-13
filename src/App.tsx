@@ -10,10 +10,12 @@ import EstimateWizardPage from './pages/EstimateWizardPage'
 import SettingsPage from './pages/SettingsPage'
 import ClientViewPage from './pages/ClientViewPage'
 import HowItWorksPage from './pages/HowItWorksPage'
+import EmailVerifiedPage from './pages/EmailVerifiedPage'
 
 const router = createBrowserRouter([
   { path: '/auth', element: <AuthPage /> },
   { path: '/auth/callback', element: <AuthCallback /> },
+  { path: '/auth/email-verified', element: <EmailVerifiedPage /> },
   { path: '/e/:token', element: <ClientViewPage /> },
   { path: '/how-it-works', element: <HowItWorksPage /> },
   {
