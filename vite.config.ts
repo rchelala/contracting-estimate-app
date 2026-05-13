@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  envPrefix: 'NEXT_PUBLIC_',
+  envPrefix: ['NEXT_PUBLIC_', 'VITE_'],
   server: { port: 5173 },
   test: { environment: 'jsdom', globals: true, setupFiles: ['src/test/setup.ts'] },
 })
