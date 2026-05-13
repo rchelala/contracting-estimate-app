@@ -3,6 +3,10 @@ import { getServiceSupabase } from '../lib/supabase.js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+const escapeHtml = (s: string) =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+   .replace(/"/g, '&quot;').replace(/'/g, '&#x27;')
+
 interface RequestBody {
   token: string
   name: string
@@ -109,7 +113,7 @@ export default async function handler(
         const actionLabel = action === 'approve' ? 'approved' : 'rejected'
         const actionColor = action === 'approve' ? '#16a34a' : '#dc2626'
         const messageHtml = message
-          ? `<p style="margin:0 0 16px;color:#374151;font-size:14px;line-height:1.6;"><strong>Client message:</strong> ${message.replace(/\n/g, '<br>')}</p>`
+          ? `<p style="margin:0 0 16px;color:#374151;font-size:14px;line-height:1.6;"><strong>Client message:</strong> ${escapeHtml(message).replace(/\n/g, '<br>')}</p>`
           : ''
 
         await resend.emails.send({
