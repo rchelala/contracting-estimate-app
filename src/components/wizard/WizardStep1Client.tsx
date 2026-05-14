@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
-import { MagnifyingGlass, Plus } from '@phosphor-icons/react'
+import { MagnifyingGlass, Plus, Trash } from '@phosphor-icons/react'
 import { useWizardStore } from '../../stores/wizardStore'
-import { listClients, createClient, type ClientRow } from '../../services/clients'
+import { listClients, createClient, deleteClient, type ClientRow } from '../../services/clients'
+import Modal from '../ui/Modal'
 import { WizardShell } from './WizardShell'
 
 export function WizardStep1Client() {
@@ -14,6 +15,9 @@ export function WizardStep1Client() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
+  const [pendingDelete, setPendingDelete] = useState<ClientRow | null>(null)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     listClients()
@@ -56,6 +60,33 @@ export function WizardStep1Client() {
     setStep(2)
   }
 
+  function handleDeleteClick(client: ClientRow, e: React.MouseEvent) {
+    e.stopPropagation()
+    setPendingDelete(client)
+    setDeleteError(null)
+  }
+
+  async function confirmDelete() {
+    if (!pendingDelete) return
+    setDeleting(true)
+    setDeleteError(null)
+    try {
+      await deleteClient(pendingDelete.id)
+      setClients((prev) => prev.filter((c) => c.id !== pendingDelete.id))
+      if (clientId === pendingDelete.id) setClientId(null)
+      setPendingDelete(null)
+    } catch {
+      setDeleteError('Failed to remove client. Please try again.')
+    } finally {
+      setDeleting(false)
+    }
+  }
+
+  function cancelDelete() {
+    setPendingDelete(null)
+    setDeleteError(null)
+  }
+
   const initials = (name: string) =>
     name.split(' ')
       .filter(Boolean)
@@ -85,21 +116,33 @@ export function WizardStep1Client() {
       {!loading && (
         <div className="border border-stone-200 rounded-lg overflow-hidden mb-4">
           {filtered.map((c) => (
-            <button
+            <div
               key={c.id}
-              onClick={() => { setClientId(c.id); setShowNewForm(false) }}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 text-left border-b border-stone-100 last:border-0 hover:bg-stone-50 ${
+              className={`flex items-center border-b border-stone-100 last:border-0 ${
                 clientId === c.id ? 'bg-orange-50' : ''
               }`}
             >
-              <div className="bg-linear-to-br from-orange-400 to-orange-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold shrink-0">
-                {initials(c.name)}
-              </div>
-              <div>
-                <div className="font-medium text-sm text-stone-900">{c.name}</div>
-                {c.email && <div className="text-stone-500 text-xs">{c.email}</div>}
-              </div>
-            </button>
+              <button
+                onClick={() => { setClientId(c.id); setShowNewForm(false) }}
+                className="flex-1 flex items-center gap-3 px-3 py-2.5 text-left hover:bg-stone-50"
+              >
+                <div className="bg-linear-to-br from-orange-400 to-orange-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold shrink-0">
+                  {initials(c.name)}
+                </div>
+                <div>
+                  <div className="font-medium text-sm text-stone-900">{c.name}</div>
+                  {c.email && <div className="text-stone-500 text-xs">{c.email}</div>}
+                </div>
+              </button>
+              <button
+                type="button"
+                aria-label={`Remove ${c.name}`}
+                className="px-3 py-2.5 text-stone-400 hover:text-red-500 focus:outline-none"
+                onClick={(e) => handleDeleteClick(c, e)}
+              >
+                <Trash size={14} />
+              </button>
+            </div>
           ))}
 
           <button
@@ -149,6 +192,37 @@ export function WizardStep1Client() {
       >
         Continue
       </button>
+
+      <Modal
+        open={pendingDelete !== null}
+        onClose={cancelDelete}
+        title="Remove client?"
+        footer={
+          <>
+            <button
+              type="button"
+              className="text-sm px-3 py-1.5 rounded border border-slate-200 hover:bg-slate-50"
+              onClick={cancelDelete}
+              disabled={deleting}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="text-sm px-3 py-1.5 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
+              onClick={confirmDelete}
+              disabled={deleting}
+            >
+              {deleting ? 'Removing…' : 'Remove'}
+            </button>
+          </>
+        }
+      >
+        <p>
+          <strong>{pendingDelete?.name}</strong> will be removed. Existing estimates using this client will be unlinked but not deleted.
+        </p>
+        {deleteError && <p className="mt-2 text-red-600 text-xs">{deleteError}</p>}
+      </Modal>
     </WizardShell>
   )
 }

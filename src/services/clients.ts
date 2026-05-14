@@ -31,3 +31,11 @@ export async function createClient(input: {
   if (error) throw error
   return data
 }
+
+export async function deleteClient(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('clients')
+    .delete()
+    .eq('id', id)
+  if (error) throw error
+}
