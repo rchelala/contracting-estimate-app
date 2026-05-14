@@ -105,6 +105,7 @@ export default function DashboardPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<EstimateListRow | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
   const [selectionMode, setSelectionMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [bulkDeleteTarget, setBulkDeleteTarget] = useState<{
@@ -152,7 +153,15 @@ export default function DashboardPage() {
 
   const sorted = useMemo(() => {
     if (!rows) return null
-    const copy = [...rows]
+    const q = searchQuery.trim().toLowerCase()
+    const filtered = q
+      ? rows.filter((r) =>
+          (r.title ?? '').toLowerCase().includes(q) ||
+          (r.client_name ?? '').toLowerCase().includes(q) ||
+          String(r.estimate_number).includes(q)
+        )
+      : rows
+    const copy = [...filtered]
     copy.sort((a, b) => {
       const av = a[sortKey]
       const bv = b[sortKey]
@@ -164,7 +173,7 @@ export default function DashboardPage() {
       return 0
     })
     return copy
-  }, [rows, sortKey, sortDir])
+  }, [rows, sortKey, sortDir, searchQuery])
 
   const statCounts = useMemo(() => {
     if (!rows) return null
@@ -351,9 +360,15 @@ export default function DashboardPage() {
           {/* Search + filter bar */}
           {!selectionMode && sorted && sorted.length > 0 && (
             <div className="flex gap-3 mb-4">
-              <div className="flex-1 flex items-center gap-2 bg-white border border-stone-200 rounded-lg px-3 py-2">
+              <div className="flex-1 flex items-center gap-2 bg-white border border-stone-200 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-orange-500 focus-within:border-orange-500">
                 <MagnifyingGlass size={15} className="text-stone-400 shrink-0" />
-                <span className="text-sm text-stone-400">Search estimates or clients…</span>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search estimates or clients…"
+                  className="flex-1 bg-transparent text-sm text-stone-700 placeholder:text-stone-400 outline-none"
+                />
               </div>
               <button
                 type="button"
@@ -427,9 +442,19 @@ export default function DashboardPage() {
           {sorted && sorted.length === 0 && !error && (
             <div className="mt-12 flex flex-col items-center text-center">
               <div className="w-16 h-16 border-2 border-dashed border-stone-200 rounded-xl" aria-hidden="true" />
-              <h2 className="mt-4 text-xl font-semibold text-stone-900">No estimates yet</h2>
-              <p className="mt-1 text-sm text-stone-500">Create your first estimate to get started.</p>
-              <NewEstimateButton extraClass="mt-4" />
+              {searchQuery.trim() ? (
+                <>
+                  <h2 className="mt-4 text-xl font-semibold text-stone-900">No results</h2>
+                  <p className="mt-1 text-sm text-stone-500">No estimates or clients match &ldquo;{searchQuery.trim()}&rdquo;.</p>
+                  <button type="button" onClick={() => setSearchQuery('')} className="mt-3 text-sm text-orange-600 hover:underline">Clear search</button>
+                </>
+              ) : (
+                <>
+                  <h2 className="mt-4 text-xl font-semibold text-stone-900">No estimates yet</h2>
+                  <p className="mt-1 text-sm text-stone-500">Create your first estimate to get started.</p>
+                  <NewEstimateButton extraClass="mt-4" />
+                </>
+              )}
             </div>
           )}
 
