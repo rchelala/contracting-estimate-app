@@ -184,23 +184,24 @@ function validateDraftResponse(raw: unknown): AIDraftSection[] {
         if (!Number.isFinite(quantity) || quantity <= 0) {
           throw new Error(`Line item ${itemIndex + 1} in section ${section.name} requires a positive quantity`)
         }
-        const low = Number(item.unit_price_low_cents)
-        const typical = Number(item.unit_price_typical_cents)
-        const high = Number(item.unit_price_high_cents)
-        if (!Number.isInteger(low) || low < 0) {
-          throw new Error(`Line item ${itemIndex + 1} in section ${section.name} requires unit_price_low_cents as a non-negative integer`)
+        const low = Math.round(Number(item.unit_price_low_cents))
+        const typical = Math.round(Number(item.unit_price_typical_cents))
+        const high = Math.round(Number(item.unit_price_high_cents))
+        if (!Number.isFinite(low) || low < 0) {
+          throw new Error(`Line item ${itemIndex + 1} in section ${section.name} requires unit_price_low_cents as a non-negative number`)
         }
-        if (!Number.isInteger(typical) || typical < 0) {
-          throw new Error(`Line item ${itemIndex + 1} in section ${section.name} requires unit_price_typical_cents as a non-negative integer`)
+        if (!Number.isFinite(typical) || typical < 0) {
+          throw new Error(`Line item ${itemIndex + 1} in section ${section.name} requires unit_price_typical_cents as a non-negative number`)
         }
-        if (!Number.isInteger(high) || high < 0) {
-          throw new Error(`Line item ${itemIndex + 1} in section ${section.name} requires unit_price_high_cents as a non-negative integer`)
+        if (!Number.isFinite(high) || high < 0) {
+          throw new Error(`Line item ${itemIndex + 1} in section ${section.name} requires unit_price_high_cents as a non-negative number`)
         }
         const markup = Number(item.markup_pct)
         if (!Number.isFinite(markup) || markup < 0) {
           throw new Error(`Line item ${itemIndex + 1} in section ${section.name} requires markup_pct as a non-negative number`)
         }
-        if (typeof item.taxable !== 'boolean') {
+        const taxable = item.taxable === true || item.taxable === 'true' || item.taxable === 1
+        if (item.taxable !== false && item.taxable !== 'false' && item.taxable !== 0 && !taxable) {
           throw new Error(`Line item ${itemIndex + 1} in section ${section.name} requires taxable true or false`)
         }
 
@@ -212,7 +213,7 @@ function validateDraftResponse(raw: unknown): AIDraftSection[] {
           unit_price_typical_cents: typical,
           unit_price_high_cents: high,
           markup_pct: markup,
-          taxable: item.taxable,
+          taxable,
         }
       }),
     }
