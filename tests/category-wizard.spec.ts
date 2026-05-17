@@ -2,6 +2,20 @@ import { test, expect } from '@playwright/test'
 
 const BASE_URL = 'http://localhost:5173'
 
+// Labels must match exactly what WizardStep0Category renders from CATEGORY_PROMPT_CONFIGS
+const CATEGORY_LABELS: Record<string, string> = {
+  creative_services: 'Creative Services',
+  information_technology: 'Information Technology',
+  business_finance: 'Business & Finance',
+  consulting: 'Consulting',
+  specialized_trades: 'Specialized Trades',
+  general_contracting: 'General Contracting',
+  education_training: 'Education & Training',
+  logistics_delivery: 'Logistics & Delivery',
+  real_estate: 'Real Estate',
+  wellness_personal_care: 'Wellness & Personal Care',
+}
+
 const CATEGORY_EXPECTATIONS: Record<string, { questionKeywords: string[]; sectionKeywords: string[] }> = {
   creative_services: {
     questionKeywords: ['deliverable', 'revision', 'brand', 'format', 'timeline', 'platform', 'style'],
@@ -46,21 +60,29 @@ const CATEGORY_EXPECTATIONS: Record<string, { questionKeywords: string[]; sectio
 }
 
 async function loginAsTestUser(page: import('@playwright/test').Page) {
+  const email = process.env['TEST_USER_EMAIL']
+  const password = process.env['TEST_USER_PASSWORD']
+  if (!email || !password) {
+    throw new Error(
+      'TEST_USER_EMAIL and TEST_USER_PASSWORD must be set in .env.local to run category wizard tests'
+    )
+  }
   await page.goto(`${BASE_URL}/auth`)
-  await page.fill('input[type="email"]', process.env['TEST_USER_EMAIL'] ?? '')
-  await page.fill('input[type="password"]', process.env['TEST_USER_PASSWORD'] ?? '')
+  await page.fill('input[type="email"]', email)
+  await page.fill('input[type="password"]', password)
   await page.click('button[type="submit"]')
   await page.waitForURL(`${BASE_URL}/dashboard`, { timeout: 15000 })
 }
 
 async function selectCategoryAndProceed(
   page: import('@playwright/test').Page,
-  categoryLabel: string,
+  categoryId: string,
 ) {
+  const label = CATEGORY_LABELS[categoryId]
   await page.goto(`${BASE_URL}/estimates/wizard`)
   // Step 0: category selection
   await expect(page.getByText('What type of work?')).toBeVisible({ timeout: 5000 })
-  await page.getByText(categoryLabel).click()
+  await page.getByText(label, { exact: true }).click()
   await page.getByRole('button', { name: 'Continue' }).click()
   // Step 1: skip client
   await expect(page.getByText("Who's the client?")).toBeVisible({ timeout: 5000 })
@@ -76,23 +98,15 @@ async function selectCategoryAndProceed(
 }
 
 for (const [categoryId, expectations] of Object.entries(CATEGORY_EXPECTATIONS)) {
-  const categoryLabel = categoryId
-    .split('_')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
+  const categoryLabel = CATEGORY_LABELS[categoryId]
 
   test(`${categoryLabel}: Q&A questions are category-relevant`, async ({ page }) => {
     test.setTimeout(90000)
     await loginAsTestUser(page)
-    await selectCategoryAndProceed(page, categoryLabel)
+    await selectCategoryAndProceed(page, categoryId)
 
-    // Step 5: wait for AI-generated questions to appear
-    await page.waitForSelector('[data-testid="qa-question"], .qa-question, [class*="question"]', {
-      timeout: 30000,
-    }).catch(() => {
-      // Fallback: wait for any text that looks like a question
-    })
-    await page.waitForTimeout(2000)
+    // Wait for AI-generated questions to load (real API call)
+    await page.waitForTimeout(15000)
 
     const pageText = (await page.textContent('body') ?? '').toLowerCase()
     const hasRelevantQuestion = expectations.questionKeywords.some((kw) =>
@@ -107,19 +121,14 @@ for (const [categoryId, expectations] of Object.entries(CATEGORY_EXPECTATIONS)) 
   test(`${categoryLabel}: estimate draft has category-relevant sections`, async ({ page }) => {
     test.setTimeout(120000)
     await loginAsTestUser(page)
-    await selectCategoryAndProceed(page, categoryLabel)
+    await selectCategoryAndProceed(page, categoryId)
 
-    // Step 5: wait for questions then skip/generate
-    await page.waitForTimeout(5000)
-    // Try to click the last button (Generate / Continue / Skip to generate)
-    const buttons = page.getByRole('button')
-    const buttonCount = await buttons.count()
-    if (buttonCount > 0) {
-      await buttons.last().click()
-    }
+    // Wait for questions to load, then advance past Q&A step
+    await page.waitForTimeout(10000)
+    await page.getByRole('button', { name: /generate|continue|skip/i }).last().click()
 
-    // Generating screen → estimate editor
-    await page.waitForURL(/\/estimates\/[a-f0-9-]+/, { timeout: 60000 })
+    // Wait for generating screen to complete and navigate to estimate editor
+    await page.waitForURL(/\/estimates\/[a-f0-9-]{36}/, { timeout: 60000 })
     await page.waitForTimeout(2000)
 
     const pageText = (await page.textContent('body') ?? '').toLowerCase()
