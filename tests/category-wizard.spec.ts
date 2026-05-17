@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test'
 
-const BASE_URL = 'http://localhost:5173'
+// Server must serve both frontend and /api/* functions (e.g. `NODE_OPTIONS=--use-system-ca vercel dev --listen 5173`)
+const BASE_URL = process.env['PLAYWRIGHT_BASE_URL'] ?? 'http://localhost:5173'
 
 // Labels must match exactly what WizardStep0Category renders from CATEGORY_PROMPT_CONFIGS
 const CATEGORY_LABELS: Record<string, string> = {
@@ -74,7 +75,7 @@ async function loginAsTestUser(page: import('@playwright/test').Page) {
   await page.waitForURL(`${BASE_URL}/dashboard`, { timeout: 15000 })
 }
 
-async function selectCategoryAndProceed(
+async function selectCategoryAndAdvanceToQA(
   page: import('@playwright/test').Page,
   categoryId: string,
 ) {
@@ -95,6 +96,11 @@ async function selectCategoryAndProceed(
   await expect(page.getByRole('textbox').first()).toBeVisible({ timeout: 5000 })
   await page.getByRole('textbox').first().fill('Standard project requiring professional service.')
   await page.getByRole('button', { name: 'Continue' }).click()
+
+  // Q&A step is loading — wait for "Show all" button to appear (means questions loaded)
+  await page.getByRole('button', { name: 'Show all' }).waitFor({ state: 'visible', timeout: 30000 })
+  // Switch to show-all mode: reveals all questions at once and keeps Generate button always visible
+  await page.getByRole('button', { name: 'Show all' }).click()
 }
 
 for (const [categoryId, expectations] of Object.entries(CATEGORY_EXPECTATIONS)) {
@@ -103,11 +109,9 @@ for (const [categoryId, expectations] of Object.entries(CATEGORY_EXPECTATIONS)) 
   test(`${categoryLabel}: Q&A questions are category-relevant`, async ({ page }) => {
     test.setTimeout(90000)
     await loginAsTestUser(page)
-    await selectCategoryAndProceed(page, categoryId)
+    await selectCategoryAndAdvanceToQA(page, categoryId)
 
-    // Wait for AI-generated questions to load (real API call)
-    await page.waitForTimeout(15000)
-
+    // All questions are now visible in show-all mode
     const pageText = (await page.textContent('body') ?? '').toLowerCase()
     const hasRelevantQuestion = expectations.questionKeywords.some((kw) =>
       pageText.includes(kw.toLowerCase())
@@ -119,23 +123,17 @@ for (const [categoryId, expectations] of Object.entries(CATEGORY_EXPECTATIONS)) 
   })
 
   test(`${categoryLabel}: estimate draft has category-relevant sections`, async ({ page }) => {
-    test.setTimeout(120000)
+    test.setTimeout(180000)
     await loginAsTestUser(page)
-    await selectCategoryAndProceed(page, categoryId)
+    await selectCategoryAndAdvanceToQA(page, categoryId)
 
-    // Wait for questions to load, then advance past Q&A step
-    await page.waitForTimeout(10000)
-    // Prefer the primary "Generate" action; fall back to "Continue" or "Skip" if not yet available
-    const generateBtn = page.getByRole('button', { name: /generate/i })
-    const hasGenerate = await generateBtn.count() > 0
-    if (hasGenerate) {
-      await generateBtn.first().click()
-    } else {
-      await page.getByRole('button', { name: /continue|skip/i }).first().click()
-    }
+    // In show-all mode the Generate button is always rendered (just disabled while loading)
+    const generateBtn = page.getByRole('button', { name: 'Generate Estimate →' })
+    await expect(generateBtn).not.toBeDisabled({ timeout: 5000 })
+    await generateBtn.click()
 
     // Wait for generating screen to complete and navigate to estimate editor
-    await page.waitForURL(/\/estimates\/[a-f0-9-]{36}/, { timeout: 60000 })
+    await page.waitForURL(/\/estimates\/[a-f0-9-]{36}/, { timeout: 90000 })
     await page.waitForTimeout(2000)
 
     const pageText = (await page.textContent('body') ?? '').toLowerCase()
