@@ -1,4 +1,6 @@
 import { getServiceSupabase, createAuthSupabase } from '../lib/supabase.js'
+import { CATEGORY_PROMPT_MAP } from '../../src/constants/categoryConfig.js'
+import type { CategoryId } from '../../src/constants/categoryConfig.js'
 
 interface AIDraftRequestBody {
   estimate_id: string
@@ -6,6 +8,7 @@ interface AIDraftRequestBody {
   zip_code?: string
   qa_pairs?: { question: string; answer: string | null }[]
   attachment_ids?: string[]
+  category?: CategoryId
 }
 
 type AIDraftLineItem = {
@@ -281,9 +284,12 @@ async function buildImageBlocks(
   return blocks
 }
 
-function buildPrompt(description: string): string {
+function buildPrompt(description: string, categoryContext?: string): string {
+  const categorySection = categoryContext
+    ? `\nContractor category guidance:\n${categoryContext}\n`
+    : ''
   return `Generate a contractor estimate draft for the job description below.
-
+${categorySection}
 Requirements:
 - Use the create_estimate_draft tool.
 - The tool input must include a non-empty sections array.
@@ -532,7 +538,7 @@ export default async function handler(
       return jsonResponse(res, 400, { error: 'Invalid JSON body' })
     }
 
-  const { estimate_id: estimateId, description, zip_code, qa_pairs, attachment_ids } = body
+  const { estimate_id: estimateId, description, zip_code, qa_pairs, attachment_ids, category } = body
   if (!estimateId || typeof estimateId !== 'string') {
     return jsonResponse(res, 400, { error: 'estimate_id is required' })
   }
@@ -606,7 +612,8 @@ export default async function handler(
   }
 
   const enrichedContext = buildEnrichedContext(description.trim(), zip_code, qa_pairs)
-  const prompt = buildPrompt(enrichedContext)
+  const categoryConfig = category ? CATEGORY_PROMPT_MAP[category] : null
+  const prompt = buildPrompt(enrichedContext, categoryConfig?.draftPromptContext)
   const imageBlocks = await buildImageBlocks(attachment_ids ?? [], serviceSupabase)
   const promptStart = Date.now()
   let inputTokens = 0
