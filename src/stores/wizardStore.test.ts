@@ -7,14 +7,29 @@ describe('wizardStore', () => {
     act(() => useWizardStore.getState().reset())
   })
 
-  it('starts at step 1 with all fields empty', () => {
+  it('starts at step 0 with category null and all fields empty', () => {
     const s = useWizardStore.getState()
-    expect(s.step).toBe(1)
+    expect(s.step).toBe(0)
+    expect(s.category).toBeNull()
     expect(s.clientId).toBeNull()
     expect(s.zipCode).toBe('')
     expect(s.photoFiles).toHaveLength(0)
     expect(s.description).toBe('')
     expect(s.qaPairs).toHaveLength(0)
+  })
+
+  it('setCategory stores selected category', () => {
+    act(() => useWizardStore.getState().setCategory('specialized_trades'))
+    expect(useWizardStore.getState().category).toBe('specialized_trades')
+  })
+
+  it('reset clears category back to null', () => {
+    act(() => {
+      useWizardStore.getState().setCategory('consulting')
+      useWizardStore.getState().reset()
+    })
+    expect(useWizardStore.getState().category).toBeNull()
+    expect(useWizardStore.getState().step).toBe(0)
   })
 
   it('setStep advances step', () => {

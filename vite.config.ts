@@ -6,5 +6,5 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   envPrefix: ['NEXT_PUBLIC_', 'VITE_'],
   server: { port: 5173 },
-  test: { environment: 'jsdom', globals: true, setupFiles: ['src/test/setup.ts'] },
+  test: { environment: 'jsdom', globals: true, setupFiles: ['src/test/setup.ts'], exclude: ['tests/**', 'node_modules/**'] },
 })
