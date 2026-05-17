@@ -1,10 +1,13 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { createAuthSupabase } from '../lib/supabase.js'
+import { CATEGORY_PROMPT_MAP } from '../../src/constants/categoryConfig.js'
+import type { CategoryId } from '../../src/constants/categoryConfig.js'
 
 interface WizardQuestionsRequest {
   description: string
   photo_count: number
   zip_code?: string
+  category?: CategoryId
 }
 
 interface JsonResponseWriter {
@@ -34,7 +37,7 @@ export default async function handler(req: RawRequest, res: JsonResponseWriter) 
   if (!user) return jsonResponse(res, 401, { error: 'Authentication required' })
 
   const body = req.body as WizardQuestionsRequest
-  const { description, photo_count, zip_code } = body
+  const { description, photo_count, zip_code, category } = body
 
   if (typeof description !== 'string' || !description.trim()) {
     return jsonResponse(res, 400, { error: 'description is required' })
@@ -45,7 +48,12 @@ export default async function handler(req: RawRequest, res: JsonResponseWriter) 
     ? ` The contractor has provided ${photo_count} photo(s) of the job site.`
     : ''
 
-  const prompt = `You are an experienced general contractor reviewing a new job inquiry. Based on the job description below, generate 3 to 5 focused follow-up questions that will help you scope the work and price it accurately. Questions should be short, practical, and directly relevant to the work described.
+  const categoryConfig = category ? CATEGORY_PROMPT_MAP[category] : null
+  const categoryContext = categoryConfig
+    ? `\n\nContractor category: ${categoryConfig.label}. ${categoryConfig.questionsPromptContext}`
+    : ''
+
+  const prompt = `You are an experienced contractor reviewing a new job inquiry. Based on the job description below, generate 3 to 5 focused follow-up questions that will help you scope the work and price it accurately. Questions should be short, practical, and directly relevant to the work described.${categoryContext}
 
 Job description: "${description}"${locationContext}${photoContext}
 
