@@ -1,5 +1,3 @@
-// src/constants/categoryConfig.ts
-
 export type CategoryId =
   | 'creative_services'
   | 'information_technology'
@@ -20,8 +18,8 @@ export interface CategoryPromptConfig {
   draftPromptContext: string
 }
 
-export const CATEGORY_PROMPT_CONFIGS: CategoryPromptConfig[] = [
-  {
+export const CATEGORY_PROMPT_MAP: Record<CategoryId, CategoryPromptConfig> = {
+  creative_services: {
     id: 'creative_services',
     label: 'Creative Services',
     subtitle: 'Designers, writers, videographers',
@@ -30,7 +28,7 @@ export const CATEGORY_PROMPT_CONFIGS: CategoryPromptConfig[] = [
     draftPromptContext:
       'Use sections like Creative Brief & Strategy, Design or Production, Revisions & Feedback, and Licensing & Usage Rights. Line items use units like "hr", "project", "round", "asset". No material markup. Professional service rates typically $50–$200/hr.',
   },
-  {
+  information_technology: {
     id: 'information_technology',
     label: 'Information Technology',
     subtitle: 'Developers, cybersecurity, UX/UI',
@@ -39,7 +37,7 @@ export const CATEGORY_PROMPT_CONFIGS: CategoryPromptConfig[] = [
     draftPromptContext:
       'Use sections like Discovery & Architecture, Development, Testing & QA, and Deployment & Support. Line items use units like "hr", "sprint", "day", "license". No material markup. Rates typically $75–$250/hr.',
   },
-  {
+  business_finance: {
     id: 'business_finance',
     label: 'Business & Finance',
     subtitle: 'Accountants, bookkeepers, advisors',
@@ -48,7 +46,7 @@ export const CATEGORY_PROMPT_CONFIGS: CategoryPromptConfig[] = [
     draftPromptContext:
       'Use sections like Assessment & Setup, Monthly Bookkeeping, Filings & Compliance, and Advisory Services. Line items use units like "hr", "month", "return", "account". No material markup. Rates typically $50–$350/hr depending on specialization.',
   },
-  {
+  consulting: {
     id: 'consulting',
     label: 'Consulting',
     subtitle: 'Management, marketing, HR consultants',
@@ -57,7 +55,7 @@ export const CATEGORY_PROMPT_CONFIGS: CategoryPromptConfig[] = [
     draftPromptContext:
       'Use sections like Discovery & Assessment, Strategy & Planning, Implementation Support, and Final Report & Recommendations. Line items use units like "hr", "day", "project", "deliverable". No material markup. Rates typically $75–$300/hr.',
   },
-  {
+  specialized_trades: {
     id: 'specialized_trades',
     label: 'Specialized Trades',
     subtitle: 'Plumbers, electricians, HVAC, masons',
@@ -66,7 +64,7 @@ export const CATEGORY_PROMPT_CONFIGS: CategoryPromptConfig[] = [
     draftPromptContext:
       'Use sections like Labor, Materials, Equipment & Tool Rental, Permits & Inspections, and Cleanup & Disposal. Line items use units like "hr", "each", "linear ft", "sq ft", "day". Apply material markup of 15–30%. Labor rates typically $60–$150/hr.',
   },
-  {
+  general_contracting: {
     id: 'general_contracting',
     label: 'General Contracting',
     subtitle: 'Residential/commercial project managers',
@@ -75,7 +73,7 @@ export const CATEGORY_PROMPT_CONFIGS: CategoryPromptConfig[] = [
     draftPromptContext:
       'Use sections like Site Preparation, Framing & Structure, Mechanical/Electrical/Plumbing, Finishes, and Project Management & Overhead. Line items use units like "sq ft", "hr", "day", "allowance". Apply material markup of 10–20%. General contractor overhead typically 15–25% of project cost.',
   },
-  {
+  education_training: {
     id: 'education_training',
     label: 'Education & Training',
     subtitle: 'Tutors, coaches, corporate trainers',
@@ -84,7 +82,7 @@ export const CATEGORY_PROMPT_CONFIGS: CategoryPromptConfig[] = [
     draftPromptContext:
       'Use sections like Curriculum Development, Instruction & Sessions, Materials & Resources, and Assessment & Follow-up. Line items use units like "hr", "session", "participant", "day". No material markup. Rates typically $40–$200/hr or $150–$2,000/day for corporate engagements.',
   },
-  {
+  logistics_delivery: {
     id: 'logistics_delivery',
     label: 'Logistics & Delivery',
     subtitle: 'Couriers, freight, rideshare operators',
@@ -93,7 +91,7 @@ export const CATEGORY_PROMPT_CONFIGS: CategoryPromptConfig[] = [
     draftPromptContext:
       'Use sections like Base Delivery Fee, Distance & Fuel Surcharge, Special Handling, and Insurance & Liability. Line items use units like "mile", "item", "pallet", "hr", "trip". No material markup. Base rates typically $25–$200 per trip plus per-mile charges.',
   },
-  {
+  real_estate: {
     id: 'real_estate',
     label: 'Real Estate',
     subtitle: 'Independent agents, property managers',
@@ -102,7 +100,7 @@ export const CATEGORY_PROMPT_CONFIGS: CategoryPromptConfig[] = [
     draftPromptContext:
       'Use sections like Listing & Marketing, Showings & Negotiations, Transaction Coordination, and Property Management Services if applicable. Line items use units like "%", "month", "property", "hr". Commission-based pricing typically 2.5–6% of sale price; property management typically $100–$300/month per unit.',
   },
-  {
+  wellness_personal_care: {
     id: 'wellness_personal_care',
     label: 'Wellness & Personal Care',
     subtitle: 'Massage therapists, stylists, estheticians',
@@ -111,10 +109,6 @@ export const CATEGORY_PROMPT_CONFIGS: CategoryPromptConfig[] = [
     draftPromptContext:
       'Use sections like Service Fee, Products & Supplies, Travel & Mobile Fee if applicable, and Package or Membership Discount. Line items use units like "session", "hr", "treatment", "visit". Apply product markup of 20–40%. Service rates typically $60–$200/hr depending on specialty.',
   },
-]
+}
 
-export const CATEGORY_PROMPT_MAP: Record<CategoryId, CategoryPromptConfig> =
-  Object.fromEntries(CATEGORY_PROMPT_CONFIGS.map((c) => [c.id, c])) as Record<
-    CategoryId,
-    CategoryPromptConfig
-  >
+export const CATEGORY_PROMPT_CONFIGS: CategoryPromptConfig[] = Object.values(CATEGORY_PROMPT_MAP)
