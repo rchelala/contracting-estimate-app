@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useWizardStore } from '../stores/wizardStore'
 import { supabase } from '../lib/supabase'
+import { WizardStep0Category } from '../components/wizard/WizardStep0Category'
 import { WizardStep1Client } from '../components/wizard/WizardStep1Client'
 import { WizardStep2Location } from '../components/wizard/WizardStep2Location'
 import { WizardStep3Capture } from '../components/wizard/WizardStep3Capture'
@@ -28,7 +29,7 @@ export default function EstimateWizardPage() {
     })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!organizationId && step !== 1) {
+  if (!organizationId && step !== 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-slate-400 text-sm">Loading…</div>
@@ -36,6 +37,7 @@ export default function EstimateWizardPage() {
     )
   }
 
+  if (step === 0) return <WizardStep0Category />
   if (step === 1) return <WizardStep1Client />
   if (step === 2) return <WizardStep2Location />
   if (step === 3) return <WizardStep3Capture />

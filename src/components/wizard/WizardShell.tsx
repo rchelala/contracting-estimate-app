@@ -18,7 +18,7 @@ interface WizardShellProps {
 
 export function WizardShell({
   step,
-  totalSteps = 5,
+  totalSteps = 6,
   title,
   subtitle,
   onBack,
