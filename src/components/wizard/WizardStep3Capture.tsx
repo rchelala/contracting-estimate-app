@@ -32,7 +32,7 @@ export function WizardStep3Capture() {
     <WizardShell
       step={3}
       title="Capture the job"
-      subtitle="Step 3 of 5 · Photos help AI understand the scope"
+      subtitle="Step 3 of 6 · Photos help AI understand the scope"
       onBack={() => setStep(2)}
       onSkip={() => setStep(4)}
     >

@@ -16,7 +16,7 @@ export function WizardStep4Describe() {
     <WizardShell
       step={4}
       title="Describe the job"
-      subtitle="Step 4 of 5 · Speak or type what needs to be done"
+      subtitle="Step 4 of 6 · Speak or type what needs to be done"
       onBack={() => setStep(3)}
       onSkip={() => setStep(5)}
     >

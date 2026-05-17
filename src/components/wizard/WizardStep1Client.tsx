@@ -99,7 +99,8 @@ export function WizardStep1Client() {
     <WizardShell
       step={1}
       title="Who's the client?"
-      subtitle="Step 1 of 5"
+      subtitle="Step 1 of 6"
+      onBack={() => setStep(0)}
       onSkip={() => setStep(2)}
     >
       <div className="relative mb-3">

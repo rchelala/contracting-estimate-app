@@ -10,7 +10,7 @@ export function WizardStep2Location() {
     <WizardShell
       step={2}
       title="Job location?"
-      subtitle="Step 2 of 5"
+      subtitle="Step 2 of 6"
       onBack={() => setStep(1)}
       onSkip={() => setStep(3)}
     >
