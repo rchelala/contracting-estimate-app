@@ -125,7 +125,14 @@ for (const [categoryId, expectations] of Object.entries(CATEGORY_EXPECTATIONS)) 
 
     // Wait for questions to load, then advance past Q&A step
     await page.waitForTimeout(10000)
-    await page.getByRole('button', { name: /generate|continue|skip/i }).last().click()
+    // Prefer the primary "Generate" action; fall back to "Continue" or "Skip" if not yet available
+    const generateBtn = page.getByRole('button', { name: /generate/i })
+    const hasGenerate = await generateBtn.count() > 0
+    if (hasGenerate) {
+      await generateBtn.first().click()
+    } else {
+      await page.getByRole('button', { name: /continue|skip/i }).first().click()
+    }
 
     // Wait for generating screen to complete and navigate to estimate editor
     await page.waitForURL(/\/estimates\/[a-f0-9-]{36}/, { timeout: 60000 })
