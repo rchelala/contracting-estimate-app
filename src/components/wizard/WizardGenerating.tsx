@@ -15,7 +15,7 @@ type ProgressStep = {
 export function WizardGenerating() {
   const {
     organizationId, clientId, newClientName, newClientEmail, newClientPhone,
-    zipCode, photoFiles, videoFile, description, qaPairs, reset,
+    zipCode, photoFiles, videoFile, description, qaPairs, category, reset,
   } = useWizardStore()
 
   const navigate = useNavigate()
@@ -92,6 +92,7 @@ export function WizardGenerating() {
         ...(zipCode ? { zipCode } : {}),
         qaPairs,
         attachmentIds,
+        ...(category ? { category } : {}),
       })
 
       updateStep(2, 'done')

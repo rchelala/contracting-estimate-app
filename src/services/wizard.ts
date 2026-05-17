@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase'
+import type { CategoryId } from '../constants/categoryConfig'
 
 export interface WizardDraftInput {
   estimateId: string
@@ -6,12 +7,14 @@ export interface WizardDraftInput {
   zipCode?: string
   qaPairs: { question: string; answer: string | null }[]
   attachmentIds: string[]
+  category?: CategoryId
 }
 
 export async function fetchWizardQuestions(input: {
   description: string
   photoCount: number
   zipCode?: string
+  category?: CategoryId
 }): Promise<string[]> {
   const { data: { session } } = await supabase.auth.getSession()
   const token = session?.access_token
@@ -26,6 +29,7 @@ export async function fetchWizardQuestions(input: {
       description: input.description,
       photo_count: input.photoCount,
       zip_code: input.zipCode || undefined,
+      category: input.category || undefined,
     }),
   })
 
@@ -50,6 +54,7 @@ export async function draftEstimateFromWizard(input: WizardDraftInput): Promise<
       zip_code: input.zipCode || undefined,
       qa_pairs: input.qaPairs,
       attachment_ids: input.attachmentIds,
+      category: input.category || undefined,
     }),
   })
 
