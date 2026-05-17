@@ -1,6 +1,7 @@
 import { create } from 'zustand'
+import type { CategoryId } from '../constants/categoryConfig'
 
-export type WizardStep = 1 | 2 | 3 | 4 | 5 | 'generating'
+export type WizardStep = 0 | 1 | 2 | 3 | 4 | 5 | 'generating'
 
 export interface QAPair {
   question: string
@@ -10,6 +11,8 @@ export interface QAPair {
 export interface WizardState {
   step: WizardStep
   organizationId: string | null
+  // Step 0
+  category: CategoryId | null
   // Step 1
   clientId: string | null
   newClientName: string
@@ -29,6 +32,7 @@ export interface WizardState {
 
   setStep: (step: WizardStep) => void
   setOrganizationId: (id: string) => void
+  setCategory: (category: CategoryId) => void
   setClientId: (id: string | null) => void
   setNewClientFields: (fields: { name?: string; email?: string; phone?: string }) => void
   setZipCode: (zip: string) => void
@@ -44,8 +48,9 @@ export interface WizardState {
 }
 
 const initialState = {
-  step: 1 as WizardStep,
+  step: 0 as WizardStep,
   organizationId: null,
+  category: null,
   clientId: null,
   newClientName: '',
   newClientEmail: '',
@@ -64,6 +69,7 @@ export const useWizardStore = create<WizardState>((set) => ({
 
   setStep: (step) => set({ step }),
   setOrganizationId: (id) => set({ organizationId: id }),
+  setCategory: (category) => set({ category }),
   setClientId: (id) => set({ clientId: id }),
   setNewClientFields: (fields) => set((s) => ({
     newClientName: fields.name ?? s.newClientName,
