@@ -11,7 +11,7 @@ export function WizardStep5QA() {
   const {
     description, zipCode, photoFiles, qaPairs, setQAPairs, answerQuestion,
     currentQuestionIndex, setCurrentQuestionIndex, showAllMode, setShowAllMode, setStep,
-    reset,
+    reset, category,
   } = useWizardStore()
 
   const navigate = useNavigate()
@@ -34,6 +34,7 @@ export function WizardStep5QA() {
       description,
       photoCount: photoFiles.length,
       ...(zipCode ? { zipCode } : {}),
+      ...(category ? { category } : {}),
     })
       .then((questions) => {
         setQAPairs(questions.map((q) => ({ question: q, answer: null })))
