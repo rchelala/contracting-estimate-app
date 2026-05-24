@@ -28,7 +28,11 @@ export default function SettingsPage() {
     if (isIOS) {
       setShowIOSModal(true)
     } else {
-      await trigger()
+      try {
+        await trigger()
+      } catch {
+        // prompt dismissed or unavailable — no action needed
+      }
     }
   }
 
