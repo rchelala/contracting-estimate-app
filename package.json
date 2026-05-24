@@ -18,7 +18,8 @@
     "test:save-session": "node scripts/save-playwright-session.mjs",
     "test:watch": "vitest",
     "type-check": "tsc --noEmit",
-    "type-check-all": "tsc -b --noEmit"
+    "type-check-all": "tsc -b --noEmit",
+    "icons": "node scripts/generate-pwa-icons.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.95.0",
