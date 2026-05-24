@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { EnvelopeSimple, Buildings, UserCircle, House, PlayCircle } from '@phosphor-icons/react'
+import { EnvelopeSimple, Buildings, UserCircle, House, PlayCircle, DeviceMobile } from '@phosphor-icons/react'
 import TopNav from '../components/layout/TopNav'
 import { useAuth } from '../hooks/useAuth'
 import { getMyMembership, type MyMembership } from '../services/organizations'
 import { supabase } from '../lib/supabase'
+import { useInstallPrompt } from '../contexts/InstallPromptContext'
+import IOSInstallModal from '../components/ui/IOSInstallModal'
 
 function getInitials(email: string | undefined): string {
   if (!email) return '?'
@@ -19,6 +21,16 @@ export default function SettingsPage() {
   const navigate = useNavigate()
   const [membership, setMembership] = useState<MyMembership | null>(null)
   const [orgName, setOrgName] = useState<string | null>(null)
+  const { isIOS, isStandalone, trigger } = useInstallPrompt()
+  const [showIOSModal, setShowIOSModal] = useState(false)
+
+  async function handleInstall() {
+    if (isIOS) {
+      setShowIOSModal(true)
+    } else {
+      await trigger()
+    }
+  }
 
   useEffect(() => {
     if (!session) return
@@ -101,6 +113,34 @@ export default function SettingsPage() {
               {orgName ?? <span className="text-stone-400">Loading…</span>}
             </p>
           </div>
+        </section>
+
+        {/* App */}
+        <section className="mt-6">
+          <h2 className="text-xs font-semibold text-stone-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
+            <DeviceMobile size={14} />
+            App
+          </h2>
+          <div className="bg-white border border-stone-200 rounded-xl p-5 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold text-stone-900">Install App</p>
+              <p className="text-xs text-stone-500 mt-0.5">
+                {isStandalone
+                  ? 'Already installed on this device'
+                  : 'Add EstimateFlow to your home screen'}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleInstall}
+              disabled={isStandalone}
+              className="flex items-center gap-1.5 text-sm font-semibold text-orange-600 hover:text-orange-700 disabled:text-stone-300 disabled:cursor-not-allowed transition-colors"
+            >
+              <DeviceMobile size={16} />
+              {isStandalone ? 'Installed' : 'Install'}
+            </button>
+          </div>
+          <IOSInstallModal open={showIOSModal} onClose={() => setShowIOSModal(false)} />
         </section>
       </main>
     </div>
