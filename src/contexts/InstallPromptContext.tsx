@@ -54,11 +54,14 @@ export function InstallPromptProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('beforeinstallprompt', handler)
   }, [])
 
+  // canInstall is device capability only — consumers check isDismissed separately.
+  // The Settings page intentionally ignores isDismissed so users can always reinstall.
   const canInstall = !isStandalone && (deferredPrompt !== null || isIOS)
 
   const trigger = useCallback(async () => {
     if (!deferredPrompt) return
     await deferredPrompt.prompt()
+    await deferredPrompt.userChoice
     setDeferredPrompt(null)
   }, [deferredPrompt])
 

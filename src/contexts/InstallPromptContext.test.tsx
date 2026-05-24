@@ -6,7 +6,7 @@ beforeEach(() => {
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
     value: (query: string) => ({
-      matches: query.includes('standalone') ? false : false,
+      matches: false,
       media: query,
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
@@ -59,4 +59,44 @@ test('isDismissed reads from localStorage on mount', () => {
 test('isStandalone is false in jsdom', () => {
   render(<InstallPromptProvider><TestConsumer /></InstallPromptProvider>)
   expect(screen.getByTestId('isStandalone').textContent).toBe('false')
+})
+
+function TriggerConsumer() {
+  const { trigger, canInstall } = useInstallPrompt()
+  return (
+    <div>
+      <span data-testid="canInstall">{String(canInstall)}</span>
+      <button onClick={() => trigger()}>trigger</button>
+    </div>
+  )
+}
+
+test('trigger no-ops when deferredPrompt is null', async () => {
+  render(<InstallPromptProvider><TriggerConsumer /></InstallPromptProvider>)
+  // Should not throw when no prompt available
+  fireEvent.click(screen.getByText('trigger'))
+  expect(screen.getByTestId('canInstall').textContent).toBe('false')
+})
+
+test('trigger calls prompt() and clears deferredPrompt', async () => {
+  const mockPrompt = vi.fn().mockResolvedValue(undefined)
+  const mockUserChoice = Promise.resolve({ outcome: 'accepted' as const })
+  render(<InstallPromptProvider><TriggerConsumer /></InstallPromptProvider>)
+
+  act(() => {
+    const event = new Event('beforeinstallprompt')
+    ;(event as any).prompt = mockPrompt
+    ;(event as any).userChoice = mockUserChoice
+    window.dispatchEvent(event)
+  })
+
+  expect(screen.getByTestId('canInstall').textContent).toBe('true')
+
+  await act(async () => {
+    fireEvent.click(screen.getByText('trigger'))
+    await new Promise(resolve => setTimeout(resolve, 0))
+  })
+
+  expect(mockPrompt).toHaveBeenCalledOnce()
+  expect(screen.getByTestId('canInstall').textContent).toBe('false')
 })
