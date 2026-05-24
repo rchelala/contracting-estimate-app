@@ -22,6 +22,10 @@ const base = {
   dismiss: vi.fn(),
 }
 
+beforeEach(() => {
+  vi.clearAllMocks()
+})
+
 test('renders nothing when canInstall is false', () => {
   renderWithContext({ ...base, canInstall: false }, <InstallPrompt />)
   expect(screen.queryByRole('button', { name: /install app/i })).not.toBeInTheDocument()
@@ -45,10 +49,11 @@ test('calls trigger on Android install click', () => {
 })
 
 test('opens iOS modal instead of calling trigger on iOS', () => {
-  renderWithContext({ ...base, isIOS: true }, <InstallPrompt />)
+  const trigger = vi.fn().mockResolvedValue(undefined)
+  renderWithContext({ ...base, isIOS: true, trigger }, <InstallPrompt />)
   fireEvent.click(screen.getByRole('button', { name: /install app/i }))
   expect(screen.getByRole('dialog')).toBeInTheDocument()
-  expect(base.trigger).not.toHaveBeenCalled()
+  expect(trigger).not.toHaveBeenCalled()
 })
 
 test('dismiss button calls dismiss', () => {
