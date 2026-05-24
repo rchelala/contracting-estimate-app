@@ -2,7 +2,7 @@
 
 ## What This Is
 
-EstimateFlow is a web-first AI-assisted estimating SaaS for contractors. Contractors create professional estimates in under 3 minutes, get AI-drafted line items they review and approve, and send estimates to clients. MVP ships estimates-only — the contractor-facing product loop — with client approval and payment collection coming in v1.1.
+EstimateFlow is a web-first AI-assisted estimating SaaS for contractors. Contractors create professional estimates in under 3 minutes using a guided wizard or the direct editor, get AI-drafted sections and line items with low/typical/high price ranges they review and approve, and send estimates to clients via email with a public approval link. v1.0 ships the complete contractor-facing product loop.
 
 ## Core Value
 
@@ -10,59 +10,79 @@ A contractor can create a complete, accurate estimate in under 3 minutes using A
 
 ## Requirements
 
-### Validated
+### Validated (v1.0)
 
-- ✓ Multi-tenant database schema (organizations, org_members, clients, estimates, sections, line_items, attachments, invoices, payments, ai_usage_events, automations, tax_rates, stripe_events) — Stage 1
-- ✓ RLS on every table — default deny, org-scoped via is_org_member/is_org_owner helpers — Stage 1
-- ✓ Public token policy on estimates for unauthenticated client-facing views (future) — Stage 1
-- ✓ Business logic: recalculate_estimate_totals(), next_estimate_number(), next_invoice_number() — Stage 1
+**Data Layer (Stage 1):**
+- ✓ Multi-tenant database schema (13 tables, enums, RLS helpers) — Stage 1
+- ✓ RLS on every table — default deny, org-scoped via is_org_member/is_org_owner — Stage 1
+- ✓ Business logic: recalculate_estimate_totals(), next_estimate_number() — Stage 1
 - ✓ TypeScript types generated from live schema (database.types.ts) — Stage 1
-- ✓ Money utility (integer-cent arithmetic, markup, formatting) with 14 passing unit tests — Stage 1
-- ✓ Per-org sequential estimate numbering (estimate_sequences table with race-safe next_estimate_number()) — Stage 1
+- ✓ Money utility (integer-cent arithmetic, markup, formatting), 14 unit tests — Stage 1
+- ✓ Per-org sequential estimate numbering (race-safe via estimate_sequences table) — Stage 1
 
-### Validated
+**Phase 1 — Auth, Org & Dashboard:**
+- ✓ User can sign up, log in, reset password, stay logged in across sessions — Phase 1
+- ✓ First sign-up creates organization and owner membership — Phase 1
+- ✓ Authenticated dashboard shows org context and estimate list — Phase 1
+- ✓ Dashboard: estimate number, client name, status, total, last updated, bulk delete — Phase 1
 
-- ✓ User can sign up, log in, and stay logged in across sessions — Validated in Phase 1: auth-org-dashboard
-- ✓ First sign-up creates an organization and owner membership (multi-tenant entry point) — Validated in Phase 1: auth-org-dashboard
-- ✓ Authenticated dashboard shows org context and estimate list (empty state on first load) — Validated in Phase 1: auth-org-dashboard
+**Phase 2 — Estimate Editor:**
+- ✓ Create estimate with client, title, sections, line items (qty, unit price, markup, optional) — Phase 2
+- ✓ Estimate totals computed with integer cents; server recomputes on every save — Phase 2
+- ✓ Drag-and-drop reorder for sections and line items (@dnd-kit) — Phase 2
+- ✓ 800ms autosave with IndexedDB offline queue — Phase 2
+- ✓ Photo attachments per section or line item (Supabase Storage) — Phase 2
+- ✓ Duplicate estimate, draft → sent status lifecycle — Phase 2
 
-### Active
-- [ ] User can create a new estimate with a client, title, and at least one line item
-- [ ] Estimates have labeled sections; line items belong to sections
-- [ ] Line items have qty, unit price (cents), markup %, optional flag; totals computed correctly
-- [ ] Estimate total recomputed server-side on every save (recalculate_estimate_totals)
-- [ ] User can reorder sections and line items via drag-and-drop
-- [ ] Estimate autosaves with 800ms debounce; offline queue persists to IndexedDB
-- [ ] AI drafts an estimate from a brief job description (section + line item suggestions)
-- [ ] AI-generated content is tagged source='ai' and shown with "Suggested by AI — review before sending" badge
-- [ ] User can attach photos to sections/line items (uploaded to Supabase Storage)
-- [ ] Estimate status lifecycle: draft → sent (manual send for MVP, no client portal)
-- [ ] Free tier: 5 estimates/month; Pro tier: unlimited estimates/month
-- [ ] AI included in both tiers (no separate AI billing for MVP)
-- [ ] All AI calls logged to ai_usage_events (tokens, cost_cents, model, latency_ms)
+**Phase 3 — AI Drafting & Billing:**
+- ✓ AI drafting: job description → sections + line items with low/typical/high ranges — Phase 3
+- ✓ AI content tagged source='ai', shown with "Suggested by AI" badge — Phase 3
+- ✓ Every AI call logged to ai_usage_events (tokens, cost, model, latency) — Phase 3
+- ✓ Free tier: 5 estimates/month; Pro: unlimited; usage counter on dashboard — Phase 3
 
-### Out of Scope (MVP)
+**Beyond Original Phase Scope (superpowers plans):**
+- ✓ 5-step estimate creation wizard with voice input, photos, AI Q&A — post-Phase 3
+- ✓ Category selector (10 contractor types) with category-aware AI prompts — post-Phase 3
+- ✓ Send estimate email (Resend) + client approval flow (public token view) — post-Phase 3
+- ✓ Client deletion from dropdown — post-Phase 3
+- ✓ UI modernization: Phosphor icons, warm stone/orange palette — post-Phase 3
+- ✓ Mobile-responsive layouts throughout — post-Phase 3
 
-- Client-facing estimate view and approval portal — v1.1
-- Online payment collection via Stripe Connect — v1.1
-- Invoice generation from approved estimate — v1.1
-- Automated reminders and follow-up automations — v1.1
-- Tax calculation (Stripe Tax / TaxJar / ZIP-based) — v1.1 when payments added
-- Client approval signature (typed name or canvas) — v1.1 with client portal
-- Estimate options (Good/Better/Best tiers) — post-MVP
-- Mobile native app — web-first only
+### Active (v1.1 goals)
+
+- [ ] Client can view estimate via unique token link (no login) — currently ships as basic HTML, needs full portal UI
+- [ ] Client can approve or decline an estimate from the portal
+- [ ] Client signs approval with typed name
+- [ ] Contractor receives notification when client approves/declines
+- [ ] Contractor connects Stripe account (Stripe Connect Express onboarding)
+- [ ] Client can pay approved estimate via Stripe from the client portal
+- [ ] Invoice auto-generated from approved estimate
+- [ ] Automated follow-up reminder schedule (Resend, configurable intervals)
+- [ ] Tax calculated on payment via Stripe Tax
+
+### Out of Scope
+
+- Mobile native app — web-first only; responsive web serves mobile ✓ solved
+- Canvas signature pad — typed name sufficient for MVP
+- Estimate options (Good/Better/Best tiers) — schema placeholder exists
+- Multi-user org invitations — org_members table ready; invite flow deferred
+- Estimate PDF export — browser print works for MVP
+- OAuth login (Google, GitHub) — email/password sufficient
+- Photo AI analysis (/api/ai/analyze-photo) — v2 requirement
+- Usage analytics dashboard for contractors — post-MVP
 
 ## Context
 
-**Codebase state:** Phase 1 complete. Stage 1 data layer merged (12 migrations including create_organization RPC), all Phase 1 frontend dependencies installed (Tailwind v4, React Router v6, Zustand, idb-keyval), full auth lifecycle built (useAuth, RequireAuth, AuthPage, AuthCallback), onboarding form with org creation wired to RPC, dashboard with TopNav + estimates table (6 columns, sorting, empty/loading/error states). Schema live on Supabase project sfkdtwirkdpagxcflrwr.
+**Codebase state (v1.0):** Full-stack TypeScript app deployed on Vercel. React 18 + Vite frontend, Supabase Postgres backend (sfkdtwirkdpagxcflrwr), Vercel serverless API layer. ~8,000+ LOC across src/, api/, supabase/. All 13 migrations live. Playwright E2E tests for the wizard flow.
 
-**Tech stack locked:** React 18 + TypeScript strict + Vite + Tailwind CSS + React Router v6 + Supabase + Anthropic API via Vercel serverless + Stripe Connect + Resend + idb-keyval + @dnd-kit/core. See CLAUDE.md for full stack rationale.
+**Tech stack (locked):** React 18 + TypeScript strict + Vite + Tailwind CSS v4 + React Router v6 + Supabase + Anthropic API via Vercel serverless + Resend + @dnd-kit/core + idb-keyval + @phosphor-icons/react.
 
-**Editor is the hardest part:** Zustand store (editorStore) holds a normalized estimate tree. Autosave is debounced 800ms into a sync queue persisted to IndexedDB. @dnd-kit handles reorder; only changed position rows are patched. Server recomputes totals on every save.
+**Pending for v1.1:** Stripe Connect (contractor payouts), Stripe Checkout (client payments), Stripe Tax, full client portal redesign, invoice generation.
 
-**AI boundaries:** All AI calls go to /api/ai/* Vercel serverless — never client-side. AI returns ranges (low/typical/high), never single numbers. Source tagging is required.
-
-**Money rules:** All amounts stored and computed as integer cents. Money utility enforces this. Display formatting at the edge only.
+**Known tech debt:**
+- estimateCount limit was raised to 1000 during development (35cc910) — reset to 5 for production
+- Phase 3 was executed outside GSD workflow (superpowers plan); artifacts were backfilled at v1.0 close
+- Client approval view (`/e/:token`) exists but is basic; needs production-grade portal UI for v1.1
 
 ## Constraints
 
@@ -77,15 +97,18 @@ A contractor can create a complete, accurate estimate in under 3 minutes using A
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Supabase over Firebase | Relational data, multi-tenant RLS, SQL for reporting, joinable line items | — Pending |
-| Integer cents for money | Float arithmetic produces pennies-off errors in financial apps | — Pending |
-| Server-authoritative totals | Client draft totals are advisory; server enforces correctness for invoicing/payment | — Pending |
-| AI included in all tiers | Simplifies billing, positions AI as core feature not upsell | — Pending |
-| Free: 5 estimates/mo, Pro: unlimited | Low friction to start, clear upgrade signal when contractors get busy | — Pending |
-| Per-org sequential numbering | EST-001 looks professional; race condition handled by estimate_sequences table + next_estimate_number() | — Pending |
-| MVP = estimates-only (no client portal/payment) | Validate core loop first; client portal + payment add significant complexity | — Pending |
-| Tax deferred to v1.1 | No payment collection in MVP; Stripe Tax is natural fit when Stripe Connect added | — Pending |
-| Typed-name signature for v1.1 | Simplest legally-sufficient signature for contractor/client context | — Pending |
+| Supabase over Firebase | Relational data, multi-tenant RLS, SQL for reporting | ✓ Good — RLS proved invaluable for multi-tenant isolation |
+| Integer cents for money | Float arithmetic produces pennies-off errors in financial apps | ✓ Good — money utility used consistently throughout |
+| Server-authoritative totals | Client draft totals advisory; server enforces correctness | ✓ Good — recalculate_estimate_totals() called on every save |
+| AI included in all tiers | Simplifies billing, positions AI as core feature not upsell | ✓ Good — no billing complexity added |
+| Free: 5/mo, Pro: unlimited | Low friction to start, clear upgrade signal when contractors get busy | ✓ Good — mailto upgrade CTA sufficient for MVP |
+| Per-org sequential numbering | EST-001 looks professional; race-safe via estimate_sequences | ✓ Good — confirmed working in production |
+| MVP = estimates-only (no client portal/payment) | Validate core loop first; portal + payment add significant complexity | ✓ Good — shipped fast, client portal moved to v1.1 |
+| Tax deferred to v1.1 | No payment collection in MVP; Stripe Tax natural fit with Stripe Connect | ✓ Good — confirmed appropriate deferral |
+| Estimate creation wizard | Alternative to direct editor; guided flow with AI Q&A and voice input | ✓ Good — wizard is primary AI entry point post-ship |
+| 10 contractor categories with category-aware prompts | Trade-specific prompts produce dramatically better AI estimates | ✓ Good — validated with Playwright tests per category |
+| Resend for email | Simple API, good deliverability, easy template management | ✓ Good — branded confirmation email works |
+| Public token for client view | Cryptographic token allows unauthenticated client access | ✓ Good — secure, simple URL pattern `/e/:token` |
 
 ## Evolution
 
@@ -105,4 +128,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-03 after Phase 1 completion*
+*Last updated: 2026-05-24 after v1.0 MVP milestone*

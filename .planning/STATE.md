@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.0
-milestone_name: milestone
-status: completed
-stopped_at: Phase 3 completed - MVP ready for testing
-last_updated: "2026-05-04T13:00:00.000Z"
-last_activity: 2026-05-04 -- Phase 3 execution complete
+milestone_name: MVP
+status: archived
+stopped_at: v1.0 MVP milestone archived — ready for v1.1 planning
+last_updated: "2026-05-24T00:00:00.000Z"
+last_activity: 2026-05-24
 progress:
   total_phases: 3
   completed_phases: 3
@@ -18,17 +18,16 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-05-02)
+See: .planning/PROJECT.md (updated 2026-05-24 after v1.0 milestone)
 
 **Core value:** A contractor can create a complete, accurate estimate in under 3 minutes using AI assistance — and send it the same session.
-**Current focus:** MVP complete - ready for testing and deployment
+**Current focus:** v1.0 MVP archived — start v1.1 with `/gsd-new-milestone`
 
 ## Current Position
 
-Phase: 3
-Plan: All 1 plan complete
-Status: Phase complete — MVP ready for testing
-Last activity: 2026-05-04 -- Phase 3 execution complete
+Milestone: v1.0 MVP — SHIPPED 2026-05-24
+Phases: 3/3 complete | Plans: 10/10 complete
+Status: Archived — ready for v1.1 planning
 
 Progress: [██████████] 100%
 
@@ -65,35 +64,18 @@ Progress: [██████████] 100%
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table.
-Recent decisions affecting current work:
-
-- Pre-Phase 1: Stage 1 data layer (schema, RLS, types, money utils) is complete on branch `stage1-schema` — merge to main before starting Phase 1 plans.
-- Pre-Phase 1: MVP = estimates-only; client portal, payments, invoices, and automations are v2 scope.
-- Pre-Phase 1: AI pricing decision resolved — AI included in both free and pro tiers, no separate billing for MVP.
-- Pre-Phase 1: Free tier = 5 estimates/month, Pro = unlimited.
-- [Phase 2]: estimate-attachments bucket is private; signed URLs via getAttachmentUrl for client access
-- [Phase 2]: duplicateEstimate fetches source via RLS before copying — cross-org spoofing (T-02-05) blocked
-- [Phase 02]: removeSectionLocal/removeLineItemLocal use Object.fromEntries filter pattern (not destructure-rest) to satisfy no-unused-vars ESLint rule
-- [Phase 02]: useEstimate initializes loading:true and only clears it in async .finally() — no sync setState in effect body per react-hooks/set-state-in-effect rule
-- [Phase 02]: EditorHeaderBar accepts onSendClick?: () => void — Plan 05 wires the send modal
-- [Phase 02]: DragHandle uses double-cast (as unknown as Record<string, unknown>) for DraggableAttributes — DraggableAttributes lacks index signature
-- [Phase 02]: LineItemRow captures item snapshot after null guard to prevent TypeScript narrowing loss in closures
-- [Phase 02]: MarkAsSentModal body uses HTML entity for apostrophe to satisfy ESLint react/no-unescaped-entities
-- [Phase 02]: DashboardPage RowActionsMenu is a named inner component to allow useRef/useEffect for outside-click dismissal
+All v1.0 decisions logged in PROJECT.md Key Decisions table (updated 2026-05-24).
 
 ### Pending Todos
 
-None yet.
+- Reset estimateCount limit from 1000 back to 5 for production (raised during dev, commit 35cc910)
 
 ### Blockers/Concerns
 
-- Stage 1 branch (`stage1-schema`) must be merged to main before Phase 1 execution begins.
-- Missing frontend dependencies need installing before any UI work: Tailwind CSS, React Router v6, Zustand, @dnd-kit/core, idb-keyval.
-- `.env.example` and Vercel configuration are not yet created; needed before first deployment.
+None — v1.0 shipped. Start v1.1 with `/gsd-new-milestone`.
 
 ## Session Continuity
 
-Last session: 2026-05-04T13:00:00.000Z
-Stopped at: MVP complete - ready for testing
-Resume file: None - MVP ready for deployment
+Last session: 2026-05-24
+Stopped at: v1.0 MVP archived
+Resume: `/gsd-new-milestone` to begin v1.1 planning
