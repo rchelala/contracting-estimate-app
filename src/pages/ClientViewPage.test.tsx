@@ -51,7 +51,7 @@ const mockEstimate = {
       name: 'Demo & Prep',
       position: 10,
       estimate_line_items: [
-        { id: 'li-1', description: 'Demolition labor', quantity: 1, unit_price_cents: 64000, markup_pct: 0, position: 10 },
+        { id: 'li-1', description: 'Demolition labor', quantity: 1, unit_price_cents: 64000, markup_pct: 0, position: 10, billable: true },
       ],
     },
   ],

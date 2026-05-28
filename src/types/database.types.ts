@@ -261,6 +261,7 @@ export type Database = {
           ai_price_high_cents: number | null
           ai_price_low_cents: number | null
           ai_price_typical_cents: number | null
+          billable: boolean
           created_at: string
           description: string
           estimate_id: string
@@ -281,6 +282,7 @@ export type Database = {
           ai_price_high_cents?: number | null
           ai_price_low_cents?: number | null
           ai_price_typical_cents?: number | null
+          billable?: boolean
           created_at?: string
           description: string
           estimate_id: string
@@ -301,6 +303,7 @@ export type Database = {
           ai_price_high_cents?: number | null
           ai_price_low_cents?: number | null
           ai_price_typical_cents?: number | null
+          billable?: boolean
           created_at?: string
           description?: string
           estimate_id?: string
