@@ -61,6 +61,7 @@ export default function EstimateSection({ sectionId, readOnly }: Props) {
       unit_price_cents: 0,
       markup_pct: 0,
       optional: false,
+      billable: true,
       taxable: true,
       source: 'contractor',
       ai_price_low_cents: null,

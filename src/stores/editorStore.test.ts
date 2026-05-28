@@ -115,7 +115,7 @@ describe('editorStore', () => {
 
   it('computes subtotal excluding non-billable items', () => {
     const full = makeFull()
-    full.lineItems[0] = { ...full.lineItems[0], optional: false, billable: false }
+    full.lineItems[0] = { ...full.lineItems[0]!, optional: false, billable: false }
     useEditorStore.getState().hydrate(full)
     // li1 non-billable → excluded. li2 optional → excluded. subtotal = 0.
     expect(computeSubtotalCents(useEditorStore.getState())).toBe(0)
