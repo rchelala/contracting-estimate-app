@@ -1,7 +1,7 @@
 import { useState, type MouseEvent } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { CaretDown } from '@phosphor-icons/react'
+import { CaretDown, CurrencyDollar } from '@phosphor-icons/react'
 import type { EditorLineItem } from '../../types/editor'
 import { useEditorStore } from '../../stores/editorStore'
 import { useSyncQueue } from '../../stores/syncQueueStore'
@@ -67,6 +67,10 @@ export default function LineItemRow({ lineItemId, index, readOnly }: Props) {
     patch('optional', !snapshot.optional)
   }
 
+  function toggleBillable() {
+    patch('billable', !snapshot.billable)
+  }
+
   function handleDelete() {
     removeLocal(lineItemId)
     enqueue({ kind: 'lineItem.delete', id: lineItemId })
@@ -91,8 +95,11 @@ export default function LineItemRow({ lineItemId, index, readOnly }: Props) {
           <div className="flex-1 min-w-0 font-medium text-stone-900 truncate text-sm">
             {snapshot.description || 'New item'}
           </div>
-          <div className="text-sm font-semibold text-stone-900 shrink-0 tabular-nums">
-            {formatCents(computed)}
+          <div className="text-sm font-semibold shrink-0 tabular-nums">
+            {snapshot.billable
+              ? <span className="text-stone-900">{formatCents(computed)}</span>
+              : <span className="text-stone-400 italic">Not charged</span>
+            }
           </div>
           <CaretDown
             size={16}
@@ -207,6 +214,29 @@ export default function LineItemRow({ lineItemId, index, readOnly }: Props) {
               </div>
             )}
 
+            {/* Billable toggle */}
+            {!readOnly && (
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-medium text-stone-500 uppercase tracking-wide">
+                  Charge client
+                </label>
+                <button
+                  type="button"
+                  aria-label={snapshot.billable ? 'Mark as internal cost' : 'Mark as billable'}
+                  onClick={toggleBillable}
+                  className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                    snapshot.billable ? 'bg-blue-600' : 'bg-stone-300'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${
+                      snapshot.billable ? 'translate-x-5' : 'translate-x-0.5'
+                    }`}
+                  />
+                </button>
+              </div>
+            )}
+
             {/* Photo + actions */}
             <div className="flex items-center gap-2 pt-1">
               <AttachPhotoButton lineItemId={lineItemId} disabled={readOnly} />
@@ -223,7 +253,7 @@ export default function LineItemRow({ lineItemId, index, readOnly }: Props) {
 
       {/* ── Desktop grid (≥ 640px) ── */}
       <div
-        className={`hidden sm:grid min-w-[70rem] grid-cols-[1.75rem_minmax(22rem,1fr)_7rem_5rem_6.5rem_5.5rem_7rem_7rem_2rem] items-start gap-3 px-3 py-3 group ${rowBg} hover:bg-slate-50`}
+        className={`hidden sm:grid min-w-[70rem] grid-cols-[1.75rem_minmax(22rem,1fr)_7rem_5rem_6.5rem_5.5rem_7rem_7rem_2rem_2rem] items-start gap-3 px-3 py-3 group ${snapshot.billable ? `${rowBg} hover:bg-slate-50` : 'bg-stone-50 opacity-50 border border-dashed border-stone-300'}`}
       >
         <DragHandle
           listeners={listeners as unknown as Record<string, unknown>}
@@ -291,10 +321,26 @@ export default function LineItemRow({ lineItemId, index, readOnly }: Props) {
             if (next !== Number(snapshot.markup_pct)) patch('markup_pct', next)
           }}
         />
-        <div className="text-right font-semibold text-slate-900 text-sm tabular-nums">
-          {formatCents(computed)}
+        <div className="text-right font-semibold text-sm tabular-nums">
+          {snapshot.billable
+            ? <span className="text-slate-900">{formatCents(computed)}</span>
+            : <span className="text-stone-400 italic">Not charged</span>
+          }
         </div>
         <AttachPhotoButton lineItemId={lineItemId} disabled={readOnly} />
+        <button
+          type="button"
+          aria-label={snapshot.billable ? 'Mark as internal cost' : 'Mark as billable'}
+          disabled={readOnly}
+          onClick={toggleBillable}
+          className={`min-h-11 w-8 flex items-center justify-center rounded disabled:opacity-50 disabled:cursor-not-allowed ${
+            snapshot.billable
+              ? 'text-stone-400 hover:text-stone-600'
+              : 'text-amber-600 bg-amber-50 border border-amber-300 hover:bg-amber-100'
+          }`}
+        >
+          <CurrencyDollar size={16} weight={snapshot.billable ? 'regular' : 'bold'} />
+        </button>
         <LineItemActions
           optional={snapshot.optional}
           onToggleOptional={toggleOptional}
