@@ -13,6 +13,7 @@ interface LineItem {
   unit_price_cents: number
   markup_pct: number
   position: number
+  billable: boolean
 }
 
 interface Section {
@@ -59,7 +60,7 @@ export default function ClientViewPage() {
         organizations ( name ),
         estimate_sections (
           id, name, position,
-          estimate_line_items ( id, description, quantity, unit_price_cents, markup_pct, position )
+          estimate_line_items ( id, description, quantity, unit_price_cents, markup_pct, position, billable )
         )
       `)
       .eq('public_token', token)
@@ -140,7 +141,9 @@ export default function ClientViewPage() {
         </div>
 
         {sections.map((section) => {
-          const items = [...section.estimate_line_items].sort((a, b) => a.position - b.position)
+          const items = [...section.estimate_line_items]
+            .filter((item) => item.billable)
+            .sort((a, b) => a.position - b.position)
           return (
             <div key={section.id} className="bg-white rounded-xl shadow-sm p-4">
               <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">

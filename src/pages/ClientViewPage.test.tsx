@@ -108,4 +108,28 @@ describe('ClientViewPage', () => {
       expect(screen.getByText(/not found/i)).toBeInTheDocument()
     })
   })
+
+  it('hides non-billable line items from the client', async () => {
+    const estimateWithMixed = {
+      ...mockEstimate,
+      estimate_sections: [
+        {
+          id: 'sec-1',
+          name: 'Demo & Prep',
+          position: 10,
+          estimate_line_items: [
+            { id: 'li-1', description: 'Demolition labor', quantity: 1, unit_price_cents: 64000, markup_pct: 0, position: 10, billable: true },
+            { id: 'li-2', description: 'My impact driver', quantity: 1, unit_price_cents: 24900, markup_pct: 0, position: 20, billable: false },
+          ],
+        },
+      ],
+    }
+    mockEstimateQuery(estimateWithMixed)
+    renderWithToken('abc123')
+
+    await waitFor(() => {
+      expect(screen.getByText('Demolition labor')).toBeInTheDocument()
+      expect(screen.queryByText('My impact driver')).not.toBeInTheDocument()
+    })
+  })
 })
