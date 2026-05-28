@@ -113,6 +113,14 @@ describe('editorStore', () => {
     expect(computeSubtotalCents(useEditorStore.getState())).toBe(3000)
   })
 
+  it('computes subtotal excluding non-billable items', () => {
+    const full = makeFull()
+    full.lineItems[0] = { ...full.lineItems[0], optional: false, billable: false }
+    useEditorStore.getState().hydrate(full)
+    // li1 non-billable → excluded. li2 optional → excluded. subtotal = 0.
+    expect(computeSubtotalCents(useEditorStore.getState())).toBe(0)
+  })
+
   it('removeSectionLocal also removes its line items', () => {
     useEditorStore.getState().hydrate(makeFull())
     useEditorStore.getState().removeSectionLocal('s1')

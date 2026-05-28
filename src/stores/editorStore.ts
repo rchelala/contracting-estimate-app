@@ -168,11 +168,11 @@ export const useEditorStore = create<EditorState>((set) => ({
   replaceEstimateTotals: (estimate) => set({ estimate }),
 }))
 
-/** Compute non-optional subtotal in integer cents. Advisory — server is authoritative. */
+/** Compute billable subtotal in integer cents. Advisory — server is authoritative. */
 export function computeSubtotalCents(state: EditorState): number {
   let sum = 0
   for (const li of Object.values(state.lineItemsById)) {
-    if (li.optional) continue
+    if (li.optional || !li.billable) continue
     sum += lineItemTotal(Number(li.quantity), li.unit_price_cents, Number(li.markup_pct))
   }
   return sum
