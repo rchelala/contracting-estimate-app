@@ -14,7 +14,7 @@ export async function createLineItem(input: {
 
 export async function updateLineItem(
   id: string,
-  patch: Partial<Pick<EditorLineItem, 'description' | 'quantity' | 'unit_price_cents' | 'markup_pct' | 'optional' | 'position' | 'section_id'>>
+  patch: Partial<Pick<EditorLineItem, 'billable' | 'description' | 'quantity' | 'unit_price_cents' | 'markup_pct' | 'optional' | 'position' | 'section_id'>>
 ): Promise<EditorLineItem> {
   const { data, error } = await supabase.from('estimate_line_items').update(patch).eq('id', id).select('*').single()
   if (error) throw error
