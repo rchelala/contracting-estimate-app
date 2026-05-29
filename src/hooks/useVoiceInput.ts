@@ -89,9 +89,12 @@ export function useVoiceInput({ onTranscript }: UseVoiceInputOptions): UseVoiceI
       ) {
         activeRef.current = false
         setIsListening(false)
+        const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent)
         setError(
           event.error === 'not-allowed' || event.error === 'service-not-allowed'
-            ? 'Microphone access denied. Check browser settings.'
+            ? isIOS
+              ? 'Microphone access denied. On iPhone: Settings → Apps → Safari → Microphone → Allow'
+              : 'Microphone access denied. Check browser permissions in Settings.'
             : 'No microphone found.'
         )
       }
