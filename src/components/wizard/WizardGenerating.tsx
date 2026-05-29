@@ -157,7 +157,7 @@ export function WizardGenerating() {
             <p className="font-semibold mb-1">Something went wrong</p>
             <p className="mb-3">{error}</p>
             <button
-              onClick={() => navigate('/estimates/wizard')}
+              onClick={() => { reset(); navigate('/estimates/wizard') }}
               className="text-sm text-red-600 underline"
             >
               Start over
