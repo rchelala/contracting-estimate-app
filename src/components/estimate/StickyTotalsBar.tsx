@@ -9,7 +9,7 @@ export default function StickyTotalsBar() {
   let subtotal = 0
   let taxableSubtotal = 0
   for (const item of Object.values(lineItemsById)) {
-    if (item.optional) continue
+    if (item.optional || !item.billable) continue
     const itemTotal = lineItemTotal(
       Number(item.quantity),
       item.unit_price_cents,
