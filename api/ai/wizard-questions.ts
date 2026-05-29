@@ -53,7 +53,7 @@ export default async function handler(req: RawRequest, res: JsonResponseWriter) 
     ? `\n\nContractor category: ${categoryConfig.label}. ${categoryConfig.questionsPromptContext}`
     : ''
 
-  const prompt = `You are an experienced contractor reviewing a new job inquiry. Based on the job description below, generate 3 to 5 focused follow-up questions that will help you scope the work and price it accurately. Questions should be short, practical, and directly relevant to the work described.${categoryContext}
+  const prompt = `You are an assistant helping a contractor scope a new job. Based on the job description below, generate 3 to 5 focused follow-up questions the contractor should ask their client to accurately scope the work and price it. Questions must be phrased in second person, directed at the contractor's client (e.g. "Will you be supplying the paint, or should we include materials?" not "Will I be supplying the paint?"). Keep questions short, practical, and directly relevant to the work described.${categoryContext}
 
 Job description: "${description}"${locationContext}${photoContext}
 
