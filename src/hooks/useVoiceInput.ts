@@ -122,7 +122,11 @@ export function useVoiceInput({ onTranscript }: UseVoiceInputOptions): UseVoiceI
     recognitionRef.current?.abort()
     recognitionRef.current = null
     setIsListening(false)
-    setInterimText('')
+    // abort() doesn't fire a final onresult, so commit any in-progress interim text now
+    setInterimText(current => {
+      if (current) onTranscriptRef.current(current)
+      return ''
+    })
   }, [])
 
   useEffect(() => {
