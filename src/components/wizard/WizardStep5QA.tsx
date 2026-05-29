@@ -48,8 +48,14 @@ export function WizardStep5QA() {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleSend() {
-    if (!inputText.trim()) return
-    answerQuestion(currentQuestionIndex, inputText.trim())
+    // If the mic is still running, stop it first and fold any interim transcript
+    // into inputText before sending — otherwise interim text is discarded.
+    if (isListening) {
+      stop()
+    }
+    const textToSend = (inputText + (interimText ? (inputText ? ' ' : '') + interimText : '')).trim()
+    if (!textToSend) return
+    answerQuestion(currentQuestionIndex, textToSend)
     setInputText('')
     setCurrentQuestionIndex(currentQuestionIndex + 1)
   }
@@ -182,7 +188,7 @@ export function WizardStep5QA() {
                   </button>
                   <button
                     onClick={handleSend}
-                    disabled={!inputText.trim()}
+                    disabled={!inputText.trim() && !interimText.trim()}
                     className="bg-blue-500 text-white rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-40"
                   >
                     Send
