@@ -74,8 +74,14 @@ All v1.0 decisions logged in PROJECT.md Key Decisions table (updated 2026-05-24)
 
 None — v1.0 shipped. Start v1.1 with `/gsd-new-milestone`.
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260529-5wm | Add iPhone Safari microphone permission tip | 2026-05-29 | 84ca5bd | [260529-5wm-add-iphone-safari-microphone-permission-](./quick/260529-5wm-add-iphone-safari-microphone-permission-/) |
+
 ## Session Continuity
 
-Last session: 2026-05-24
-Stopped at: v1.0 MVP archived
+Last session: 2026-05-29
+Stopped at: Quick task 260529-5wm complete — iOS mic permission tip added
 Resume: `/gsd-new-milestone` to begin v1.1 planning
