@@ -141,7 +141,7 @@ export default async function handler(
 </body></html>`
 
   await resend.emails.send({
-    from: process.env.EMAIL_FROM ?? 'estimates@estimateflow.app',
+    from: process.env.EMAIL_FROM ?? 'estimates@estimateflow.work',
     to,
     subject,
     html: emailHtml,

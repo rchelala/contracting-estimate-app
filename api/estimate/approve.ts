@@ -117,7 +117,7 @@ export default async function handler(
           : ''
 
         await resend.emails.send({
-          from: process.env.EMAIL_FROM ?? 'estimates@estimateflow.app',
+          from: process.env.EMAIL_FROM ?? 'estimates@estimateflow.work',
           to: contractorEmail,
           subject: `Estimate ${estimate.estimate_number} has been ${actionLabel}`,
           html: `<!DOCTYPE html>

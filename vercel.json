@@ -1,7 +1,11 @@
 {
   "buildCommand": "npm run build",
-  "devCommand": "vite --port 5174",
+  "devCommand": "vite",
   "framework": null,
+  "functions": {
+    "api/ai/draft-estimate.ts": { "maxDuration": 60 },
+    "api/ai/wizard-questions.ts": { "maxDuration": 60 }
+  },
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
