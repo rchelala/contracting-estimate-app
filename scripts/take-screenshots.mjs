@@ -321,6 +321,23 @@ await page.locator('text=Loading estimate...').waitFor({ state: 'detached', time
 await page.waitForTimeout(1000)
 await shot('editor-with-items.png')
 
+// 3b. Editor with non-billable item — toggle first line item to show the feature
+console.log('Capturing editor-non-billable.png...')
+const markInternalBtn = page.getByRole('button', { name: 'Mark as internal cost' }).first()
+await markInternalBtn.waitFor({ timeout: 5000 }).catch(() => {})
+if (await markInternalBtn.isVisible().catch(() => false)) {
+  await markInternalBtn.click()
+  await page.waitForTimeout(600)
+}
+await shot('editor-non-billable.png')
+
+// Toggle back so send-modal screenshot shows clean totals
+const markBillableBtn = page.getByRole('button', { name: 'Mark as billable' }).first()
+if (await markBillableBtn.isVisible().catch(() => false)) {
+  await markBillableBtn.click()
+  await page.waitForTimeout(400)
+}
+
 // 4. Send modal (open but don't submit)
 console.log('Capturing send-modal.png...')
 const sendBtn = page.getByRole('button', { name: /send/i }).first()
