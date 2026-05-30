@@ -103,16 +103,18 @@ export function WizardVideoRecorder({ onContinue, onCancel }: Props) {
     try {
       const frames = await extractVideoFrames(recordedBlob)
       frames.forEach((f) => addPhotoFile(f))
-      setVideoTranscript(transcript)
     } catch {
       // Frame extraction failure is non-blocking; transcript alone is still useful
     } finally {
       setIsExtracting(false)
     }
+    setVideoTranscript(transcript)
     onContinue()
   }
 
   async function handleReRecord() {
+    streamRef.current?.getTracks().forEach((t) => t.stop())
+    streamRef.current = null
     setRecordedBlob(null)
     setTranscript('')
     setPhase('idle')
