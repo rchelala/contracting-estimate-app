@@ -15,7 +15,7 @@ type ProgressStep = {
 export function WizardGenerating() {
   const {
     organizationId, clientId, newClientName, newClientEmail, newClientPhone,
-    zipCode, photoFiles, videoFile, description, qaPairs, category, reset,
+    zipCode, photoFiles, videoFile, description, qaPairs, category, videoTranscript, reset,
   } = useWizardStore()
 
   const navigate = useNavigate()
@@ -86,9 +86,13 @@ export function WizardGenerating() {
       updateStep(2, 'running')
       updateStep(3, 'running')
 
+      const enrichedDescription = videoTranscript
+        ? `[Video walkthrough transcript]: ${videoTranscript}${description ? `\n[Additional notes]: ${description}` : ''}`
+        : description
+
       await draftEstimateFromWizard({
         estimateId: estimate.id,
-        description,
+        description: enrichedDescription,
         ...(zipCode ? { zipCode } : {}),
         qaPairs,
         attachmentIds,
@@ -138,9 +142,10 @@ export function WizardGenerating() {
 
         <h1 className="text-xl font-bold text-stone-900 mb-2 tracking-tight">Drafting your estimate…</h1>
         <p className="text-stone-400 text-sm leading-relaxed mb-6">
-          {photoFiles.length > 0 && `Analyzing ${photoFiles.length} photo${photoFiles.length > 1 ? 's' : ''} + `}
-          your description
-          {zipCode && ` · Factoring in zip ${zipCode} rates`}
+          {videoTranscript
+            ? `Analyzing video walkthrough${photoFiles.length > 0 ? ` + ${photoFiles.length} photo${photoFiles.length > 1 ? 's' : ''}` : ''}…`
+            : `${photoFiles.length > 0 ? `Analyzing ${photoFiles.length} photo${photoFiles.length > 1 ? 's' : ''} + ` : ''}your description${zipCode ? ` · Factoring in zip ${zipCode} rates` : ''}`
+          }
         </p>
 
         <div className="text-left space-y-2.5">
