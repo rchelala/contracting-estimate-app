@@ -86,4 +86,21 @@ describe('wizardStore', () => {
     })
     expect(useWizardStore.getState().qaPairs[1]!.answer).toBe('Yes')
   })
+
+  it('videoTranscript starts as empty string', () => {
+    expect(useWizardStore.getState().videoTranscript).toBe('')
+  })
+
+  it('setVideoTranscript stores transcript', () => {
+    act(() => useWizardStore.getState().setVideoTranscript('the ceiling needs replacing'))
+    expect(useWizardStore.getState().videoTranscript).toBe('the ceiling needs replacing')
+  })
+
+  it('reset clears videoTranscript', () => {
+    act(() => {
+      useWizardStore.getState().setVideoTranscript('something')
+      useWizardStore.getState().reset()
+    })
+    expect(useWizardStore.getState().videoTranscript).toBe('')
+  })
 })

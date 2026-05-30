@@ -25,6 +25,7 @@ export interface WizardState {
   videoFile: File | null
   // Step 4
   description: string
+  videoTranscript: string
   // Step 5
   qaPairs: QAPair[]
   showAllMode: boolean
@@ -40,6 +41,7 @@ export interface WizardState {
   removePhotoFile: (index: number) => void
   setVideoFile: (file: File | null) => void
   setDescription: (desc: string) => void
+  setVideoTranscript: (transcript: string) => void
   setQAPairs: (pairs: QAPair[]) => void
   answerQuestion: (index: number, answer: string) => void
   setCurrentQuestionIndex: (i: number) => void
@@ -59,6 +61,7 @@ const initialState = {
   photoFiles: [] as File[],
   videoFile: null,
   description: '',
+  videoTranscript: '',
   qaPairs: [] as QAPair[],
   showAllMode: false,
   currentQuestionIndex: 0,
@@ -85,6 +88,7 @@ export const useWizardStore = create<WizardState>((set) => ({
   })),
   setVideoFile: (videoFile) => set({ videoFile }),
   setDescription: (description) => set({ description }),
+  setVideoTranscript: (videoTranscript) => set({ videoTranscript }),
   setQAPairs: (qaPairs) => set({ qaPairs, currentQuestionIndex: 0 }),
   answerQuestion: (index, answer) => set((s) => ({
     qaPairs: s.qaPairs.map((p, i) => i === index ? { ...p, answer } : p),
