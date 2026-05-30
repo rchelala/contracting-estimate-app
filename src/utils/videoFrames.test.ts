@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { extractVideoFrames } from './videoFrames'
 
 describe('extractVideoFrames', () => {
-  let createElementSpy: any
+  let createElementSpy: ReturnType<typeof vi.spyOn>
 
   beforeEach(() => {
     const originalCreateElement = document.createElement.bind(document)
@@ -13,7 +13,7 @@ describe('extractVideoFrames', () => {
         setTimeout(() => {
           const video = element as HTMLVideoElement
           if (video.onerror) {
-            video.onerror(new Event('error') as any)
+            video.onerror(new Event('error') as unknown as ErrorEvent)
           }
         }, 0)
       }

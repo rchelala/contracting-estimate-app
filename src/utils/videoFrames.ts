@@ -1,13 +1,15 @@
 function seekTo(video: HTMLVideoElement, time: number): Promise<void> {
   return new Promise((resolve) => {
+    let timeoutId: ReturnType<typeof setTimeout>
     const handler = () => {
+      clearTimeout(timeoutId)
       video.removeEventListener('seeked', handler)
       resolve()
     }
     video.addEventListener('seeked', handler)
     video.currentTime = time
     // Safety: resolve after 5s if seeked event never fires (jsdom, seek-to-same-position)
-    setTimeout(() => {
+    timeoutId = setTimeout(() => {
       video.removeEventListener('seeked', handler)
       resolve()
     }, 5000)
