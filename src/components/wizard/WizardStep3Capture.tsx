@@ -1,13 +1,15 @@
-import { useRef, useMemo, useEffect } from 'react'
-import { Camera, Images, FilmSlate, X, Plus } from '@phosphor-icons/react'
+import { useRef, useMemo, useEffect, useState } from 'react'
+import { Camera, Images, FilmSlate, X, Plus, VideoCamera } from '@phosphor-icons/react'
 import { useWizardStore } from '../../stores/wizardStore'
 import { WizardShell } from './WizardShell'
+import { WizardVideoRecorder } from './WizardVideoRecorder'
 
 const ACCEPTED_IMAGES = 'image/jpeg,image/png,image/webp,image/gif'
 const ACCEPTED_VIDEO = 'video/mp4,video/quicktime,video/webm'
 
 export function WizardStep3Capture() {
   const { photoFiles, videoFile, addPhotoFile, removePhotoFile, setVideoFile, setStep } = useWizardStore()
+  const [showRecorder, setShowRecorder] = useState(false)
   const photoInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
   const videoInputRef = useRef<HTMLInputElement>(null)
@@ -27,6 +29,22 @@ export function WizardStep3Capture() {
       thumbnails.forEach((url) => URL.revokeObjectURL(url))
     }
   }, [thumbnails])
+
+  if (showRecorder) {
+    return (
+      <WizardShell
+        step={3}
+        title="Record a walkthrough"
+        subtitle="Step 3 of 6 · Narrate what needs to be done"
+        onBack={() => setShowRecorder(false)}
+      >
+        <WizardVideoRecorder
+          onContinue={() => setStep(4)}
+          onCancel={() => setShowRecorder(false)}
+        />
+      </WizardShell>
+    )
+  }
 
   return (
     <WizardShell
@@ -71,7 +89,7 @@ export function WizardStep3Capture() {
         )}
       </div>
 
-      <div className="grid grid-cols-3 gap-2 mb-5">
+      <div className="grid grid-cols-2 gap-2 mb-3">
         <button
           onClick={() => cameraInputRef.current?.click()}
           className="flex items-center justify-center gap-1.5 border border-stone-200 rounded-lg py-2 text-sm font-medium text-stone-600 hover:bg-stone-50"
@@ -84,12 +102,21 @@ export function WizardStep3Capture() {
         >
           <Images size={15} weight="fill" /> Library
         </button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2 mb-5">
         <button
           onClick={() => videoInputRef.current?.click()}
           disabled={!!videoFile}
           className="flex items-center justify-center gap-1.5 border border-stone-200 rounded-lg py-2 text-sm font-medium text-stone-600 hover:bg-stone-50 disabled:opacity-40"
         >
-          <FilmSlate size={15} weight="fill" /> Video
+          <FilmSlate size={15} weight="fill" /> Upload video
+        </button>
+        <button
+          onClick={() => setShowRecorder(true)}
+          className="flex items-center justify-center gap-1.5 border border-orange-200 bg-orange-50 rounded-lg py-2 text-sm font-medium text-orange-600 hover:bg-orange-100"
+        >
+          <VideoCamera size={15} weight="fill" /> Record walkthrough
         </button>
       </div>
 
