@@ -2,11 +2,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { extractVideoFrames } from './videoFrames'
 
 describe('extractVideoFrames', () => {
-  let createElementSpy: ReturnType<typeof vi.spyOn>
-
   beforeEach(() => {
     const originalCreateElement = document.createElement.bind(document)
-    createElementSpy = vi.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
+    vi.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
       const element = originalCreateElement(tagName)
       if (tagName === 'video') {
         // Trigger onerror asynchronously
