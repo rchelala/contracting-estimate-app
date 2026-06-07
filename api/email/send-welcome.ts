@@ -1,4 +1,5 @@
 import { Resend } from 'resend'
+import { createAuthSupabase } from '../lib/supabase.js'
 
 const BRAND_ORANGE = '#ea580c'
 
@@ -21,6 +22,23 @@ const steps = [
 
 const stepBadge = (n: number) =>
   `<span style="display:inline-block;width:20px;height:20px;background:${BRAND_ORANGE};color:white;border-radius:50%;font-size:11px;font-weight:700;text-align:center;line-height:20px;vertical-align:top;">${n}</span>`
+
+interface JsonResponseWriter {
+  statusCode: number
+  setHeader(name: string, value: string): void
+  end(body: string): void
+}
+
+type AsyncBodyStream = {
+  body?: unknown
+  [Symbol.asyncIterator]?: () => AsyncIterator<Uint8Array | string>
+}
+
+function json(res: JsonResponseWriter, status: number, body: unknown) {
+  res.statusCode = status
+  res.setHeader('Content-Type', 'application/json')
+  res.end(JSON.stringify(body))
+}
 
 /** Returns the full HTML string for the welcome email sent on account creation. */
 export function buildWelcomeEmailHtml(): string {
@@ -89,4 +107,27 @@ export function buildWelcomeEmailHtml(): string {
   </table>
 </body>
 </html>`
+}
+
+export default async function handler(
+  req: AsyncBodyStream & { method?: string; headers?: Record<string, string | string[] | undefined> },
+  res: JsonResponseWriter
+) {
+  if (req.method !== 'POST') return json(res, 405, { error: 'Method Not Allowed' })
+
+  const authorization = (req.headers?.authorization ?? '') as string
+  if (!authorization) return json(res, 401, { error: 'Unauthorized' })
+
+  const authClient = createAuthSupabase(authorization)
+  const { data: { user }, error: authError } = await authClient.auth.getUser()
+  if (authError || !user?.email) return json(res, 401, { error: 'Unauthorized' })
+
+  await getResend().emails.send({
+    from: process.env.EMAIL_FROM ?? 'welcome@estimateflow.work',
+    to: user.email,
+    subject: 'Welcome to EstimateFlow',
+    html: buildWelcomeEmailHtml(),
+  })
+
+  return json(res, 200, { ok: true })
 }
