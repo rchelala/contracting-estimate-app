@@ -30,10 +30,14 @@ export function buildWelcomeEmailHtml(): string {
   const stepsHtml = steps
     .map(
       (text, i) =>
-        `<li style="display:flex;align-items:flex-start;gap:10px;margin-bottom:${i < steps.length - 1 ? '10px' : '0'};">
-        ${stepBadge(i + 1)}
-        <span style="font-size:13px;color:#57534e;line-height:1.5;">${text}</span>
-      </li>`,
+        `<tr>
+        <td style="width:24px;padding-bottom:${i < steps.length - 1 ? '10px' : '0'};vertical-align:top;">
+          ${stepBadge(i + 1)}
+        </td>
+        <td style="padding-left:10px;padding-bottom:${i < steps.length - 1 ? '10px' : '0'};vertical-align:top;">
+          <span style="font-size:13px;color:#57534e;line-height:1.5;">${text}</span>
+        </td>
+      </tr>`,
     )
     .join('')
 
@@ -71,9 +75,9 @@ export function buildWelcomeEmailHtml(): string {
               <p style="margin:0 0 14px;font-size:13px;color:#57534e;line-height:1.5;">
                 On iPhone, open this app in Safari, then follow these steps:
               </p>
-              <ul style="list-style:none;padding:0;margin:0;">
+              <table cellpadding="0" cellspacing="0" style="width:100%;">
                 ${stepsHtml}
-              </ul>
+              </table>
             </div>
           </td>
         </tr>

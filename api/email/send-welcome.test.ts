@@ -13,7 +13,7 @@ describe('buildWelcomeEmailHtml', () => {
   it('contains each of the three iPhone steps', () => {
     const html = buildWelcomeEmailHtml()
     expect(html).toContain('Tap the Share button at the bottom of Safari')
-    expect(html).toContain('Add to Home Screen')
+    expect(html).toContain('Scroll down and tap "Add to Home Screen"')
     expect(html).toContain('Tap "Add" in the top right corner')
   })
 
