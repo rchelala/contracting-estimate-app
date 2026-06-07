@@ -1,5 +1,7 @@
 import { Resend } from 'resend'
 
+const BRAND_ORANGE = '#ea580c'
+
 // resend is instantiated lazily inside the handler so this module can be
 // imported in tests without requiring RESEND_API_KEY in the environment.
 let _resend: Resend | null = null
@@ -9,7 +11,7 @@ function getResend(): Resend {
 }
 
 // DeviceMobile icon — Phosphor regular weight, 256-unit viewBox
-const deviceMobileSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 256 256" style="vertical-align:middle;" aria-hidden="true"><path fill="#ea580c" d="M176,16H80A24,24,0,0,0,56,40V216a24,24,0,0,0,24,24h96a24,24,0,0,0,24-24V40A24,24,0,0,0,176,16Zm8,200a8,8,0,0,1-8,8H80a8,8,0,0,1-8-8V40a8,8,0,0,1,8-8h96a8,8,0,0,1,8,8ZM128,188a12,12,0,1,1-12-12A12,12,0,0,1,128,188Z"/></svg>`
+const deviceMobileSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 256 256" style="vertical-align:middle;" aria-hidden="true"><path fill="${BRAND_ORANGE}" d="M176,16H80A24,24,0,0,0,56,40V216a24,24,0,0,0,24,24h96a24,24,0,0,0,24-24V40A24,24,0,0,0,176,16Zm8,200a8,8,0,0,1-8,8H80a8,8,0,0,1-8-8V40a8,8,0,0,1,8-8h96a8,8,0,0,1,8,8ZM128,188a12,12,0,1,1-12-12A12,12,0,0,1,128,188Z"/></svg>`
 
 const steps = [
   'Tap the Share button at the bottom of Safari',
@@ -18,19 +20,20 @@ const steps = [
 ]
 
 const stepBadge = (n: number) =>
-  `<span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:#ea580c;color:white;border-radius:50%;font-size:11px;font-weight:700;flex-shrink:0;">${n}</span>`
+  `<span style="display:inline-block;width:20px;height:20px;background:${BRAND_ORANGE};color:white;border-radius:50%;font-size:11px;font-weight:700;text-align:center;line-height:20px;vertical-align:top;">${n}</span>`
 
-const stepsHtml = steps
-  .map(
-    (text, i) =>
-      `<li style="display:flex;align-items:flex-start;gap:10px;margin-bottom:${i < steps.length - 1 ? '10px' : '0'};">
+/** Returns the full HTML string for the welcome email sent on account creation. */
+export function buildWelcomeEmailHtml(): string {
+  const stepsHtml = steps
+    .map(
+      (text, i) =>
+        `<li style="display:flex;align-items:flex-start;gap:10px;margin-bottom:${i < steps.length - 1 ? '10px' : '0'};">
         ${stepBadge(i + 1)}
         <span style="font-size:13px;color:#57534e;line-height:1.5;">${text}</span>
       </li>`,
-  )
-  .join('')
+    )
+    .join('')
 
-export function buildWelcomeEmailHtml(): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -41,7 +44,7 @@ export function buildWelcomeEmailHtml(): string {
 
         <!-- Header -->
         <tr>
-          <td style="background:#ea580c;border-radius:12px 12px 0 0;padding:24px 40px;">
+          <td style="background:${BRAND_ORANGE};border-radius:12px 12px 0 0;padding:24px 40px;">
             <span style="color:white;font-size:18px;font-weight:800;letter-spacing:-0.5px;">EstimateFlow</span>
           </td>
         </tr>

@@ -12,9 +12,9 @@ describe('buildWelcomeEmailHtml', () => {
 
   it('contains each of the three iPhone steps', () => {
     const html = buildWelcomeEmailHtml()
-    expect(html).toContain('Share')
+    expect(html).toContain('Tap the Share button at the bottom of Safari')
     expect(html).toContain('Add to Home Screen')
-    expect(html).toContain('Add')
+    expect(html).toContain('Tap "Add" in the top right corner')
   })
 
   it('uses the EstimateFlow brand colour', () => {
@@ -22,6 +22,6 @@ describe('buildWelcomeEmailHtml', () => {
   })
 
   it('contains a dashboard nudge', () => {
-    expect(buildWelcomeEmailHtml()).toContain('dashboard')
+    expect(buildWelcomeEmailHtml()).toContain('Create your first estimate from the dashboard')
   })
 })
