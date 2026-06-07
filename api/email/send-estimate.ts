@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { getServiceSupabase, createAuthSupabase } from '../lib/supabase.js'
+import { json, JsonResponseWriter, AsyncBodyStream } from '../lib/http.js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -14,22 +15,6 @@ interface RequestBody {
   message: string
 }
 
-interface JsonResponseWriter {
-  statusCode: number
-  setHeader(name: string, value: string): void
-  end(body: string): void
-}
-
-type AsyncBodyStream = {
-  body?: unknown
-  [Symbol.asyncIterator]?: () => AsyncIterator<Uint8Array | string>
-}
-
-function json(res: JsonResponseWriter, status: number, body: unknown) {
-  res.statusCode = status
-  res.setHeader('Content-Type', 'application/json')
-  res.end(JSON.stringify(body))
-}
 
 async function getRawBody(req: AsyncBodyStream): Promise<string> {
   if (req.body) {

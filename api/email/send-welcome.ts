@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { createAuthSupabase } from '../lib/supabase.js'
+import { json, JsonResponseWriter, AsyncBodyStream } from '../lib/http.js'
 
 const BRAND_ORANGE = '#ea580c'
 
@@ -23,22 +24,6 @@ const steps = [
 const stepBadge = (n: number) =>
   `<span style="display:inline-block;width:20px;height:20px;background:${BRAND_ORANGE};color:white;border-radius:50%;font-size:11px;font-weight:700;text-align:center;line-height:20px;vertical-align:top;">${n}</span>`
 
-interface JsonResponseWriter {
-  statusCode: number
-  setHeader(name: string, value: string): void
-  end(body: string): void
-}
-
-type AsyncBodyStream = {
-  body?: unknown
-  [Symbol.asyncIterator]?: () => AsyncIterator<Uint8Array | string>
-}
-
-function json(res: JsonResponseWriter, status: number, body: unknown) {
-  res.statusCode = status
-  res.setHeader('Content-Type', 'application/json')
-  res.end(JSON.stringify(body))
-}
 
 /** Returns the full HTML string for the welcome email sent on account creation. */
 export function buildWelcomeEmailHtml(): string {
@@ -122,12 +107,17 @@ export default async function handler(
   const { data: { user }, error: authError } = await authClient.auth.getUser()
   if (authError || !user?.email) return json(res, 401, { error: 'Unauthorized' })
 
-  await getResend().emails.send({
-    from: process.env.EMAIL_FROM ?? 'welcome@estimateflow.work',
-    to: user.email,
-    subject: 'Welcome to EstimateFlow',
-    html: buildWelcomeEmailHtml(),
-  })
+  try {
+    await getResend().emails.send({
+      from: process.env.EMAIL_FROM ?? 'welcome@estimateflow.work',
+      to: user.email,
+      subject: 'Welcome to EstimateFlow',
+      html: buildWelcomeEmailHtml(),
+    })
+  } catch (err) {
+    console.error('Resend send failed:', err)
+    return json(res, 502, { error: 'Failed to send email' })
+  }
 
   return json(res, 200, { ok: true })
 }
