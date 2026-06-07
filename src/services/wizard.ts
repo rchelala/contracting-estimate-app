@@ -12,6 +12,7 @@ export interface WizardDraftInput {
 
 export async function fetchWizardQuestions(input: {
   description: string
+  videoTranscript?: string
   photoCount: number
   zipCode?: string
   category?: CategoryId
@@ -27,6 +28,7 @@ export async function fetchWizardQuestions(input: {
     },
     body: JSON.stringify({
       description: input.description,
+      video_transcript: input.videoTranscript || undefined,
       photo_count: input.photoCount,
       zip_code: input.zipCode || undefined,
       category: input.category || undefined,

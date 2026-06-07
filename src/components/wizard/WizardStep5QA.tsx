@@ -11,7 +11,7 @@ export function WizardStep5QA() {
   const {
     description, zipCode, photoFiles, qaPairs, setQAPairs, answerQuestion,
     currentQuestionIndex, setCurrentQuestionIndex, showAllMode, setShowAllMode, setStep,
-    reset, category,
+    reset, category, videoTranscript,
   } = useWizardStore()
 
   const navigate = useNavigate()
@@ -32,6 +32,7 @@ export function WizardStep5QA() {
   useEffect(() => {
     fetchWizardQuestions({
       description,
+      videoTranscript: videoTranscript || undefined,
       photoCount: photoFiles.length,
       ...(zipCode ? { zipCode } : {}),
       ...(category ? { category } : {}),
@@ -95,7 +96,7 @@ export function WizardStep5QA() {
           >
             <House size={16} weight="bold" />
           </button>
-          <button onClick={() => setStep(4)} className="text-slate-400 text-sm">← Back</button>
+          <button onClick={() => setStep(videoTranscript ? 3 : 4)} className="text-slate-400 text-sm">← Back</button>
         </div>
         <span className="font-semibold text-sm">New Estimate</span>
         <button

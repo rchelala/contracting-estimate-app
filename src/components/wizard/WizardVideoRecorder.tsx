@@ -73,12 +73,15 @@ export function WizardVideoRecorder({ onContinue, onCancel }: Props) {
   function startRecording() {
     if (!streamRef.current) return
     chunksRef.current = []
-    const recorder = new MediaRecorder(streamRef.current)
+    const mimeType = ['video/webm', 'video/mp4', ''].find(
+      (t) => !t || MediaRecorder.isTypeSupported(t),
+    ) ?? ''
+    const recorder = new MediaRecorder(streamRef.current, mimeType ? { mimeType } : undefined)
     recorder.ondataavailable = (e) => {
       if (e.data.size > 0) chunksRef.current.push(e.data)
     }
     recorder.onstop = () => {
-      const blob = new Blob(chunksRef.current, { type: 'video/webm' })
+      const blob = new Blob(chunksRef.current, { type: mimeType || 'video/webm' })
       setRecordedBlob(blob)
       setReviewUrl(URL.createObjectURL(blob))
       streamRef.current?.getTracks().forEach((t) => t.stop())

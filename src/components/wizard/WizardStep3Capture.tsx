@@ -39,7 +39,7 @@ export function WizardStep3Capture() {
         onBack={() => setShowRecorder(false)}
       >
         <WizardVideoRecorder
-          onContinue={() => setStep(4)}
+          onContinue={() => setStep(5)}
           onCancel={() => setShowRecorder(false)}
         />
       </WizardShell>

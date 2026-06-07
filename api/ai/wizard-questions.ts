@@ -5,6 +5,7 @@ import type { CategoryId } from '../../src/constants/categoryConfig.js'
 
 interface WizardQuestionsRequest {
   description: string
+  video_transcript?: string
   photo_count: number
   zip_code?: string
   category?: CategoryId
@@ -37,10 +38,10 @@ export default async function handler(req: RawRequest, res: JsonResponseWriter) 
   if (!user) return jsonResponse(res, 401, { error: 'Authentication required' })
 
   const body = req.body as WizardQuestionsRequest
-  const { description, photo_count, zip_code, category } = body
+  const { description, video_transcript, photo_count, zip_code, category } = body
 
-  if (typeof description !== 'string' || !description.trim()) {
-    return jsonResponse(res, 400, { error: 'description is required' })
+  if ((!description || !description.trim()) && (!video_transcript || !video_transcript.trim())) {
+    return jsonResponse(res, 400, { error: 'description or video_transcript is required' })
   }
 
   const locationContext = zip_code ? ` The job is in zip code ${zip_code}.` : ''
@@ -53,9 +54,15 @@ export default async function handler(req: RawRequest, res: JsonResponseWriter) 
     ? `\n\nContractor category: ${categoryConfig.label}. ${categoryConfig.questionsPromptContext}`
     : ''
 
-  const prompt = `You are an assistant helping a contractor scope a new job. Based on the job description below, generate 3 to 5 focused follow-up questions the contractor should ask their client to accurately scope the work and price it. Questions must be phrased in second person, directed at the contractor's client (e.g. "Will you be supplying the paint, or should we include materials?" not "Will I be supplying the paint?"). Keep questions short, practical, and directly relevant to the work described.${categoryContext}
+  const transcriptContext = video_transcript?.trim()
+    ? `\n\nVideo walkthrough transcript: "${video_transcript.trim()}"`
+    : ''
 
-Job description: "${description}"${locationContext}${photoContext}
+  const jobContext = description?.trim()
+    ? `\n\nJob description: "${description.trim()}"${locationContext}${photoContext}`
+    : `${locationContext}${photoContext}`
+
+  const prompt = `You are an assistant helping a contractor scope a new job. Based on the information below, generate 3 to 5 focused follow-up questions the contractor should ask their client to accurately scope the work and price it. Questions must be phrased in second person, directed at the contractor's client (e.g. "Will you be supplying the paint, or should we include materials?" not "Will I be supplying the paint?"). Keep questions short, practical, and directly relevant to the work described.${categoryContext}${transcriptContext}${jobContext}
 
 Return ONLY a JSON array of question strings, no explanation. Example:
 ["Question 1?", "Question 2?", "Question 3?"]`
