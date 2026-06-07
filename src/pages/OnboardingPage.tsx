@@ -25,6 +25,10 @@ export default function OnboardingPage() {
     setSubmitting(true)
     try {
       await createOrganization(trimmed)
+      fetch('/api/email/send-welcome', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      }).catch((err) => console.warn('[welcome-email] non-critical send failure', err))
       navigate('/dashboard', { replace: true })
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Couldn't create your workspace. Please try again."
