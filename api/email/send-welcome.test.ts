@@ -1,0 +1,27 @@
+import { describe, expect, it } from 'vitest'
+import { buildWelcomeEmailHtml } from './send-welcome'
+
+describe('buildWelcomeEmailHtml', () => {
+  it('contains the you-are-all-set heading', () => {
+    expect(buildWelcomeEmailHtml()).toContain("You're all set.")
+  })
+
+  it('contains the add-to-home-screen section title', () => {
+    expect(buildWelcomeEmailHtml()).toContain('Save to your home screen')
+  })
+
+  it('contains each of the three iPhone steps', () => {
+    const html = buildWelcomeEmailHtml()
+    expect(html).toContain('Share')
+    expect(html).toContain('Add to Home Screen')
+    expect(html).toContain('Add')
+  })
+
+  it('uses the EstimateFlow brand colour', () => {
+    expect(buildWelcomeEmailHtml()).toContain('#ea580c')
+  })
+
+  it('contains a dashboard nudge', () => {
+    expect(buildWelcomeEmailHtml()).toContain('dashboard')
+  })
+})
