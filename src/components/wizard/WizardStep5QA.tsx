@@ -32,7 +32,7 @@ export function WizardStep5QA() {
   useEffect(() => {
     fetchWizardQuestions({
       description,
-      videoTranscript: videoTranscript || undefined,
+      ...(videoTranscript ? { videoTranscript } : {}),
       photoCount: photoFiles.length,
       ...(zipCode ? { zipCode } : {}),
       ...(category ? { category } : {}),
