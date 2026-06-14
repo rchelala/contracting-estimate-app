@@ -1,6 +1,7 @@
 import { Resend } from 'resend'
 import { createAuthSupabase } from '../lib/supabase.js'
-import { json, JsonResponseWriter, AsyncBodyStream } from '../lib/http.js'
+import { json } from '../lib/http.js'
+import type { JsonResponseWriter, AsyncBodyStream } from '../lib/http.js'
 
 const BRAND_ORANGE = '#ea580c'
 

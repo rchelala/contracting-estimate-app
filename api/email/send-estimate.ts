@@ -1,6 +1,7 @@
 import { Resend } from 'resend'
 import { getServiceSupabase, createAuthSupabase } from '../lib/supabase.js'
-import { json, JsonResponseWriter, AsyncBodyStream } from '../lib/http.js'
+import { json } from '../lib/http.js'
+import type { JsonResponseWriter, AsyncBodyStream } from '../lib/http.js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
